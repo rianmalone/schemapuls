@@ -16,6 +16,26 @@ const Upload = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Check file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Bilden är för stor",
+        description: "Vänligen välj en bild mindre än 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Fel filtyp",
+        description: "Vänligen ladda upp en bild",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = (e) => {
       setPreviewOdd(e.target?.result as string);
@@ -62,11 +82,13 @@ const Upload = () => {
           }),
         });
 
-        if (!responseOdd.ok) {
-          throw new Error('Failed to analyze odd week schedule');
+        const resultOdd = await responseOdd.json();
+
+        if (!responseOdd.ok || resultOdd.error) {
+          throw new Error(resultOdd.message || 'Kunde inte analysera udda veckans schema');
         }
 
-        const { schedule: scheduleOdd } = await responseOdd.json();
+        const { schedule: scheduleOdd } = resultOdd;
 
         // Process even week
         const responseEven = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-schedule`, {
@@ -79,11 +101,13 @@ const Upload = () => {
           }),
         });
 
-        if (!responseEven.ok) {
-          throw new Error('Failed to analyze even week schedule');
+        const resultEven = await responseEven.json();
+
+        if (!responseEven.ok || resultEven.error) {
+          throw new Error(resultEven.message || 'Kunde inte analysera jämna veckans schema');
         }
 
-        const { schedule: scheduleEven } = await responseEven.json();
+        const { schedule: scheduleEven } = resultEven;
 
         const scheduleId = Date.now().toString();
         localStorage.setItem("scheduleOdd", JSON.stringify(scheduleOdd));
@@ -112,11 +136,13 @@ const Upload = () => {
           }),
         });
 
-        if (!response.ok) {
-          throw new Error('Failed to analyze schedule');
+        const result = await response.json();
+
+        if (!response.ok || result.error) {
+          throw new Error(result.message || 'Kunde inte analysera schemat');
         }
 
-        const { schedule } = await response.json();
+        const { schedule } = result;
 
         const scheduleId = Date.now().toString();
         localStorage.setItem("schedule", JSON.stringify(schedule));
@@ -158,9 +184,10 @@ const Upload = () => {
       navigate("/schedule");
     } catch (error) {
       console.error('Error analyzing schedule:', error);
+      const errorMessage = error instanceof Error ? error.message : "Kunde inte analysera schemat. Försök igen och se till att hela schemat syns tydligt i bilden.";
       toast({
-        title: "Fel",
-        description: "Kunde inte analysera schemat. Försök igen.",
+        title: "Något gick fel",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -279,13 +306,33 @@ const Upload = () => {
                       capture="environment"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
-                        if (file) {
-                          const reader = new FileReader();
-                          reader.onloadend = () => {
-                            setPreviewEven(reader.result as string);
-                          };
-                          reader.readAsDataURL(file);
+                        if (!file) return;
+
+                        // Check file size (max 5MB)
+                        if (file.size > 5 * 1024 * 1024) {
+                          toast({
+                            title: "Bilden är för stor",
+                            description: "Vänligen välj en bild mindre än 5MB",
+                            variant: "destructive",
+                          });
+                          return;
                         }
+
+                        // Check file type
+                        if (!file.type.startsWith('image/')) {
+                          toast({
+                            title: "Fel filtyp",
+                            description: "Vänligen ladda upp en bild",
+                            variant: "destructive",
+                          });
+                          return;
+                        }
+
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setPreviewEven(reader.result as string);
+                        };
+                        reader.readAsDataURL(file);
                       }}
                     />
                   </label>

@@ -38,7 +38,13 @@ serve(async (req) => {
             content: [
               {
                 type: 'text',
-                text: `Analyze this Swedish school schedule image carefully. Extract ALL classes for each weekday (Monday-Friday).
+                text: `FIRST, verify if this is a school schedule/timetable image. If it's NOT a schedule (e.g., random photo, document, etc.), return: {"error": "invalid_image", "message": "Detta verkar inte vara ett schema. Vänligen ladda upp en bild av ditt skolschema."}
+
+If it IS a schedule, analyze this Swedish school schedule image carefully. Extract ALL classes for each weekday (Monday-Friday).
+
+CRITICAL VALIDATION:
+- The image MUST show a weekly schedule with days and times
+- If you cannot clearly see class names, times, or days, return: {"error": "incomplete_schedule", "message": "Schemat är inte komplett eller tydligt. Se till att hela schemat syns i bilden med alla lektioner, tider och dagar."}
 
 CRITICAL INSTRUCTIONS FOR TIME PARSING:
 - In each class box, the time in the TOP LEFT corner is the START time
@@ -82,12 +88,27 @@ ONLY return the JSON, no other text.`
             ]
           }
         ],
+        max_tokens: 2000
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error('AI API error:', response.status, errorText);
+      
+      if (response.status === 429) {
+        return new Response(
+          JSON.stringify({ 
+            error: 'rate_limit',
+            message: 'För många försök. Vänta en stund och försök igen.' 
+          }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 429,
+          }
+        );
+      }
+      
       throw new Error(`AI API error: ${response.status}`);
     }
 
@@ -121,6 +142,17 @@ ONLY return the JSON, no other text.`
       }
     }
 
+    // Check if AI detected invalid image or incomplete schedule
+    if (schedule.error) {
+      return new Response(
+        JSON.stringify(schedule),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      );
+    }
+
     // Add IDs and ensure proper structure
     let idCounter = 1;
     const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
@@ -150,7 +182,11 @@ ONLY return the JSON, no other text.`
     console.error('Error in analyze-schedule:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ 
+        error: 'processing_error',
+        message: 'Kunde inte analysera schemat. Försök igen och se till att bilden är tydlig och visar hela schemat.',
+        details: errorMessage 
+      }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,

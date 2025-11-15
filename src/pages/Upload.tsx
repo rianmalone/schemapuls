@@ -44,8 +44,26 @@ const Upload = () => {
           canvas.height = height;
           ctx.drawImage(img, 0, 0, width, height);
 
-          // Convert to JPEG with 95% quality for screenshot clarity
-          const resizedDataUrl = canvas.toDataURL('image/jpeg', 0.95);
+          // Convert to JPEG with quality adjustment for size limits
+          let quality = 0.85; // Start with 85% for balance between quality and size
+          let resizedDataUrl = canvas.toDataURL('image/jpeg', quality);
+          
+          // Check size - Supabase edge functions have ~2MB limit
+          // Base64 is ~33% larger than binary, so keep under 1.5MB to be safe
+          const sizeInBytes = (resizedDataUrl.length * 3) / 4;
+          const sizeInMB = sizeInBytes / (1024 * 1024);
+          
+          console.log(`Image size: ${sizeInMB.toFixed(2)}MB at quality ${quality}`);
+          
+          // If too large, reduce quality
+          while (sizeInMB > 1.5 && quality > 0.4) {
+            quality -= 0.1;
+            resizedDataUrl = canvas.toDataURL('image/jpeg', quality);
+            const newSize = (resizedDataUrl.length * 3) / 4 / (1024 * 1024);
+            console.log(`Reduced quality to ${quality.toFixed(2)}, new size: ${newSize.toFixed(2)}MB`);
+            if (newSize <= 1.5) break;
+          }
+          
           resolve(resizedDataUrl);
         };
         img.onerror = () => reject(new Error('Failed to load image'));

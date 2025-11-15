@@ -22,67 +22,65 @@ const Upload = () => {
   };
 
   const handleProcess = async () => {
+    if (!preview) {
+      toast({
+        title: "Ingen bild",
+        description: "Ladda upp en bild först",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setUploading(true);
     
-    // Simulate processing with mock data
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    
-    // Parsing real data from the schedule image
-    const mockSchedule = {
-      monday: [
-        { id: "1", name: "Entreprenörskap", start: "09:00", end: "11:00", color: "math", room: "B011" },
-        { id: "2", name: "Svenska 2", start: "11:00", end: "12:00", color: "english", room: "206" },
-        { id: "3", name: "Lunch", start: "12:00", end: "13:00", color: "pe", room: "" },
-        { id: "4", name: "Matematik 2c", start: "13:00", end: "14:00", color: "science", room: "233" },
-        { id: "5", name: "Engelska 6", start: "14:00", end: "15:00", color: "history", room: "205" },
-      ],
-      tuesday: [
-        { id: "6", name: "Matematik 2c", start: "08:00", end: "10:00", color: "science", room: "233" },
-        { id: "7", name: "Engelska 6", start: "10:00", end: "12:00", color: "history", room: "205" },
-        { id: "8", name: "Lunch", start: "12:00", end: "13:00", color: "pe", room: "" },
-        { id: "9", name: "Svenska 2", start: "13:00", end: "15:00", color: "english", room: "206" },
-      ],
-      wednesday: [
-        { id: "10", name: "Entreprenörskap", start: "09:00", end: "11:00", color: "math", room: "B011" },
-        { id: "11", name: "Idrott", start: "11:00", end: "12:00", color: "art", room: "" },
-        { id: "12", name: "Lunch", start: "12:00", end: "13:00", color: "pe", room: "" },
-        { id: "13", name: "Svenska 2", start: "13:00", end: "15:00", color: "english", room: "206" },
-      ],
-      thursday: [
-        { id: "14", name: "Engelska 6", start: "08:00", end: "10:00", color: "history", room: "205" },
-        { id: "15", name: "Matematik 2c", start: "10:00", end: "12:00", color: "science", room: "233" },
-        { id: "16", name: "Lunch", start: "12:00", end: "13:00", color: "pe", room: "" },
-        { id: "17", name: "Entreprenörskap", start: "13:00", end: "15:00", color: "math", room: "B011" },
-      ],
-      friday: [
-        { id: "18", name: "Svenska 2", start: "08:00", end: "10:00", color: "english", room: "206" },
-        { id: "19", name: "Engelska 6", start: "10:00", end: "11:00", color: "history", room: "205" },
-        { id: "20", name: "Matematik 2c", start: "11:00", end: "12:00", color: "science", room: "233" },
-        { id: "21", name: "Lunch", start: "12:00", end: "13:00", color: "pe", room: "" },
-        { id: "22", name: "Idrott", start: "13:00", end: "15:00", color: "art", room: "" },
-      ],
-    };
+    try {
+      // Call the AI edge function to analyze the schedule
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-schedule`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          imageBase64: preview
+        }),
+      });
 
-    const scheduleId = Date.now().toString();
-    localStorage.setItem("schedule", JSON.stringify(mockSchedule));
-    localStorage.setItem("activeScheduleId", scheduleId);
-    
-    // Save to list of schedules
-    const savedSchedules = JSON.parse(localStorage.getItem("savedSchedules") || "[]");
-    savedSchedules.push({
-      id: scheduleId,
-      name: `Schema ${savedSchedules.length + 1}`,
-      type: localStorage.getItem("scheduleType") || "weekly",
-      createdAt: new Date().toISOString(),
-    });
-    localStorage.setItem("savedSchedules", JSON.stringify(savedSchedules));
-    
-    toast({
-      title: "Schema skapat!",
-      description: "Ditt schema har bearbetats",
-    });
-    
-    navigate("/schedule");
+      if (!response.ok) {
+        throw new Error('Failed to analyze schedule');
+      }
+
+      const { schedule } = await response.json();
+
+      const scheduleId = Date.now().toString();
+      localStorage.setItem("schedule", JSON.stringify(schedule));
+      localStorage.setItem("activeScheduleId", scheduleId);
+      
+      // Save to list of schedules
+      const savedSchedules = JSON.parse(localStorage.getItem("savedSchedules") || "[]");
+      savedSchedules.push({
+        id: scheduleId,
+        name: `Schema ${savedSchedules.length + 1}`,
+        type: localStorage.getItem("scheduleType") || "weekly",
+        createdAt: new Date().toISOString(),
+      });
+      localStorage.setItem("savedSchedules", JSON.stringify(savedSchedules));
+      
+      toast({
+        title: "Schema skapat!",
+        description: "Ditt schema har analyserats med AI",
+      });
+      
+      navigate("/schedule");
+    } catch (error) {
+      console.error('Error analyzing schedule:', error);
+      toast({
+        title: "Fel",
+        description: "Kunde inte analysera schemat. Försök igen.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -107,10 +105,11 @@ const Upload = () => {
                 <strong>Tips för bästa resultat:</strong>
               </p>
               <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                <li>Ta en tydlig skärmdump av hela schemat</li>
+                <li>Ta en tydlig skärmdump av HELA schemat</li>
+                <li>Inkludera alla dagar och alla lektioner</li>
                 <li>Se till att all text är läsbar och inte suddig</li>
-                <li>Inkludera alla dagar och tider</li>
-                <li>Undvik reflektioner eller skuggor</li>
+                <li>Zooma in vid behov för bättre bildkvalitet</li>
+                <li>Undvik reflektioner, skuggor och blockerade delar</li>
               </ul>
             </div>
           </div>

@@ -1,0 +1,4 @@
+project_id = "aakodzpubqoytkjqslvh"
+
+[functions.analyze-schedule]
+verify_jwt = false

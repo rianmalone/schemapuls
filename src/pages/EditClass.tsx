@@ -13,7 +13,7 @@ interface Class {
   start: string;
   end: string;
   color: string;
-  notificationMinutes?: number;
+  room?: string;
 }
 
 const EditClass = () => {
@@ -21,7 +21,6 @@ const EditClass = () => {
   const { id } = useParams();
   const { toast } = useToast();
   const [classData, setClassData] = useState<Class | null>(null);
-  const [notificationMinutes, setNotificationMinutes] = useState(5);
 
   useEffect(() => {
     const scheduleData = localStorage.getItem("schedule");
@@ -32,7 +31,6 @@ const EditClass = () => {
         const foundClass = day.find((c) => c.id === id);
         if (foundClass) {
           setClassData(foundClass);
-          setNotificationMinutes(foundClass.notificationMinutes || 5);
           break;
         }
       }
@@ -51,10 +49,7 @@ const EditClass = () => {
         const dayClasses = schedule[dayKey];
         const index = dayClasses.findIndex((c: Class) => c.id === id);
         if (index !== -1) {
-          schedule[dayKey][index] = {
-            ...classData,
-            notificationMinutes,
-          };
+          schedule[dayKey][index] = classData;
           break;
         }
       }
@@ -122,6 +117,19 @@ const EditClass = () => {
               />
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="room">Sal (valfritt)</Label>
+              <Input
+                id="room"
+                value={classData.room || ""}
+                onChange={(e) =>
+                  setClassData({ ...classData, room: e.target.value })
+                }
+                className="rounded-xl"
+                placeholder="t.ex. 206"
+              />
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="start">Starttid</Label>
@@ -147,27 +155,6 @@ const EditClass = () => {
                   }
                   className="rounded-xl"
                 />
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <Label>Påminnelse innan lektion</Label>
-                <span className="text-sm font-semibold text-primary">
-                  {notificationMinutes} min
-                </span>
-              </div>
-              <Slider
-                value={[notificationMinutes]}
-                onValueChange={(value) => setNotificationMinutes(value[0])}
-                min={2}
-                max={15}
-                step={1}
-                className="w-full"
-              />
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>2 min</span>
-                <span>15 min</span>
               </div>
             </div>
           </div>

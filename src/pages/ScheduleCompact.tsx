@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar, Upload } from "lucide-react";
+import { ArrowLeft, Upload, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Slider } from "@/components/ui/slider";
 
@@ -53,6 +53,21 @@ const ScheduleCompact = () => {
     localStorage.setItem("globalNotificationMinutes", value[0].toString());
   };
 
+  const handleDeleteClass = (classId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!schedule) return;
+    
+    const updatedSchedule = { ...schedule };
+    Object.keys(updatedSchedule).forEach((day) => {
+      updatedSchedule[day as keyof WeekSchedule] = updatedSchedule[day as keyof WeekSchedule].filter(
+        (c) => c.id !== classId
+      );
+    });
+    
+    setSchedule(updatedSchedule);
+    localStorage.setItem("schedule", JSON.stringify(updatedSchedule));
+  };
+
   const handleReplaceSchedule = () => {
     navigate("/upload");
   };
@@ -92,8 +107,8 @@ const ScheduleCompact = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-      <div className="max-w-6xl mx-auto p-4 pt-6">
-        <div className="flex items-center justify-between mb-6">
+      <div className="max-w-md mx-auto p-3 pt-6">
+        <div className="flex items-center justify-between mb-4">
           <Button
             variant="ghost"
             onClick={() => navigate("/")}
@@ -107,55 +122,59 @@ const ScheduleCompact = () => {
               variant="outline"
               size="sm"
               onClick={() => navigate("/schedule")}
-              className="rounded-xl"
+              className="rounded-xl text-xs px-2"
             >
-              <Calendar className="w-4 h-4 mr-2" />
               Dagsvy
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={handleReplaceSchedule}
-              className="rounded-xl"
+              className="rounded-xl text-xs px-2"
             >
-              <Upload className="w-4 h-4 mr-2" />
+              <Upload className="w-3 h-3 mr-1" />
               Uppdatera
             </Button>
           </div>
         </div>
 
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-foreground mb-1">Mitt Schema</h1>
-          <p className="text-sm text-muted-foreground">Vecka {getWeekNumber()}</p>
+        <div className="mb-4">
+          <h1 className="text-xl font-bold text-foreground mb-0.5">Mitt Schema</h1>
+          <p className="text-xs text-muted-foreground">Vecka {getWeekNumber()}</p>
         </div>
 
-        <div className="mb-6 p-4 rounded-2xl bg-card border border-border">
-          <div className="flex items-center justify-between mb-3">
-            <label className="text-sm font-medium">Påminnelse innan lektion</label>
-            <span className="text-sm font-semibold text-primary">
+        <div className="mb-3 p-3 rounded-xl bg-card border border-border">
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-xs font-medium">Påminnelse innan lektion</label>
+            <span className="text-xs font-semibold text-primary">
               {notificationMinutes} min
             </span>
           </div>
           <Slider
             value={[notificationMinutes]}
             onValueChange={handleNotificationChange}
-            min={2}
+            min={1}
             max={15}
             step={1}
             className="w-full"
           />
-          <div className="flex justify-between text-xs text-muted-foreground mt-2">
-            <span>2 min</span>
+          <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
+            <span>1 min</span>
             <span>15 min</span>
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto -mx-3 px-3">
           <div className="inline-block min-w-full">
-            <div className="grid grid-cols-6 gap-2 min-w-[800px]">
-              <div className="text-xs font-medium text-muted-foreground py-2">Tid</div>
+            <div className="grid grid-cols-6 gap-0.5 text-[10px]">
+              <div className="text-xs font-medium text-muted-foreground py-1.5 bg-background sticky left-0 z-10">
+                Tid
+              </div>
               {days.map((day) => (
-                <div key={day.key} className="text-sm font-semibold text-center py-2">
+                <div
+                  key={day.key}
+                  className="text-xs font-semibold text-center py-1.5 bg-card rounded-t-lg border-x border-t border-border"
+                >
                   {day.label}
                 </div>
               ))}
@@ -166,7 +185,7 @@ const ScheduleCompact = () => {
 
                 return (
                   <>
-                    <div className="text-xs text-muted-foreground py-1 pr-2 text-right">
+                    <div className="text-[10px] text-muted-foreground py-1 text-right pr-1 bg-background sticky left-0 z-10 font-medium">
                       {time}
                     </div>
                     {days.map((day) => {
@@ -181,25 +200,38 @@ const ScheduleCompact = () => {
                         const rowSpan = endIdx - startIdx;
 
                         return (
-                          <button
+                          <div
                             key={`${day.key}-${classInSlot.id}`}
-                            onClick={() => navigate(`/edit-class/${classInSlot.id}`)}
-                            className={`${getColorClass(
-                              classInSlot.color
-                            )} text-white rounded-xl p-2 text-left hover:opacity-90 transition-opacity`}
+                            className="relative group border-x border-border"
                             style={{
                               gridRow: `span ${rowSpan}`,
                             }}
                           >
-                            <div className="text-xs font-semibold leading-tight">
-                              {classInSlot.name}
-                            </div>
-                            {classInSlot.room && (
-                              <div className="text-xs opacity-80 mt-0.5">
-                                {classInSlot.room}
+                            <button
+                              onClick={() => navigate(`/edit-class/${classInSlot.id}`)}
+                              className={`${getColorClass(
+                                classInSlot.color
+                              )} text-white w-full h-full p-1.5 text-left hover:opacity-90 transition-opacity relative`}
+                            >
+                              <div className="text-[10px] font-semibold leading-tight line-clamp-2">
+                                {classInSlot.name}
                               </div>
-                            )}
-                          </button>
+                              {classInSlot.room && (
+                                <div className="text-[9px] opacity-80 mt-0.5">
+                                  {classInSlot.room}
+                                </div>
+                              )}
+                              <div className="text-[9px] opacity-70 mt-0.5">
+                                {classInSlot.start} - {classInSlot.end}
+                              </div>
+                            </button>
+                            <button
+                              onClick={(e) => handleDeleteClass(classInSlot.id, e)}
+                              className="absolute top-0.5 right-0.5 w-4 h-4 bg-black/30 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <X className="w-2.5 h-2.5 text-white" />
+                            </button>
+                          </div>
                         );
                       }
 
@@ -218,13 +250,21 @@ const ScheduleCompact = () => {
                       return (
                         <div
                           key={`${day.key}-${time}-empty`}
-                          className="bg-muted/30 rounded-xl"
+                          className="bg-muted/20 border-x border-border min-h-[32px]"
                         />
                       );
                     })}
                   </>
                 );
               })}
+              
+              <div className="bg-background"></div>
+              {days.map((day) => (
+                <div
+                  key={`${day.key}-bottom`}
+                  className="border-x border-b border-border rounded-b-lg bg-card h-0.5"
+                />
+              ))}
             </div>
           </div>
         </div>

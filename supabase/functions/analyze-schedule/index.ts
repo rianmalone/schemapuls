@@ -4,17 +4,12 @@ const corsHeaders = {
 };
 
 Deno.serve(async (req) => {
-  console.log('Received request:', req.method, req.url);
-  
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
 
   try {
-    console.log('Parsing request body...');
-    const body = await req.json();
-    console.log('Request body parsed, has imageBase64:', !!body.imageBase64);
-    const { imageBase64 } = body;
+    const { imageBase64 } = await req.json();
     
     if (!imageBase64) {
       throw new Error('No image provided');
@@ -26,15 +21,6 @@ Deno.serve(async (req) => {
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY not configured');
     }
-
-    // Ensure the image is in the correct format for Gemini
-    let imageUrl = imageBase64;
-    if (!imageBase64.startsWith('data:image/')) {
-      // If it's just base64 without prefix, add it
-      imageUrl = `data:image/png;base64,${imageBase64}`;
-    }
-
-    console.log('Image URL format:', imageUrl.substring(0, 50) + '...');
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -94,7 +80,7 @@ ONLY return the JSON, no other text.`
               {
                 type: 'image_url',
                 image_url: {
-                  url: imageUrl
+                  url: imageBase64
                 }
               }
             ]

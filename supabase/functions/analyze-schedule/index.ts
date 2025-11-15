@@ -62,6 +62,40 @@ Deno.serve(async (req) => {
 
     console.log("Calling Lovable AI…");
 
+    const systemPrompt = `You are a Swedish school schedule analyzer. Your task is to extract class information from school schedule images.
+
+CRITICAL RULES:
+1. First, verify this is actually a Swedish school schedule
+2. If NOT a schedule, return: {"error": "invalid_image", "message": "Detta verkar inte vara ett schema."}
+3. If incomplete or unreadable, return: {"error": "incomplete_schedule", "message": "Schemat är inte komplett eller tydligt."}
+4. Extract ALL visible classes with complete information
+
+For each class, extract:
+- name: Subject name (e.g., "Matematik", "Svenska")
+- start: Start time in HH:MM format (24-hour)
+- end: End time in HH:MM format (24-hour)
+- room: Room number or location (if visible)
+- day: Weekday (monday, tuesday, wednesday, thursday, friday)
+
+Subject to color mapping:
+- "Matematik", "Entreprenörskap" → "math"
+- "Svenska" → "english"
+- "English", "Engelska" → "history"
+- "Idrott" → "art"
+- "Lunch" → "pe"
+- Other subjects → "art"
+
+Return ONLY valid JSON in this exact structure (no markdown, no extra text):
+{
+  "monday": [{"name": "Subject", "start": "08:00", "end": "09:30", "room": "A101", "color": "math"}],
+  "tuesday": [...],
+  "wednesday": [...],
+  "thursday": [...],
+  "friday": [...]
+}
+
+DO NOT include any other text, explanations, or markdown formatting.`;
+
     const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -69,48 +103,19 @@ Deno.serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.0-flash",
+        model: "google/gemini-2.5-flash",
         max_tokens: 2000,
         messages: [
+          {
+            role: "system",
+            content: systemPrompt,
+          },
           {
             role: "user",
             content: [
               {
                 type: "text",
-                text: `
-FIRST, check if the image is a Swedish school schedule. 
-If NOT a schedule, return:
-{"error": "invalid_image", "message": "Detta verkar inte vara ett schema."}
-
-If the schedule is incomplete or not readable:
-{"error": "incomplete_schedule", "message": "Schemat är inte komplett eller tydligt."}
-
-Extract:
-- class name
-- start time (top left)
-- end time (bottom right)
-- room
-- weekday
-
-Return EXACTLY this JSON format (no extra text):
-
-{
-  "monday": [...],
-  "tuesday": [...],
-  "wednesday": [...],
-  "thursday": [...],
-  "friday": [...]
-}
-
-Color mapping:
-Math -> "science"
-Swedish -> "english"
-English -> "history"
-Entreprenörskap -> "math"
-Idrott -> "art"
-Lunch -> "pe"
-Other -> "art"
-`,
+                text: "Analyze this Swedish school schedule and extract all class information.",
               },
               {
                 type: "image_url",
@@ -123,10 +128,22 @@ Other -> "art"
     });
 
     if (!aiRes.ok) {
+      if (aiRes.status === 429) {
+        return corsResponse(
+          { error: "rate_limit", message: "För många förfrågningar. Försök igen om en stund." },
+          429,
+        );
+      }
+      if (aiRes.status === 402) {
+        return corsResponse(
+          { error: "payment_required", message: "Betalning krävs. Kontakta support." },
+          402,
+        );
+      }
       const errTxt = await aiRes.text();
-      console.error("AI error:", aiRes.status, errTxt);
+      console.error("AI API error:", aiRes.status, errTxt);
 
-      return corsResponse({ error: "ai_api_error", message: errTxt }, aiRes.status);
+      return corsResponse({ error: "ai_api_error", message: "Kunde inte analysera schemat." }, 500);
     }
 
     const aiData = await aiRes.json();

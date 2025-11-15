@@ -143,30 +143,48 @@ const Upload = () => {
       if (scheduleType === "odd-even") {
         // Process odd week
         console.log('Calling analyze-schedule for odd week...');
-        const { data: resultOdd, error: errorOdd } = await supabase.functions.invoke('analyze-schedule', {
-          body: { imageBase64: previewOdd }
+        const responseOdd = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-schedule`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({ imageBase64: previewOdd })
         });
 
-        console.log('Odd week result:', { resultOdd, errorOdd });
+        if (!responseOdd.ok) {
+          const errorText = await responseOdd.text();
+          throw new Error(`Odd week: Server returned ${responseOdd.status}: ${errorText}`);
+        }
 
-        if (errorOdd || resultOdd?.error) {
-          console.error('Odd week error:', errorOdd, resultOdd);
-          throw new Error(resultOdd?.message || errorOdd?.message || 'Kunde inte analysera udda veckans schema');
+        const resultOdd = await responseOdd.json();
+        if (resultOdd?.error) {
+          throw new Error(resultOdd?.message || 'Kunde inte analysera udda veckans schema');
         }
 
         const { schedule: scheduleOdd } = resultOdd;
 
         // Process even week
         console.log('Calling analyze-schedule for even week...');
-        const { data: resultEven, error: errorEven } = await supabase.functions.invoke('analyze-schedule', {
-          body: { imageBase64: previewEven }
+        const responseEven = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-schedule`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({ imageBase64: previewEven })
         });
 
-        console.log('Even week result:', { resultEven, errorEven });
+        if (!responseEven.ok) {
+          const errorText = await responseEven.text();
+          throw new Error(`Even week: Server returned ${responseEven.status}: ${errorText}`);
+        }
 
-        if (errorEven || resultEven?.error) {
-          console.error('Even week error:', errorEven, resultEven);
-          throw new Error(resultEven?.message || errorEven?.message || 'Kunde inte analysera jämna veckans schema');
+        const resultEven = await responseEven.json();
+        if (resultEven?.error) {
+          throw new Error(resultEven?.message || 'Kunde inte analysera jämna veckans schema');
         }
 
         const { schedule: scheduleEven } = resultEven;
@@ -189,15 +207,35 @@ const Upload = () => {
       } else {
         // Process single schedule
         console.log('Calling analyze-schedule for single week...');
-        const { data: result, error } = await supabase.functions.invoke('analyze-schedule', {
-          body: { imageBase64: previewOdd }
+        console.log('Image data URL prefix:', previewOdd?.substring(0, 50));
+        console.log('Image data URL length:', previewOdd?.length);
+        
+        // Try direct fetch instead of supabase SDK
+        const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-schedule`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({ imageBase64: previewOdd })
         });
 
-        console.log('Single week result:', { result, error });
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
 
-        if (error || result?.error) {
-          console.error('Single week error:', error, result);
-          throw new Error(result?.message || error?.message || 'Kunde inte analysera schemat');
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Response error:', errorText);
+          throw new Error(`Server returned ${response.status}: ${errorText}`);
+        }
+
+        const result = await response.json();
+        console.log('Result:', result);
+
+        if (result?.error) {
+          console.error('Result error:', result);
+          throw new Error(result?.message || 'Kunde inte analysera schemat');
         }
 
         const { schedule } = result;

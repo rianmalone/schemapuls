@@ -12,7 +12,25 @@ Deno.serve(async (req) => {
     const { imageBase64 } = await req.json();
     
     if (!imageBase64) {
-      throw new Error('No image provided');
+      return new Response(
+        JSON.stringify({ error: 'missing_image', message: 'No image provided' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
+    }
+
+    // Check payload size
+    const sizeInBytes = (imageBase64.length * 3) / 4;
+    const sizeInMB = sizeInBytes / (1024 * 1024);
+    console.log(`Received image size: ${sizeInMB.toFixed(2)}MB`);
+    
+    if (sizeInMB > 2) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'image_too_large', 
+          message: 'Bilden är för stor. Försök med en mindre bild eller lägre upplösning.' 
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 413 }
+      );
     }
 
     console.log('Analyzing schedule image with AI...');
@@ -107,7 +125,17 @@ ONLY return the JSON, no other text.`
         );
       }
       
-      throw new Error(`AI API error: ${response.status}`);
+      // Return error with CORS headers instead of throwing
+      return new Response(
+        JSON.stringify({ 
+          error: 'ai_api_error',
+          message: `AI API fel: ${response.status} - ${errorText}` 
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500,
+        }
+      );
     }
 
     const data = await response.json();

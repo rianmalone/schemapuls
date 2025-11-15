@@ -8,62 +8,133 @@ const Upload = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [previewOdd, setPreviewOdd] = useState<string | null>(null);
+  const [previewEven, setPreviewEven] = useState<string | null>(null);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, type: 'odd' | 'even') => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      setPreview(e.target?.result as string);
+      if (type === 'odd') {
+        setPreviewOdd(e.target?.result as string);
+      } else {
+        setPreviewEven(e.target?.result as string);
+      }
     };
     reader.readAsDataURL(file);
   };
 
   const handleProcess = async () => {
-    if (!preview) {
-      toast({
-        title: "Ingen bild",
-        description: "Ladda upp en bild först",
-        variant: "destructive",
-      });
-      return;
+    const scheduleType = localStorage.getItem("scheduleType") || "weekly";
+    
+    if (scheduleType === "odd-even") {
+      if (!previewOdd || !previewEven) {
+        toast({
+          title: "Saknas bilder",
+          description: "Ladda upp både udda och jämna veckor",
+          variant: "destructive",
+        });
+        return;
+      }
+    } else {
+      if (!previewOdd) {
+        toast({
+          title: "Ingen bild",
+          description: "Ladda upp en bild först",
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     setUploading(true);
     
     try {
-      // Call the AI edge function to analyze the schedule
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-schedule`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          imageBase64: preview
-        }),
-      });
+      // For odd-even schedules, process both images
+      if (scheduleType === "odd-even") {
+        // Process odd week
+        const responseOdd = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-schedule`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            imageBase64: previewOdd
+          }),
+        });
 
-      if (!response.ok) {
-        throw new Error('Failed to analyze schedule');
+        if (!responseOdd.ok) {
+          throw new Error('Failed to analyze odd week schedule');
+        }
+
+        const { schedule: scheduleOdd } = await responseOdd.json();
+
+        // Process even week
+        const responseEven = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-schedule`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            imageBase64: previewEven
+          }),
+        });
+
+        if (!responseEven.ok) {
+          throw new Error('Failed to analyze even week schedule');
+        }
+
+        const { schedule: scheduleEven } = await responseEven.json();
+
+        const scheduleId = Date.now().toString();
+        localStorage.setItem("scheduleOdd", JSON.stringify(scheduleOdd));
+        localStorage.setItem("scheduleEven", JSON.stringify(scheduleEven));
+        localStorage.setItem("schedule", JSON.stringify(scheduleOdd)); // Default to odd
+        localStorage.setItem("activeScheduleId", scheduleId);
+        
+        // Save to list of schedules
+        const savedSchedules = JSON.parse(localStorage.getItem("savedSchedules") || "[]");
+        savedSchedules.push({
+          id: scheduleId,
+          name: `Schema ${savedSchedules.length + 1}`,
+          type: "odd-even",
+          createdAt: new Date().toISOString(),
+        });
+        localStorage.setItem("savedSchedules", JSON.stringify(savedSchedules));
+      } else {
+        // Process single schedule
+        const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-schedule`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            imageBase64: previewOdd
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to analyze schedule');
+        }
+
+        const { schedule } = await response.json();
+
+        const scheduleId = Date.now().toString();
+        localStorage.setItem("schedule", JSON.stringify(schedule));
+        localStorage.setItem("activeScheduleId", scheduleId);
+        
+        // Save to list of schedules
+        const savedSchedules = JSON.parse(localStorage.getItem("savedSchedules") || "[]");
+        savedSchedules.push({
+          id: scheduleId,
+          name: `Schema ${savedSchedules.length + 1}`,
+          type: scheduleType,
+          createdAt: new Date().toISOString(),
+        });
+        localStorage.setItem("savedSchedules", JSON.stringify(savedSchedules));
       }
-
-      const { schedule } = await response.json();
-
-      const scheduleId = Date.now().toString();
-      localStorage.setItem("schedule", JSON.stringify(schedule));
-      localStorage.setItem("activeScheduleId", scheduleId);
-      
-      // Save to list of schedules
-      const savedSchedules = JSON.parse(localStorage.getItem("savedSchedules") || "[]");
-      savedSchedules.push({
-        id: scheduleId,
-        name: `Schema ${savedSchedules.length + 1}`,
-        type: localStorage.getItem("scheduleType") || "weekly",
-        createdAt: new Date().toISOString(),
-      });
-      localStorage.setItem("savedSchedules", JSON.stringify(savedSchedules));
       
       toast({
         title: "Schema skapat!",
@@ -114,75 +185,139 @@ const Upload = () => {
             </div>
           </div>
 
-          <div className="pt-4">
-            <label
-              htmlFor="file-upload"
-              className={`relative flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-3xl cursor-pointer transition-all ${
-                preview
-                  ? "border-primary bg-primary/5"
-                  : "border-border bg-card hover:border-primary/50"
-              }`}
-            >
-              {preview ? (
-                <img
-                  src={preview}
-                  alt="Preview"
-                  className="w-full h-full object-cover rounded-3xl"
-                />
-              ) : (
-                <div className="flex flex-col items-center space-y-4">
-                  <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-                    <Camera className="w-8 h-8 text-primary" />
-                  </div>
-                  <div className="text-center">
-                    <p className="font-semibold text-card-foreground">
-                      Klicka för att ladda upp
-                    </p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      PNG, JPG eller PDF
-                    </p>
-                  </div>
+          <div className="pt-4 space-y-4">
+            {localStorage.getItem("scheduleType") === "odd-even" ? (
+              <>
+                <div>
+                  <h3 className="text-sm font-semibold mb-2 text-foreground">Udda vecka</h3>
+                  <label
+                    htmlFor="file-upload-odd"
+                    className="block w-full p-6 border-2 border-dashed border-border rounded-2xl bg-card hover:bg-accent transition-colors cursor-pointer"
+                  >
+                    <div className="flex flex-col items-center gap-3">
+                      {previewOdd ? (
+                        <>
+                          <Camera className="w-10 h-10 text-primary" />
+                          <img src={previewOdd} alt="Preview Odd" className="w-full rounded-lg" />
+                          <span className="text-xs text-muted-foreground">
+                            Klicka för att byta bild
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <UploadIcon className="w-10 h-10 text-muted-foreground" />
+                          <div className="text-center">
+                            <p className="text-foreground font-medium text-sm">
+                              Ladda upp schema för udda vecka
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Klicka eller dra en fil hit
+                            </p>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                    <input
+                      id="file-upload-odd"
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={(e) => handleFileChange(e, 'odd')}
+                    />
+                  </label>
                 </div>
-              )}
-              <input
-                id="file-upload"
-                type="file"
-                className="hidden"
-                accept="image/*,.pdf"
-                onChange={handleFileChange}
-              />
-            </label>
+
+                <div>
+                  <h3 className="text-sm font-semibold mb-2 text-foreground">Jämn vecka</h3>
+                  <label
+                    htmlFor="file-upload-even"
+                    className="block w-full p-6 border-2 border-dashed border-border rounded-2xl bg-card hover:bg-accent transition-colors cursor-pointer"
+                  >
+                    <div className="flex flex-col items-center gap-3">
+                      {previewEven ? (
+                        <>
+                          <Camera className="w-10 h-10 text-primary" />
+                          <img src={previewEven} alt="Preview Even" className="w-full rounded-lg" />
+                          <span className="text-xs text-muted-foreground">
+                            Klicka för att byta bild
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <UploadIcon className="w-10 h-10 text-muted-foreground" />
+                          <div className="text-center">
+                            <p className="text-foreground font-medium text-sm">
+                              Ladda upp schema för jämn vecka
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Klicka eller dra en fil hit
+                            </p>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                    <input
+                      id="file-upload-even"
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={(e) => handleFileChange(e, 'even')}
+                    />
+                  </label>
+                </div>
+              </>
+            ) : (
+              <label
+                htmlFor="file-upload"
+                className="block w-full p-8 border-2 border-dashed border-border rounded-2xl bg-card hover:bg-accent transition-colors cursor-pointer"
+              >
+                <div className="flex flex-col items-center gap-3">
+                  {previewOdd ? (
+                    <>
+                      <Camera className="w-12 h-12 text-primary" />
+                      <img src={previewOdd} alt="Preview" className="w-full rounded-lg" />
+                      <span className="text-sm text-muted-foreground">
+                        Klicka för att byta bild
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <UploadIcon className="w-12 h-12 text-muted-foreground" />
+                      <div className="text-center">
+                        <p className="text-foreground font-medium">
+                          Ladda upp en bild
+                        </p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Klicka eller dra en fil hit
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </div>
+                <input
+                  id="file-upload"
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={(e) => handleFileChange(e, 'odd')}
+                />
+              </label>
+            )}
           </div>
 
-          {preview && (
-            <div className="space-y-4">
-              <div className="p-4 rounded-2xl bg-accent/10 border border-accent/20">
-                <p className="text-sm text-accent-foreground">
-                  <strong>Tips:</strong> Vi analyserar ditt schema och skapar det
-                  automatiskt. Du kan redigera allt efteråt!
-                </p>
-              </div>
-
-              <Button
-                onClick={handleProcess}
-                disabled={uploading}
-                className="w-full h-14 text-lg rounded-2xl shadow-lg hover:shadow-xl transition-all"
-                size="lg"
-              >
-                {uploading ? (
-                  <>
-                    <UploadIcon className="w-5 h-5 mr-2 animate-pulse" />
-                    Bearbetar...
-                  </>
-                ) : (
-                  <>
-                    <UploadIcon className="w-5 h-5 mr-2" />
-                    Skapa schema
-                  </>
-                )}
-              </Button>
-            </div>
-          )}
+          <Button
+            onClick={handleProcess}
+            disabled={
+              uploading || 
+              (localStorage.getItem("scheduleType") === "odd-even" 
+                ? (!previewOdd || !previewEven) 
+                : !previewOdd)
+            }
+            className="w-full py-6 text-lg rounded-xl"
+            size="lg"
+          >
+            {uploading ? "Analyserar..." : "Skapa schema"}
+          </Button>
         </div>
       </div>
     </div>

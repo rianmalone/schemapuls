@@ -176,7 +176,7 @@ const Schedule = () => {
 
         <div className="mb-4 p-4 rounded-2xl bg-card border border-border">
           <div className="flex items-center justify-between mb-3">
-            <label className="text-sm font-medium">Påminnelse innan lektion</label>
+            <label className="text-sm font-medium">Påminnelse innan lektioner</label>
             <span className="text-sm font-semibold text-primary">
               {notificationMinutes} min
             </span>
@@ -195,10 +195,10 @@ const Schedule = () => {
           </div>
         </div>
 
-        <div className="flex gap-1.5 mb-4 overflow-x-auto pb-2">
+        <div className="flex gap-1 mb-4 overflow-x-auto pb-2 scrollbar-hide">
           <button
             onClick={() => setViewMode('week')}
-            className={`flex-shrink-0 px-3 py-2 rounded-xl font-medium transition-all text-sm ${
+            className={`flex-shrink-0 px-2 py-1.5 rounded-xl font-medium transition-all text-xs ${
               viewMode === 'week'
                 ? "bg-primary text-primary-foreground shadow-md"
                 : "bg-card text-muted-foreground hover:bg-muted"
@@ -213,7 +213,7 @@ const Schedule = () => {
                 setViewMode('day');
                 setSelectedDay(day.key);
               }}
-              className={`flex-shrink-0 px-3 py-2 rounded-xl font-medium transition-all text-sm ${
+              className={`flex-shrink-0 px-2 py-1.5 rounded-xl font-medium transition-all text-xs ${
                 viewMode === 'day' && selectedDay === day.key
                   ? "bg-primary text-primary-foreground shadow-md"
                   : "bg-card text-muted-foreground hover:bg-muted"
@@ -225,94 +225,83 @@ const Schedule = () => {
         </div>
 
         <div className="mb-4 p-4 rounded-2xl bg-card border border-border">
-          <h3 className="text-sm font-medium mb-3">Aktivera påminnelser för:</h3>
-          <div className="flex flex-wrap gap-3">
-            <label className="flex items-center gap-2 cursor-pointer">
+          <h3 className="text-xs font-medium mb-2">Aktivera påminnelser för:</h3>
+          <div className="flex flex-wrap gap-2">
+            <label className="flex items-center gap-1.5 cursor-pointer">
               <Checkbox
                 checked={allDaysChecked}
                 onCheckedChange={toggleAllDays}
               />
-              <span className="text-sm font-semibold">Vecka</span>
+              <span className="text-xs font-semibold">Vecka</span>
             </label>
             {days.map((day) => (
-              <label key={day.key} className="flex items-center gap-2 cursor-pointer">
+              <label key={day.key} className="flex items-center gap-1.5 cursor-pointer">
                 <Checkbox
                   checked={enabledDays[day.key]}
                   onCheckedChange={() => handleDayToggle(day.key)}
                 />
-                <span className="text-sm">{day.label}</span>
+                <span className="text-xs">{day.label}</span>
               </label>
             ))}
           </div>
         </div>
 
         {viewMode === 'week' ? (
-          <div className="bg-card rounded-2xl border border-border p-2 overflow-x-auto">
-            <div className="grid grid-cols-[50px_repeat(5,1fr)] gap-0.5 min-w-full">
-              <div className="text-[11px] font-medium text-muted-foreground p-2 sticky left-0 bg-card">Tid</div>
+          <div className="bg-card rounded-2xl border border-border p-2">
+            <div className="grid grid-cols-5 gap-1">
               {days.map((day) => (
-                <div key={day.key} className="text-[11px] font-semibold text-center p-2 border-l border-border">
+                <div key={day.key} className="text-[10px] font-semibold text-center pb-1 border-b border-border">
                   {day.label}
                 </div>
               ))}
 
-              {Array.from({ length: 10 }, (_, i) => {
-                const hour = 8 + i;
+              {days.map((day) => {
+                const dayClasses = schedule[day.key as keyof WeekSchedule] || [];
                 return (
-                  <div key={hour} className="contents">
-                    <div className="text-[10px] text-muted-foreground p-2 border-t border-border sticky left-0 bg-card">
-                      {hour.toString().padStart(2, '0')}:00
-                    </div>
-                    {days.map((day) => {
-                      const dayClasses = schedule[day.key as keyof WeekSchedule] || [];
-                      const classAtThisHour = dayClasses.filter(c => {
-                        const classHour = parseInt(c.start.split(':')[0]);
-                        return classHour === hour;
-                      });
-
-                      return (
-                        <div key={day.key} className="relative border-t border-l border-border min-h-[60px]">
-                          {classAtThisHour.map((classItem) => (
-                            <div
-                              key={classItem.id}
-                              className={`absolute inset-x-1 ${getColorClass(classItem.color)} text-white text-[11px] p-2 rounded-lg cursor-pointer`}
-                              onClick={() => navigate(`/edit-class/${classItem.id}`)}
-                              style={{
-                                height: `${calculateHeight(classItem.start, classItem.end) * 0.6}px`,
-                                minHeight: '50px',
-                              }}
-                            >
-                              <div className="flex items-start gap-1.5">
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleClassToggle(classItem.id);
-                                  }}
-                                  className="flex-shrink-0 mt-0.5"
-                                >
-                                  <div className={`w-3.5 h-3.5 rounded-full border-2 border-white flex items-center justify-center ${
-                                    enabledClasses[classItem.id] ? 'bg-white' : 'bg-transparent'
-                                  }`}>
-                                    {enabledClasses[classItem.id] && (
-                                      <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                                    )}
-                                  </div>
-                                </button>
-                                <div className="flex-1 min-w-0">
-                                  <div className="font-semibold leading-tight truncate">{classItem.name}</div>
-                                  <div className="opacity-80 text-[10px] mt-0.5">
-                                    {classItem.start}-{classItem.end}
-                                  </div>
-                                  {classItem.room && (
-                                    <div className="opacity-70 text-[10px] truncate">{classItem.room}</div>
-                                  )}
-                                </div>
-                              </div>
+                  <div key={day.key} className="space-y-1 pt-1">
+                    {dayClasses.map((classItem) => (
+                      <button
+                        key={classItem.id}
+                        onClick={() => navigate(`/edit-class/${classItem.id}`)}
+                        className={`w-full p-1.5 rounded-lg ${getColorClass(
+                          classItem.color
+                        )} text-white text-left transition-opacity ${
+                          !enabledClasses[classItem.id] ? 'opacity-40' : 'opacity-100'
+                        }`}
+                        style={{
+                          minHeight: `${calculateHeight(classItem.start, classItem.end) * 0.5}px`,
+                        }}
+                      >
+                        <div className="flex items-start justify-between gap-1">
+                          <div className="flex-1 min-w-0">
+                            <div className="font-semibold text-[10px] leading-tight truncate">
+                              {classItem.name}
                             </div>
-                          ))}
+                            <div className="text-[9px] opacity-90 mt-0.5">
+                              {classItem.start}-{classItem.end}
+                            </div>
+                            {classItem.room && (
+                              <div className="text-[8px] opacity-80 truncate">{classItem.room}</div>
+                            )}
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleClassToggle(classItem.id);
+                            }}
+                            className="flex-shrink-0"
+                          >
+                            <div className={`w-3 h-3 rounded-full border-2 border-white flex items-center justify-center ${
+                              enabledClasses[classItem.id] ? 'bg-white' : 'bg-transparent'
+                            }`}>
+                              {enabledClasses[classItem.id] && (
+                                <div className="w-1 h-1 rounded-full bg-primary" />
+                              )}
+                            </div>
+                          </button>
                         </div>
-                      );
-                    })}
+                      </button>
+                    ))}
                   </div>
                 );
               })}
@@ -327,43 +316,41 @@ const Schedule = () => {
                     onClick={() => navigate(`/edit-class/${classItem.id}`)}
                     className={`w-full p-3 rounded-xl ${getColorClass(
                       classItem.color
-                    )} text-white shadow-sm transition-all text-left border-l-4 border-white/30`}
+                    )} text-white shadow-sm transition-opacity text-left border-l-4 border-white/30 ${
+                      !enabledClasses[classItem.id] ? 'opacity-40' : 'opacity-100'
+                    }`}
                     style={{
                       height: `${calculateHeight(classItem.start, classItem.end)}px`,
                       minHeight: "60px",
                     }}
                   >
                     <div className="flex items-start justify-between h-full">
-                      <div className="flex items-center gap-2 flex-1">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleClassToggle(classItem.id);
-                          }}
-                          className="flex-shrink-0"
-                        >
-                          <div className={`w-5 h-5 rounded-full border-2 border-white flex items-center justify-center ${
-                            enabledClasses[classItem.id] ? 'bg-white' : 'bg-transparent'
-                          }`}>
-                            {enabledClasses[classItem.id] && (
-                              <div className="w-2.5 h-2.5 rounded-full bg-primary" />
-                            )}
-                          </div>
-                        </button>
-                        <div>
-                          <h3 className="text-sm font-semibold">{classItem.name}</h3>
-                          {classItem.room && (
-                            <p className="text-xs opacity-80 mt-0.5">{classItem.room}</p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-end justify-between h-full">
-                        <div className="flex items-center gap-1.5 text-xs opacity-90">
+                      <div className="flex-1">
+                        <h3 className="text-sm font-semibold">{classItem.name}</h3>
+                        {classItem.room && (
+                          <p className="text-xs opacity-80 mt-0.5">{classItem.room}</p>
+                        )}
+                        <div className="flex items-center gap-1.5 text-xs opacity-90 mt-1">
                           <span>{classItem.start}</span>
                           <span>-</span>
                           <span>{classItem.end}</span>
                         </div>
                       </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleClassToggle(classItem.id);
+                        }}
+                        className="flex-shrink-0"
+                      >
+                        <div className={`w-5 h-5 rounded-full border-2 border-white flex items-center justify-center ${
+                          enabledClasses[classItem.id] ? 'bg-white' : 'bg-transparent'
+                        }`}>
+                          {enabledClasses[classItem.id] && (
+                            <div className="w-2.5 h-2.5 rounded-full bg-primary" />
+                          )}
+                        </div>
+                      </button>
                     </div>
                   </button>
                 </div>

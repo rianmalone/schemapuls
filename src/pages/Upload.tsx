@@ -284,7 +284,6 @@ const Upload = () => {
                       type="file"
                       className="hidden"
                       accept="image/*"
-                      capture="environment"
                       onChange={handleFileChange}
                     />
                   </label>
@@ -324,7 +323,6 @@ const Upload = () => {
                       type="file"
                       className="hidden"
                       accept="image/*"
-                      capture="environment"
                       onChange={async (e) => {
                         const file = e.target.files?.[0];
                         if (!file) return;
@@ -398,7 +396,6 @@ const Upload = () => {
                   type="file"
                   className="hidden"
                   accept="image/*"
-                  capture="environment"
                   onChange={handleFileChange}
                 />
               </label>

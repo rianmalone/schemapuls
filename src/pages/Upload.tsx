@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { notificationService } from "@/services/notificationService";
 import exampleSchedule from "@/assets/example-schedule.png";
+import { supabase } from "@/integrations/supabase/client";
 
 const Upload = () => {
   const navigate = useNavigate();
@@ -73,39 +74,23 @@ const Upload = () => {
       // For odd-even schedules, process both images
       if (scheduleType === "odd-even") {
         // Process odd week
-        const responseOdd = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-schedule`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            imageBase64: previewOdd
-          }),
+        const { data: resultOdd, error: errorOdd } = await supabase.functions.invoke('analyze-schedule', {
+          body: { imageBase64: previewOdd }
         });
 
-        const resultOdd = await responseOdd.json();
-
-        if (!responseOdd.ok || resultOdd.error) {
-          throw new Error(resultOdd.message || 'Kunde inte analysera udda veckans schema');
+        if (errorOdd || resultOdd?.error) {
+          throw new Error(resultOdd?.message || errorOdd?.message || 'Kunde inte analysera udda veckans schema');
         }
 
         const { schedule: scheduleOdd } = resultOdd;
 
         // Process even week
-        const responseEven = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-schedule`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            imageBase64: previewEven
-          }),
+        const { data: resultEven, error: errorEven } = await supabase.functions.invoke('analyze-schedule', {
+          body: { imageBase64: previewEven }
         });
 
-        const resultEven = await responseEven.json();
-
-        if (!responseEven.ok || resultEven.error) {
-          throw new Error(resultEven.message || 'Kunde inte analysera jämna veckans schema');
+        if (errorEven || resultEven?.error) {
+          throw new Error(resultEven?.message || errorEven?.message || 'Kunde inte analysera jämna veckans schema');
         }
 
         const { schedule: scheduleEven } = resultEven;
@@ -127,20 +112,12 @@ const Upload = () => {
         localStorage.setItem("savedSchedules", JSON.stringify(savedSchedules));
       } else {
         // Process single schedule
-        const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-schedule`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            imageBase64: previewOdd
-          }),
+        const { data: result, error } = await supabase.functions.invoke('analyze-schedule', {
+          body: { imageBase64: previewOdd }
         });
 
-        const result = await response.json();
-
-        if (!response.ok || result.error) {
-          throw new Error(result.message || 'Kunde inte analysera schemat');
+        if (error || result?.error) {
+          throw new Error(result?.message || error?.message || 'Kunde inte analysera schemat');
         }
 
         const { schedule } = result;

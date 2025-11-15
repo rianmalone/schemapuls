@@ -27,8 +27,8 @@ const Upload = () => {
             return;
           }
 
-          // Resize to max 1024px on longest side while maintaining aspect ratio
-          const maxDimension = 1024;
+          // Resize to max 800px on longest side while maintaining aspect ratio
+          const maxDimension = 800;
           let width = img.width;
           let height = img.height;
 
@@ -44,13 +44,8 @@ const Upload = () => {
           canvas.height = height;
           ctx.drawImage(img, 0, 0, width, height);
 
-          // Convert to JPEG with 60% quality for smaller file size
-          const resizedDataUrl = canvas.toDataURL('image/jpeg', 0.60);
-          
-          // Log final size for debugging
-          const sizeInKB = Math.round((resizedDataUrl.length * 3) / 4 / 1024);
-          console.log(`Resized image: ${width}x${height}, ~${sizeInKB}KB`);
-          
+          // Convert to JPEG with 70% quality
+          const resizedDataUrl = canvas.toDataURL('image/jpeg', 0.70);
           resolve(resizedDataUrl);
         };
         img.onerror = () => reject(new Error('Failed to load image'));
@@ -124,25 +119,11 @@ const Upload = () => {
     setUploading(true);
     
     try {
-      // Strip data URL prefix and validate size
-      const stripDataUrl = (dataUrl: string) => {
-        const base64Data = dataUrl.split(',')[1] || dataUrl;
-        const sizeInMB = (base64Data.length * 3) / 4 / 1024 / 1024;
-        console.log(`Payload size: ${sizeInMB.toFixed(2)}MB`);
-        
-        if (sizeInMB > 4) {
-          throw new Error('Bilden är för stor efter komprimering. Försök med en annan skärmdump.');
-        }
-        
-        return base64Data;
-      };
-      
       // For odd-even schedules, process both images
       if (scheduleType === "odd-even") {
         // Process odd week
-        const oddBase64 = stripDataUrl(previewOdd!);
         const { data: resultOdd, error: errorOdd } = await supabase.functions.invoke('analyze-schedule', {
-          body: { imageBase64: oddBase64 }
+          body: { imageBase64: previewOdd }
         });
 
         if (errorOdd || resultOdd?.error) {
@@ -152,9 +133,8 @@ const Upload = () => {
         const { schedule: scheduleOdd } = resultOdd;
 
         // Process even week
-        const evenBase64 = stripDataUrl(previewEven!);
         const { data: resultEven, error: errorEven } = await supabase.functions.invoke('analyze-schedule', {
-          body: { imageBase64: evenBase64 }
+          body: { imageBase64: previewEven }
         });
 
         if (errorEven || resultEven?.error) {
@@ -180,9 +160,8 @@ const Upload = () => {
         localStorage.setItem("savedSchedules", JSON.stringify(savedSchedules));
       } else {
         // Process single schedule
-        const base64 = stripDataUrl(previewOdd!);
         const { data: result, error } = await supabase.functions.invoke('analyze-schedule', {
-          body: { imageBase64: base64 }
+          body: { imageBase64: previewOdd }
         });
 
         if (error || result?.error) {

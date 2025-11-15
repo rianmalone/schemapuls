@@ -32,7 +32,7 @@ const Home = () => {
   const handleSelectSchedule = (id: string) => {
     setActiveScheduleId(id);
     localStorage.setItem("activeScheduleId", id);
-    navigate("/schedule-week");
+    navigate("/schedule");
   };
 
   const handleSetActive = (id: string, e: React.MouseEvent) => {
@@ -84,11 +84,7 @@ const Home = () => {
             schedules.map((schedule) => (
               <div
                 key={schedule.id}
-                className={`w-full p-5 rounded-2xl transition-all ${
-                  activeScheduleId === schedule.id
-                    ? "bg-primary text-primary-foreground shadow-lg"
-                    : "bg-card border border-border"
-                }`}
+                className="w-full p-5 rounded-2xl bg-card border border-border transition-all"
               >
                 <div className="flex items-center justify-between gap-3">
                   <button
@@ -101,39 +97,44 @@ const Home = () => {
                         onChange={(e) => setEditingName(e.target.value)}
                         onBlur={() => handleSaveEdit(schedule.id)}
                         onKeyDown={(e) => e.key === "Enter" && handleSaveEdit(schedule.id)}
-                        className="font-semibold text-lg mb-1 bg-background/50"
+                        className="font-semibold text-lg mb-1"
                         autoFocus
                         onClick={(e) => e.stopPropagation()}
                       />
                     ) : (
                       <h3 className="font-semibold text-lg mb-1">{schedule.name}</h3>
                     )}
-                    <p className="text-sm opacity-80">
-                      {schedule.type === "weekly" ? "Veckoschema" : "Udda/jämna veckor"}
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(schedule.createdAt).toLocaleDateString("sv-SE")}
                     </p>
                   </button>
+                  
                   <div className="flex items-center gap-2">
                     <button
                       onClick={(e) => handleStartEdit(schedule.id, schedule.name, e)}
-                      className="p-2 rounded-lg hover:bg-background/20 transition-colors"
+                      className="p-2 rounded-lg hover:bg-muted transition-colors"
                     >
-                      <Edit2 className="w-4 h-4" />
+                      <Edit2 className="w-4 h-4 text-muted-foreground" />
                     </button>
+                    
                     <button
                       onClick={(e) => handleSetActive(schedule.id, e)}
-                      className={`p-2 rounded-lg transition-colors ${
+                      className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
                         activeScheduleId === schedule.id
-                          ? "bg-primary-foreground/20"
-                          : "hover:bg-muted"
+                          ? "border-primary bg-primary"
+                          : "border-muted-foreground hover:border-primary"
                       }`}
                     >
-                      <Check className="w-4 h-4" />
+                      {activeScheduleId === schedule.id && (
+                        <Check className="w-4 h-4 text-white" />
+                      )}
                     </button>
+                    
                     <button
                       onClick={(e) => handleDeleteSchedule(schedule.id, e)}
-                      className="p-2 rounded-lg hover:bg-destructive/20 hover:text-destructive transition-colors"
+                      className="p-2 rounded-lg hover:bg-destructive/10 transition-colors"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-4 h-4 text-destructive" />
                     </button>
                   </div>
                 </div>

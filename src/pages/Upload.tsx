@@ -44,8 +44,8 @@ const Upload = () => {
           canvas.height = height;
           ctx.drawImage(img, 0, 0, width, height);
 
-          // Convert to JPEG with 85% quality
-          const resizedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+          // Convert to JPEG with 95% quality for screenshot clarity
+          const resizedDataUrl = canvas.toDataURL('image/jpeg', 0.95);
           resolve(resizedDataUrl);
         };
         img.onerror = () => reject(new Error('Failed to load image'));
@@ -119,25 +119,35 @@ const Upload = () => {
     setUploading(true);
     
     try {
+      console.log('Starting schedule analysis...', { scheduleType, hasPreviewOdd: !!previewOdd, hasPreviewEven: !!previewEven });
+      
       // For odd-even schedules, process both images
       if (scheduleType === "odd-even") {
         // Process odd week
+        console.log('Calling analyze-schedule for odd week...');
         const { data: resultOdd, error: errorOdd } = await supabase.functions.invoke('analyze-schedule', {
           body: { imageBase64: previewOdd }
         });
 
+        console.log('Odd week result:', { resultOdd, errorOdd });
+
         if (errorOdd || resultOdd?.error) {
+          console.error('Odd week error:', errorOdd, resultOdd);
           throw new Error(resultOdd?.message || errorOdd?.message || 'Kunde inte analysera udda veckans schema');
         }
 
         const { schedule: scheduleOdd } = resultOdd;
 
         // Process even week
+        console.log('Calling analyze-schedule for even week...');
         const { data: resultEven, error: errorEven } = await supabase.functions.invoke('analyze-schedule', {
           body: { imageBase64: previewEven }
         });
 
+        console.log('Even week result:', { resultEven, errorEven });
+
         if (errorEven || resultEven?.error) {
+          console.error('Even week error:', errorEven, resultEven);
           throw new Error(resultEven?.message || errorEven?.message || 'Kunde inte analysera jämna veckans schema');
         }
 
@@ -160,11 +170,15 @@ const Upload = () => {
         localStorage.setItem("savedSchedules", JSON.stringify(savedSchedules));
       } else {
         // Process single schedule
+        console.log('Calling analyze-schedule for single week...');
         const { data: result, error } = await supabase.functions.invoke('analyze-schedule', {
           body: { imageBase64: previewOdd }
         });
 
+        console.log('Single week result:', { result, error });
+
         if (error || result?.error) {
+          console.error('Single week error:', error, result);
           throw new Error(result?.message || error?.message || 'Kunde inte analysera schemat');
         }
 

@@ -183,31 +183,31 @@ const Upload = () => {
 
           <div className="pt-4 space-y-4">
             {localStorage.getItem("scheduleType") === "odd-even" ? (
-              <>
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <h3 className="text-sm font-semibold mb-2 text-foreground">Udda vecka</h3>
+                  <h3 className="text-xs font-semibold mb-2 text-foreground text-center">Udda vecka</h3>
                   <label
                     htmlFor="file-upload-odd"
-                    className="block w-full p-6 border-2 border-dashed border-border rounded-2xl bg-card hover:bg-accent transition-colors cursor-pointer"
+                    className="block w-full p-4 border-2 border-dashed border-border rounded-2xl bg-card hover:bg-accent transition-colors cursor-pointer"
                   >
-                    <div className="flex flex-col items-center gap-3">
+                    <div className="flex flex-col items-center gap-2">
                       {previewOdd ? (
                         <>
-                          <Camera className="w-10 h-10 text-primary" />
+                          <Camera className="w-8 h-8 text-primary" />
                           <img src={previewOdd} alt="Preview Odd" className="w-full rounded-lg" />
-                          <span className="text-xs text-muted-foreground">
-                            Klicka för att byta bild
+                          <span className="text-[10px] text-muted-foreground text-center">
+                            Klicka för att byta
                           </span>
                         </>
                       ) : (
                         <>
-                          <UploadIcon className="w-10 h-10 text-muted-foreground" />
+                          <UploadIcon className="w-8 h-8 text-muted-foreground" />
                           <div className="text-center">
-                            <p className="text-foreground font-medium text-sm">
-                              Ladda upp schema för udda vecka
+                            <p className="text-foreground font-medium text-xs">
+                              Ladda upp
                             </p>
-                            <p className="text-xs text-muted-foreground mt-1">
-                              Klicka eller dra en fil hit
+                            <p className="text-[10px] text-muted-foreground mt-0.5">
+                              Klicka här
                             </p>
                           </div>
                         </>
@@ -224,29 +224,29 @@ const Upload = () => {
                 </div>
 
                 <div>
-                  <h3 className="text-sm font-semibold mb-2 text-foreground">Jämn vecka</h3>
+                  <h3 className="text-xs font-semibold mb-2 text-foreground text-center">Jämn vecka</h3>
                   <label
                     htmlFor="file-upload-even"
-                    className="block w-full p-6 border-2 border-dashed border-border rounded-2xl bg-card hover:bg-accent transition-colors cursor-pointer"
+                    className="block w-full p-4 border-2 border-dashed border-border rounded-2xl bg-card hover:bg-accent transition-colors cursor-pointer"
                   >
-                    <div className="flex flex-col items-center gap-3">
+                    <div className="flex flex-col items-center gap-2">
                       {previewEven ? (
                         <>
-                          <Camera className="w-10 h-10 text-primary" />
+                          <Camera className="w-8 h-8 text-primary" />
                           <img src={previewEven} alt="Preview Even" className="w-full rounded-lg" />
-                          <span className="text-xs text-muted-foreground">
-                            Klicka för att byta bild
+                          <span className="text-[10px] text-muted-foreground text-center">
+                            Klicka för att byta
                           </span>
                         </>
                       ) : (
                         <>
-                          <UploadIcon className="w-10 h-10 text-muted-foreground" />
+                          <UploadIcon className="w-8 h-8 text-muted-foreground" />
                           <div className="text-center">
-                            <p className="text-foreground font-medium text-sm">
-                              Ladda upp schema för jämn vecka
+                            <p className="text-foreground font-medium text-xs">
+                              Ladda upp
                             </p>
-                            <p className="text-xs text-muted-foreground mt-1">
-                              Klicka eller dra en fil hit
+                            <p className="text-[10px] text-muted-foreground mt-0.5">
+                              Klicka här
                             </p>
                           </div>
                         </>
@@ -270,7 +270,7 @@ const Upload = () => {
                     />
                   </label>
                 </div>
-              </>
+              </div>
             ) : (
               <label
                 htmlFor="file-upload"

@@ -179,7 +179,7 @@ const Schedule = () => {
 
         <div className="mb-4 p-4 rounded-2xl bg-card border border-border">
           <div className="flex items-center justify-between mb-3">
-            <label className="text-sm font-medium">Påminnelse innan lektioner</label>
+            <label className="text-sm font-medium">Påminnelse innan alla lektioner</label>
             <span className="text-sm font-semibold text-primary">
               {notificationMinutes} min
             </span>
@@ -198,10 +198,10 @@ const Schedule = () => {
           </div>
         </div>
 
-        <div className="flex gap-1 mb-4 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="grid grid-cols-6 gap-1 mb-4">
           <button
             onClick={() => setViewMode('week')}
-            className={`flex-shrink-0 px-2 py-1.5 rounded-xl font-medium transition-all text-xs ${
+            className={`px-2 py-1.5 rounded-xl font-medium transition-all text-xs ${
               viewMode === 'week'
                 ? "bg-primary text-primary-foreground shadow-md"
                 : "bg-card text-muted-foreground hover:bg-muted"
@@ -216,7 +216,7 @@ const Schedule = () => {
                 setViewMode('day');
                 setSelectedDay(day.key);
               }}
-              className={`flex-shrink-0 px-2 py-1.5 rounded-xl font-medium transition-all text-xs ${
+              className={`px-2 py-1.5 rounded-xl font-medium transition-all text-xs ${
                 viewMode === 'day' && selectedDay === day.key
                   ? "bg-primary text-primary-foreground shadow-md"
                   : "bg-card text-muted-foreground hover:bg-muted"
@@ -228,22 +228,22 @@ const Schedule = () => {
         </div>
 
         <div className="mb-4 p-3 rounded-2xl bg-card border border-border">
-          <h3 className="text-[10px] font-medium mb-2">Aktivera påminnelser för:</h3>
-          <div className="grid grid-cols-6 gap-1.5">
-            <label className="flex items-center gap-1 cursor-pointer">
+          <h3 className="text-[9px] font-medium mb-2">Aktivera påminnelser för:</h3>
+          <div className="grid grid-cols-6 gap-1">
+            <label className="flex items-center gap-0.5 cursor-pointer">
               <Checkbox
                 checked={allDaysChecked}
                 onCheckedChange={toggleAllDays}
               />
-              <span className="text-[10px] font-semibold">Vecka</span>
+              <span className="text-[9px] font-semibold">Vecka</span>
             </label>
             {days.map((day) => (
-              <label key={day.key} className="flex items-center gap-1 cursor-pointer">
+              <label key={day.key} className="flex items-center gap-0.5 cursor-pointer">
                 <Checkbox
                   checked={enabledDays[day.key]}
                   onCheckedChange={() => handleDayToggle(day.key)}
                 />
-                <span className="text-[10px]">{day.label}</span>
+                <span className="text-[9px]">{day.label}</span>
               </label>
             ))}
           </div>
@@ -251,7 +251,7 @@ const Schedule = () => {
 
         {viewMode === 'week' ? (
           <div className="bg-card rounded-2xl border border-border p-2">
-            <div className="grid grid-cols-5 gap-1">
+            <div className="grid grid-cols-5 gap-0 divide-x divide-border">
               {days.map((day) => (
                 <div key={day.key} className="text-[10px] font-semibold text-center pb-1 border-b border-border">
                   {day.label}
@@ -261,47 +261,52 @@ const Schedule = () => {
               {days.map((day) => {
                 const dayClasses = schedule[day.key as keyof WeekSchedule] || [];
                 return (
-                  <div key={day.key} className="space-y-1 pt-1">
+                  <div key={day.key} className="space-y-1 pt-1 px-1">
                     {dayClasses.map((classItem) => (
                       <button
                         key={classItem.id}
                         onClick={() => navigate(`/edit-class/${classItem.id}`)}
                         className={`w-full p-1.5 rounded-lg ${getColorClass(
-                          classItem.color
+                          classItem.name
                         )} text-white text-left transition-opacity ${
-                          !enabledClasses[classItem.id] ? 'opacity-40' : 'opacity-100'
+                          !enabledClasses[classItem.id] ? 'opacity-50' : 'opacity-100'
                         }`}
                         style={{
-                          minHeight: `${calculateHeight(classItem.start, classItem.end) * 0.5}px`,
+                          minHeight: `${Math.max(calculateHeight(classItem.start, classItem.end) * 0.6, 85)}px`,
                         }}
                       >
-                        <div className="flex items-start justify-between gap-1">
-                          <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-[10px] leading-tight truncate">
+                        <div className="flex flex-col h-full justify-between gap-0.5">
+                          <div className="flex items-start justify-between gap-1">
+                            <div className="text-[8px] opacity-90">
+                              {classItem.start}
+                            </div>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleClassToggle(classItem.id);
+                              }}
+                              className="flex-shrink-0"
+                            >
+                              <div className={`w-3 h-3 rounded-full border-2 border-white flex items-center justify-center ${
+                                enabledClasses[classItem.id] ? 'bg-white' : 'bg-transparent'
+                              }`}>
+                                {enabledClasses[classItem.id] && (
+                                  <div className="w-1 h-1 rounded-full bg-primary" />
+                                )}
+                              </div>
+                            </button>
+                          </div>
+                          <div className="flex-1 flex flex-col justify-center">
+                            <div className="font-semibold text-[10px] leading-tight">
                               {classItem.name}
                             </div>
-                            <div className="text-[9px] opacity-90 mt-0.5">
-                              {classItem.start}-{classItem.end}
-                            </div>
                             {classItem.room && (
-                              <div className="text-[8px] opacity-80 truncate">{classItem.room}</div>
+                              <div className="text-[8px] opacity-80 mt-0.5">{classItem.room}</div>
                             )}
                           </div>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleClassToggle(classItem.id);
-                            }}
-                            className="flex-shrink-0"
-                          >
-                            <div className={`w-3 h-3 rounded-full border-2 border-white flex items-center justify-center ${
-                              enabledClasses[classItem.id] ? 'bg-white' : 'bg-transparent'
-                            }`}>
-                              {enabledClasses[classItem.id] && (
-                                <div className="w-1 h-1 rounded-full bg-primary" />
-                              )}
-                            </div>
-                          </button>
+                          <div className="text-[8px] opacity-90">
+                            {classItem.end}
+                          </div>
                         </div>
                       </button>
                     ))}
@@ -320,7 +325,7 @@ const Schedule = () => {
                     className={`w-full p-3 rounded-xl ${getColorClass(
                       classItem.name
                     )} text-white shadow-sm transition-opacity text-left border-l-4 border-white/30 ${
-                      !enabledClasses[classItem.id] ? 'opacity-40' : 'opacity-100'
+                      !enabledClasses[classItem.id] ? 'opacity-50' : 'opacity-100'
                     }`}
                     style={{
                       height: `${calculateHeight(classItem.start, classItem.end)}px`,

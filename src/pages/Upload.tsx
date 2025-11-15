@@ -14,6 +14,48 @@ const Upload = () => {
   const [previewOdd, setPreviewOdd] = useState<string | null>(null);
   const [previewEven, setPreviewEven] = useState<string | null>(null);
 
+  const resizeImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('Could not get canvas context'));
+            return;
+          }
+
+          // Resize to max 1920px on longest side while maintaining aspect ratio
+          const maxDimension = 1920;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height && width > maxDimension) {
+            height = (height * maxDimension) / width;
+            width = maxDimension;
+          } else if (height > maxDimension) {
+            width = (width * maxDimension) / height;
+            height = maxDimension;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Convert to JPEG with 85% quality for smaller file size
+          const resizedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+          resolve(resizedDataUrl);
+        };
+        img.onerror = () => reject(new Error('Failed to load image'));
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -38,11 +80,17 @@ const Upload = () => {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setPreviewOdd(e.target?.result as string);
-    };
-    reader.readAsDataURL(file);
+    try {
+      const resizedImage = await resizeImage(file);
+      setPreviewOdd(resizedImage);
+    } catch (error) {
+      console.error('Error resizing image:', error);
+      toast({
+        title: "Kunde inte behandla bilden",
+        description: "Försök med en annan bild",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleProcess = async () => {
@@ -294,7 +342,7 @@ const Upload = () => {
                       className="hidden"
                       accept="image/*"
                       capture="environment"
-                      onChange={(e) => {
+                      onChange={async (e) => {
                         const file = e.target.files?.[0];
                         if (!file) return;
 
@@ -318,11 +366,17 @@ const Upload = () => {
                           return;
                         }
 
-                        const reader = new FileReader();
-                        reader.onloadend = () => {
-                          setPreviewEven(reader.result as string);
-                        };
-                        reader.readAsDataURL(file);
+                        try {
+                          const resizedImage = await resizeImage(file);
+                          setPreviewEven(resizedImage);
+                        } catch (error) {
+                          console.error('Error resizing image:', error);
+                          toast({
+                            title: "Kunde inte behandla bilden",
+                            description: "Försök med en annan bild",
+                            variant: "destructive",
+                          });
+                        }
                       }}
                     />
                   </label>

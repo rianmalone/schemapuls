@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Upload } from "lucide-react";
+import { ArrowLeft, Upload, Bell, BellOff } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
+import { notificationService } from "@/services/notificationService";
+import { useToast } from "@/hooks/use-toast";
 
 interface Class {
   id: string;
@@ -24,6 +26,7 @@ interface WeekSchedule {
 
 const Schedule = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [schedule, setSchedule] = useState<WeekSchedule | null>(null);
   const [viewMode, setViewMode] = useState<'week' | 'day'>('week');
   const [selectedDay, setSelectedDay] = useState("monday");
@@ -36,6 +39,8 @@ const Schedule = () => {
     friday: true,
   });
   const [enabledClasses, setEnabledClasses] = useState<Record<string, boolean>>({});
+  const [hasNotificationPermission, setHasNotificationPermission] = useState(false);
+  const [checkingPermissions, setCheckingPermissions] = useState(true);
 
   const days = [
     { key: "monday", label: "Mån" },
@@ -46,52 +51,86 @@ const Schedule = () => {
   ];
 
   useEffect(() => {
-    const savedSchedule = localStorage.getItem("schedule");
-    if (savedSchedule) {
-      const parsedSchedule = JSON.parse(savedSchedule);
-      setSchedule(parsedSchedule);
-      
-      // Initialize all classes as enabled by default
-      const allClasses: Record<string, boolean> = {};
-      Object.values(parsedSchedule).forEach((dayClasses: Class[]) => {
-        dayClasses.forEach((classItem) => {
-          allClasses[classItem.id] = true;
+    const initializeSchedule = async () => {
+      const savedSchedule = localStorage.getItem("schedule");
+      if (savedSchedule) {
+        const parsedSchedule = JSON.parse(savedSchedule);
+        setSchedule(parsedSchedule);
+        
+        // Initialize all classes as enabled by default
+        const allClasses: Record<string, boolean> = {};
+        Object.values(parsedSchedule).forEach((dayClasses: Class[]) => {
+          dayClasses.forEach((classItem) => {
+            allClasses[classItem.id] = true;
+          });
         });
-      });
-      
-      const savedEnabledClasses = localStorage.getItem("enabledClasses");
-      if (savedEnabledClasses) {
-        setEnabledClasses({ ...allClasses, ...JSON.parse(savedEnabledClasses) });
+        
+        const savedEnabledClasses = localStorage.getItem("enabledClasses");
+        if (savedEnabledClasses) {
+          setEnabledClasses({ ...allClasses, ...JSON.parse(savedEnabledClasses) });
+        } else {
+          setEnabledClasses(allClasses);
+        }
       } else {
-        setEnabledClasses(allClasses);
+        navigate("/");
+        return;
       }
-    } else {
-      navigate("/");
-    }
 
-    const savedMinutes = localStorage.getItem("globalNotificationMinutes");
-    if (savedMinutes) {
-      setNotificationMinutes(parseInt(savedMinutes));
-    }
+      const savedMinutes = localStorage.getItem("globalNotificationMinutes");
+      if (savedMinutes) {
+        setNotificationMinutes(parseInt(savedMinutes));
+      }
 
-    const savedEnabledDays = localStorage.getItem("enabledDays");
-    if (savedEnabledDays) {
-      setEnabledDays(JSON.parse(savedEnabledDays));
-    }
+      const savedEnabledDays = localStorage.getItem("enabledDays");
+      if (savedEnabledDays) {
+        setEnabledDays(JSON.parse(savedEnabledDays));
+      }
+
+      // Check notification permissions
+      const hasPermission = await notificationService.checkPermissions();
+      setHasNotificationPermission(hasPermission);
+      setCheckingPermissions(false);
+    };
+
+    initializeSchedule();
   }, [navigate]);
 
-  const handleNotificationChange = (value: number[]) => {
+  const handleNotificationChange = async (value: number[]) => {
     setNotificationMinutes(value[0]);
     localStorage.setItem("globalNotificationMinutes", value[0].toString());
+    
+    // Reschedule notifications with new time
+    if (schedule && hasNotificationPermission) {
+      const scheduleType = localStorage.getItem("scheduleType") || "weekly";
+      await notificationService.scheduleNotifications(
+        schedule,
+        enabledClasses,
+        enabledDays,
+        value[0],
+        scheduleType
+      );
+    }
   };
 
-  const handleDayToggle = (day: string) => {
+  const handleDayToggle = async (day: string) => {
     const updated = { ...enabledDays, [day]: !enabledDays[day] };
     setEnabledDays(updated);
     localStorage.setItem("enabledDays", JSON.stringify(updated));
+    
+    // Reschedule notifications
+    if (schedule && hasNotificationPermission) {
+      const scheduleType = localStorage.getItem("scheduleType") || "weekly";
+      await notificationService.scheduleNotifications(
+        schedule,
+        enabledClasses,
+        updated,
+        notificationMinutes,
+        scheduleType
+      );
+    }
   };
 
-  const toggleAllDays = () => {
+  const toggleAllDays = async () => {
     const allChecked = Object.values(enabledDays).every(v => v);
     const updated = {
       monday: !allChecked,
@@ -102,16 +141,71 @@ const Schedule = () => {
     };
     setEnabledDays(updated);
     localStorage.setItem("enabledDays", JSON.stringify(updated));
+    
+    // Reschedule notifications
+    if (schedule && hasNotificationPermission) {
+      const scheduleType = localStorage.getItem("scheduleType") || "weekly";
+      await notificationService.scheduleNotifications(
+        schedule,
+        enabledClasses,
+        updated,
+        notificationMinutes,
+        scheduleType
+      );
+    }
   };
 
-  const handleClassToggle = (classId: string) => {
+  const handleClassToggle = async (classId: string) => {
     const updated = { ...enabledClasses, [classId]: !enabledClasses[classId] };
     setEnabledClasses(updated);
     localStorage.setItem("enabledClasses", JSON.stringify(updated));
+    
+    // Reschedule notifications
+    if (schedule && hasNotificationPermission) {
+      const scheduleType = localStorage.getItem("scheduleType") || "weekly";
+      await notificationService.scheduleNotifications(
+        schedule,
+        updated,
+        enabledDays,
+        notificationMinutes,
+        scheduleType
+      );
+    }
   };
 
-  const handleReplaceSchedule = () => {
+  const handleReplaceSchedule = async () => {
+    await notificationService.cancelAllNotifications();
     navigate("/upload");
+  };
+
+  const handleRequestPermissions = async () => {
+    const granted = await notificationService.requestPermissions();
+    setHasNotificationPermission(granted);
+    
+    if (granted) {
+      toast({
+        title: "Notiser aktiverade",
+        description: "Du får nu påminnelser innan dina lektioner",
+      });
+      
+      // Schedule notifications immediately
+      if (schedule) {
+        const scheduleType = localStorage.getItem("scheduleType") || "weekly";
+        await notificationService.scheduleNotifications(
+          schedule,
+          enabledClasses,
+          enabledDays,
+          notificationMinutes,
+          scheduleType
+        );
+      }
+    } else {
+      toast({
+        title: "Notiser nekade",
+        description: "Gå till inställningar för att aktivera notiser",
+        variant: "destructive",
+      });
+    }
   };
 
   const getColorClass = (className: string) => {
@@ -172,6 +266,25 @@ const Schedule = () => {
             Uppdatera
           </Button>
         </div>
+
+        {/* Notification Permission Banner */}
+        {!checkingPermissions && !hasNotificationPermission && (
+          <div className="mb-4 p-4 bg-secondary/50 rounded-lg border border-border">
+            <div className="flex items-start gap-3">
+              <BellOff className="h-5 w-5 text-muted-foreground mt-0.5" />
+              <div className="flex-1">
+                <h3 className="font-semibold text-sm mb-1">Aktivera påminnelser</h3>
+                <p className="text-xs text-muted-foreground mb-3">
+                  För att få påminnelser innan dina lektioner behöver du aktivera notiser
+                </p>
+                <Button size="sm" onClick={handleRequestPermissions} className="gap-2">
+                  <Bell className="h-4 w-4" />
+                  Aktivera notiser
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="mb-4">
           <h1 className="text-2xl font-bold text-foreground">Mitt Schema</h1>

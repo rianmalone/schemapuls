@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Upload as UploadIcon, ArrowLeft, Camera } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { notificationService } from "@/services/notificationService";
 
 const Upload = () => {
   const navigate = useNavigate();
@@ -136,6 +137,23 @@ const Upload = () => {
         title: "Schema skapat!",
         description: "Ditt schema har analyserats med AI",
       });
+
+      // Schedule notifications if permission is granted
+      const hasPermission = await notificationService.checkPermissions();
+      if (hasPermission) {
+        const schedule = JSON.parse(localStorage.getItem("schedule") || "{}");
+        const enabledClasses = JSON.parse(localStorage.getItem("enabledClasses") || "{}");
+        const enabledDays = JSON.parse(localStorage.getItem("enabledDays") || "{}");
+        const notificationMinutes = parseInt(localStorage.getItem("globalNotificationMinutes") || "5");
+        
+        await notificationService.scheduleNotifications(
+          schedule,
+          enabledClasses,
+          enabledDays,
+          notificationMinutes,
+          scheduleType
+        );
+      }
       
       navigate("/schedule");
     } catch (error) {

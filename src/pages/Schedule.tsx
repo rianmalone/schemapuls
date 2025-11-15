@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar, Upload } from "lucide-react";
+import { ArrowLeft, Upload } from "lucide-react";
 import { useEffect, useState } from "react";
 import ScheduleCard from "@/components/ScheduleCard";
 import { Slider } from "@/components/ui/slider";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface Class {
   id: string;
@@ -27,6 +28,13 @@ const Schedule = () => {
   const [schedule, setSchedule] = useState<WeekSchedule | null>(null);
   const [selectedDay, setSelectedDay] = useState("monday");
   const [notificationMinutes, setNotificationMinutes] = useState(5);
+  const [enabledDays, setEnabledDays] = useState<Record<string, boolean>>({
+    monday: true,
+    tuesday: true,
+    wednesday: true,
+    thursday: true,
+    friday: true,
+  });
 
   const days = [
     { key: "monday", label: "Mån" },
@@ -48,11 +56,22 @@ const Schedule = () => {
     if (savedMinutes) {
       setNotificationMinutes(parseInt(savedMinutes));
     }
+
+    const savedEnabledDays = localStorage.getItem("enabledDays");
+    if (savedEnabledDays) {
+      setEnabledDays(JSON.parse(savedEnabledDays));
+    }
   }, [navigate]);
 
   const handleNotificationChange = (value: number[]) => {
     setNotificationMinutes(value[0]);
     localStorage.setItem("globalNotificationMinutes", value[0].toString());
+  };
+
+  const handleDayToggle = (day: string) => {
+    const updated = { ...enabledDays, [day]: !enabledDays[day] };
+    setEnabledDays(updated);
+    localStorage.setItem("enabledDays", JSON.stringify(updated));
   };
 
   const handleReplaceSchedule = () => {
@@ -75,26 +94,15 @@ const Schedule = () => {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Hem
           </Button>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate("/schedule-week")}
-              className="rounded-xl"
-            >
-              <Calendar className="w-4 h-4 mr-2" />
-              Veckovy
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleReplaceSchedule}
-              className="rounded-xl"
-            >
-              <Upload className="w-4 h-4 mr-2" />
-              Uppdatera
-            </Button>
-          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleReplaceSchedule}
+            className="rounded-xl"
+          >
+            <Upload className="w-4 h-4 mr-2" />
+            Uppdatera
+          </Button>
         </div>
 
         <div className="mb-4">
@@ -111,18 +119,24 @@ const Schedule = () => {
           <Slider
             value={[notificationMinutes]}
             onValueChange={handleNotificationChange}
-            min={2}
+            min={1}
             max={15}
             step={1}
             className="w-full"
           />
           <div className="flex justify-between text-xs text-muted-foreground mt-2">
-            <span>2 min</span>
+            <span>1 min</span>
             <span>15 min</span>
           </div>
         </div>
 
         <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
+          <button
+            onClick={() => navigate("/schedule-week")}
+            className="flex-shrink-0 px-5 py-2.5 rounded-xl font-medium transition-all text-sm bg-card text-muted-foreground hover:bg-muted"
+          >
+            Veckovy
+          </button>
           {days.map((day) => (
             <button
               key={day.key}
@@ -136,6 +150,21 @@ const Schedule = () => {
               {day.label}
             </button>
           ))}
+        </div>
+
+        <div className="mb-4 p-4 rounded-2xl bg-card border border-border">
+          <h3 className="text-sm font-medium mb-3">Aktivera påminnelser för:</h3>
+          <div className="flex flex-wrap gap-3">
+            {days.map((day) => (
+              <label key={day.key} className="flex items-center gap-2 cursor-pointer">
+                <Checkbox
+                  checked={enabledDays[day.key]}
+                  onCheckedChange={() => handleDayToggle(day.key)}
+                />
+                <span className="text-sm">{day.label}</span>
+              </label>
+            ))}
+          </div>
         </div>
 
         <div className="space-y-2">

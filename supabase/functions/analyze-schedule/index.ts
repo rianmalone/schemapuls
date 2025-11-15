@@ -27,6 +27,15 @@ Deno.serve(async (req) => {
       throw new Error('LOVABLE_API_KEY not configured');
     }
 
+    // Ensure the image is in the correct format for Gemini
+    let imageUrl = imageBase64;
+    if (!imageBase64.startsWith('data:image/')) {
+      // If it's just base64 without prefix, add it
+      imageUrl = `data:image/png;base64,${imageBase64}`;
+    }
+
+    console.log('Image URL format:', imageUrl.substring(0, 50) + '...');
+
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -85,7 +94,7 @@ ONLY return the JSON, no other text.`
               {
                 type: 'image_url',
                 image_url: {
-                  url: imageBase64
+                  url: imageUrl
                 }
               }
             ]

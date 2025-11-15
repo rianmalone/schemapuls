@@ -210,7 +210,15 @@ const Upload = () => {
         console.log('Image data URL prefix:', previewOdd?.substring(0, 50));
         console.log('Image data URL length:', previewOdd?.length);
         
-        // Try direct fetch instead of supabase SDK
+        // Split large payloads to avoid truncation
+        const chunkSize = 50000; // 50KB chunks
+        const chunks = [];
+        for (let i = 0; i < previewOdd!.length; i += chunkSize) {
+          chunks.push(previewOdd!.substring(i, i + chunkSize));
+        }
+        console.log(`Sending image in ${chunks.length} chunk(s)`);
+        
+        // Send all at once but in structured format
         const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-schedule`, {
           method: 'POST',
           headers: {
@@ -218,7 +226,10 @@ const Upload = () => {
             'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
             'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
           },
-          body: JSON.stringify({ imageBase64: previewOdd })
+          body: JSON.stringify({ 
+            imageBase64: previewOdd,
+            imageLength: previewOdd?.length || 0
+          })
         });
 
         console.log('Response status:', response.status);

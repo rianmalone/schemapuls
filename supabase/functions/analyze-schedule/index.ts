@@ -15,10 +15,17 @@ Deno.serve(async (req) => {
   }
 
   try {
-    console.log('Attempting to parse request body...');
+    console.log('Attempting to read request body...');
     let body;
+    let rawBodyLength = 0;
     try {
-      body = await req.json();
+      const text = await req.text();
+      rawBodyLength = text.length;
+      console.log('Raw body length:', rawBodyLength);
+      console.log('Raw body first 100 chars:', text.substring(0, 100));
+      console.log('Raw body last 100 chars:', text.substring(Math.max(0, text.length - 100)));
+      
+      body = JSON.parse(text);
       console.log('Body parsed successfully');
     } catch (parseError) {
       console.error('Failed to parse request body:', parseError);
@@ -32,9 +39,14 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { imageBase64 } = body;
+    const { imageBase64, imageLength } = body;
     console.log('imageBase64 present:', !!imageBase64);
     console.log('imageBase64 length:', imageBase64?.length || 0);
+    console.log('Expected imageLength:', imageLength || 'not provided');
+    
+    if (imageLength && imageBase64?.length !== imageLength) {
+      console.error(`TRUNCATION DETECTED: Expected ${imageLength} bytes, got ${imageBase64?.length} bytes`);
+    }
     
     if (!imageBase64) {
       return new Response(

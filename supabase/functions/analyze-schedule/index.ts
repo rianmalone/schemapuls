@@ -167,7 +167,7 @@ Other -> "art"
     }
 
     // --- ADD IDs + CLEAN FINAL STRUCTURE ---
-    const final = {};
+    const final: Record<string, any[]> = {};
     let id = 1;
     const days = ["monday", "tuesday", "wednesday", "thursday", "friday"];
 
@@ -183,7 +183,7 @@ Other -> "art"
     }
 
     return corsResponse({ schedule: final }, 200);
-  } catch (err) {
+  } catch (err: any) {
     console.error("SERVER ERROR:", err);
     return corsResponse(
       {

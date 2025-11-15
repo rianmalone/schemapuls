@@ -11,17 +11,13 @@ const Upload = () => {
   const [previewOdd, setPreviewOdd] = useState<string | null>(null);
   const [previewEven, setPreviewEven] = useState<string | null>(null);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, type: 'odd' | 'even') => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      if (type === 'odd') {
-        setPreviewOdd(e.target?.result as string);
-      } else {
-        setPreviewEven(e.target?.result as string);
-      }
+      setPreviewOdd(e.target?.result as string);
     };
     reader.readAsDataURL(file);
   };
@@ -222,7 +218,7 @@ const Upload = () => {
                       type="file"
                       className="hidden"
                       accept="image/*"
-                      onChange={(e) => handleFileChange(e, 'odd')}
+                      onChange={handleFileChange}
                     />
                   </label>
                 </div>
@@ -261,7 +257,16 @@ const Upload = () => {
                       type="file"
                       className="hidden"
                       accept="image/*"
-                      onChange={(e) => handleFileChange(e, 'even')}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setPreviewEven(reader.result as string);
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
                     />
                   </label>
                 </div>
@@ -299,7 +304,7 @@ const Upload = () => {
                   type="file"
                   className="hidden"
                   accept="image/*"
-                  onChange={(e) => handleFileChange(e, 'odd')}
+                  onChange={handleFileChange}
                 />
               </label>
             )}

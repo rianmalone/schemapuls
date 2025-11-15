@@ -114,16 +114,19 @@ const Schedule = () => {
     navigate("/upload");
   };
 
-  const getColorClass = (color: string) => {
-    const colorMap: Record<string, string> = {
-      math: "bg-schedule-math",
-      english: "bg-schedule-english",
-      science: "bg-schedule-science",
-      history: "bg-schedule-history",
-      pe: "bg-schedule-pe",
-      art: "bg-schedule-art",
-    };
-    return colorMap[color] || "bg-primary";
+  const getColorClass = (className: string) => {
+    const nameLower = className.toLowerCase();
+    
+    if (nameLower.includes('mat') || nameLower.includes('math')) return "bg-schedule-math";
+    if (nameLower.includes('sven') || nameLower.includes('svensk')) return "bg-schedule-history";
+    if (nameLower.includes('eng')) return "bg-schedule-art";
+    if (nameLower.includes('lunch')) return "bg-schedule-pe";
+    if (nameLower.includes('prog') || nameLower.includes('tek')) return "bg-schedule-science";
+    if (nameLower.includes('fys') || nameLower.includes('kemi')) return "bg-schedule-science";
+    if (nameLower.includes('men') || nameLower.includes('läx')) return "bg-schedule-science";
+    if (nameLower.includes('kons')) return "bg-schedule-science";
+    
+    return "bg-primary";
   };
 
   const calculateHeight = (start: string, end: string) => {
@@ -224,23 +227,23 @@ const Schedule = () => {
           ))}
         </div>
 
-        <div className="mb-4 p-4 rounded-2xl bg-card border border-border">
-          <h3 className="text-xs font-medium mb-2">Aktivera påminnelser för:</h3>
-          <div className="flex flex-wrap gap-2">
-            <label className="flex items-center gap-1.5 cursor-pointer">
+        <div className="mb-4 p-3 rounded-2xl bg-card border border-border">
+          <h3 className="text-[10px] font-medium mb-2">Aktivera påminnelser för:</h3>
+          <div className="grid grid-cols-6 gap-1.5">
+            <label className="flex items-center gap-1 cursor-pointer">
               <Checkbox
                 checked={allDaysChecked}
                 onCheckedChange={toggleAllDays}
               />
-              <span className="text-xs font-semibold">Vecka</span>
+              <span className="text-[10px] font-semibold">Vecka</span>
             </label>
             {days.map((day) => (
-              <label key={day.key} className="flex items-center gap-1.5 cursor-pointer">
+              <label key={day.key} className="flex items-center gap-1 cursor-pointer">
                 <Checkbox
                   checked={enabledDays[day.key]}
                   onCheckedChange={() => handleDayToggle(day.key)}
                 />
-                <span className="text-xs">{day.label}</span>
+                <span className="text-[10px]">{day.label}</span>
               </label>
             ))}
           </div>
@@ -315,13 +318,13 @@ const Schedule = () => {
                   <button
                     onClick={() => navigate(`/edit-class/${classItem.id}`)}
                     className={`w-full p-3 rounded-xl ${getColorClass(
-                      classItem.color
+                      classItem.name
                     )} text-white shadow-sm transition-opacity text-left border-l-4 border-white/30 ${
                       !enabledClasses[classItem.id] ? 'opacity-40' : 'opacity-100'
                     }`}
                     style={{
                       height: `${calculateHeight(classItem.start, classItem.end)}px`,
-                      minHeight: "60px",
+                      minHeight: "80px",
                     }}
                   >
                     <div className="flex items-start justify-between h-full">

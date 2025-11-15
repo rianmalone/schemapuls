@@ -4,12 +4,17 @@ const corsHeaders = {
 };
 
 Deno.serve(async (req) => {
+  console.log('Received request:', req.method, req.url);
+  
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
 
   try {
-    const { imageBase64 } = await req.json();
+    console.log('Parsing request body...');
+    const body = await req.json();
+    console.log('Request body parsed, has imageBase64:', !!body.imageBase64);
+    const { imageBase64 } = body;
     
     if (!imageBase64) {
       throw new Error('No image provided');

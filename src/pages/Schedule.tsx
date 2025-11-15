@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Plus, Settings, Bell } from "lucide-react";
+import { ArrowLeft, Calendar, Upload } from "lucide-react";
 import { useEffect, useState } from "react";
 import ScheduleCard from "@/components/ScheduleCard";
+import { Slider } from "@/components/ui/slider";
 
 interface Class {
   id: string;
@@ -10,7 +11,7 @@ interface Class {
   start: string;
   end: string;
   color: string;
-  notificationMinutes?: number;
+  room?: string;
 }
 
 interface WeekSchedule {
@@ -25,7 +26,7 @@ const Schedule = () => {
   const navigate = useNavigate();
   const [schedule, setSchedule] = useState<WeekSchedule | null>(null);
   const [selectedDay, setSelectedDay] = useState("monday");
-  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [notificationMinutes, setNotificationMinutes] = useState(5);
 
   const days = [
     { key: "monday", label: "Mån" },
@@ -43,18 +44,19 @@ const Schedule = () => {
       navigate("/");
     }
 
-    const notifPermission = localStorage.getItem("notificationsEnabled");
-    setNotificationsEnabled(notifPermission === "true");
+    const savedMinutes = localStorage.getItem("globalNotificationMinutes");
+    if (savedMinutes) {
+      setNotificationMinutes(parseInt(savedMinutes));
+    }
   }, [navigate]);
 
-  const handleEnableNotifications = async () => {
-    if ("Notification" in window) {
-      const permission = await Notification.requestPermission();
-      if (permission === "granted") {
-        localStorage.setItem("notificationsEnabled", "true");
-        setNotificationsEnabled(true);
-      }
-    }
+  const handleNotificationChange = (value: number[]) => {
+    setNotificationMinutes(value[0]);
+    localStorage.setItem("globalNotificationMinutes", value[0].toString());
+  };
+
+  const handleReplaceSchedule = () => {
+    navigate("/upload");
   };
 
   if (!schedule) return null;
@@ -63,51 +65,71 @@ const Schedule = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-      <div className="max-w-md mx-auto p-6 pt-8">
+      <div className="max-w-md mx-auto p-4 pt-6">
         <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Mitt Schema</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Vecka {new Date().getWeek()}
-            </p>
-          </div>
-          <Button variant="ghost" size="icon" className="rounded-xl">
-            <Settings className="w-5 h-5" />
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/")}
+            size="sm"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Hem
           </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate("/schedule-week")}
+              className="rounded-xl"
+            >
+              <Calendar className="w-4 h-4 mr-2" />
+              Veckovy
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleReplaceSchedule}
+              className="rounded-xl"
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              Uppdatera
+            </Button>
+          </div>
         </div>
 
-        {!notificationsEnabled && (
-          <div className="mb-6 p-4 rounded-2xl bg-secondary/10 border border-secondary/20">
-            <div className="flex items-start gap-3">
-              <Bell className="w-5 h-5 text-secondary mt-0.5" />
-              <div className="flex-1">
-                <h3 className="font-semibold text-foreground mb-1">
-                  Aktivera påminnelser
-                </h3>
-                <p className="text-sm text-muted-foreground mb-3">
-                  Få notiser innan dina lektioner börjar
-                </p>
-                <Button
-                  onClick={handleEnableNotifications}
-                  variant="secondary"
-                  size="sm"
-                  className="rounded-xl"
-                >
-                  Aktivera
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
+        <div className="mb-4">
+          <h1 className="text-2xl font-bold text-foreground">Mitt Schema</h1>
+        </div>
 
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+        <div className="mb-4 p-4 rounded-2xl bg-card border border-border">
+          <div className="flex items-center justify-between mb-3">
+            <label className="text-sm font-medium">Påminnelse innan lektion</label>
+            <span className="text-sm font-semibold text-primary">
+              {notificationMinutes} min
+            </span>
+          </div>
+          <Slider
+            value={[notificationMinutes]}
+            onValueChange={handleNotificationChange}
+            min={2}
+            max={15}
+            step={1}
+            className="w-full"
+          />
+          <div className="flex justify-between text-xs text-muted-foreground mt-2">
+            <span>2 min</span>
+            <span>15 min</span>
+          </div>
+        </div>
+
+        <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
           {days.map((day) => (
             <button
               key={day.key}
               onClick={() => setSelectedDay(day.key)}
-              className={`flex-shrink-0 px-6 py-3 rounded-2xl font-medium transition-all ${
+              className={`flex-shrink-0 px-5 py-2.5 rounded-xl font-medium transition-all text-sm ${
                 selectedDay === day.key
-                  ? "bg-primary text-primary-foreground shadow-lg"
+                  ? "bg-primary text-primary-foreground shadow-md"
                   : "bg-card text-muted-foreground hover:bg-muted"
               }`}
             >
@@ -116,7 +138,7 @@ const Schedule = () => {
           ))}
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-2">
           {currentDayClasses.length > 0 ? (
             currentDayClasses.map((classItem) => (
               <ScheduleCard
@@ -126,20 +148,11 @@ const Schedule = () => {
               />
             ))
           ) : (
-            <div className="text-center py-12 px-6 rounded-2xl bg-card border border-border">
-              <p className="text-muted-foreground">Inga lektioner denna dag</p>
+            <div className="text-center py-8 px-6 rounded-2xl bg-card border border-border">
+              <p className="text-muted-foreground text-sm">Inga lektioner denna dag</p>
             </div>
           )}
         </div>
-
-        <Button
-          onClick={() => navigate("/add-class")}
-          className="w-full h-14 rounded-2xl shadow-lg hover:shadow-xl transition-all mt-6"
-          size="lg"
-        >
-          <Plus className="w-5 h-5 mr-2" />
-          Lägg till lektion
-        </Button>
       </div>
     </div>
   );

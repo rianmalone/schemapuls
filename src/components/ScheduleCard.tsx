@@ -6,7 +6,7 @@ interface Class {
   start: string;
   end: string;
   color: string;
-  notificationMinutes?: number;
+  room?: string;
 }
 
 interface ScheduleCardProps {
@@ -30,24 +30,21 @@ const ScheduleCard = ({ classItem, onClick }: ScheduleCardProps) => {
   return (
     <button
       onClick={onClick}
-      className={`w-full p-5 rounded-2xl ${getColorClass(
+      className={`w-full p-3 rounded-xl ${getColorClass(
         classItem.color
-      )} text-white shadow-md hover:shadow-xl transition-all text-left`}
+      )} text-white shadow-sm hover:shadow-md transition-all text-left`}
     >
-      <div className="flex items-start justify-between mb-2">
-        <h3 className="text-lg font-semibold">{classItem.name}</h3>
-        {classItem.notificationMinutes && (
-          <div className="flex items-center gap-1 bg-white/20 px-2 py-1 rounded-lg">
-            <Bell className="w-3 h-3" />
-            <span className="text-xs">{classItem.notificationMinutes} min</span>
-          </div>
-        )}
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold">{classItem.name}</h3>
+        <div className="flex items-center gap-1.5 text-xs opacity-90">
+          <span>{classItem.start}</span>
+          <span>-</span>
+          <span>{classItem.end}</span>
+        </div>
       </div>
-      <div className="flex items-center gap-2 text-sm opacity-90">
-        <span>{classItem.start}</span>
-        <span>→</span>
-        <span>{classItem.end}</span>
-      </div>
+      {classItem.room && (
+        <p className="text-xs opacity-80 mt-1">{classItem.room}</p>
+      )}
     </button>
   );
 };

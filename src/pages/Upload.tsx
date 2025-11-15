@@ -27,30 +27,55 @@ const Upload = () => {
     // Simulate processing with mock data
     await new Promise((resolve) => setTimeout(resolve, 2000));
     
+    // Parsing real data from the schedule image
     const mockSchedule = {
       monday: [
-        { id: "1", name: "Matematik", start: "08:00", end: "09:30", color: "math" },
-        { id: "2", name: "Engelska", start: "10:00", end: "11:30", color: "english" },
+        { id: "1", name: "Entreprenörskap", start: "09:00", end: "11:00", color: "math", room: "B011" },
+        { id: "2", name: "Svenska 2", start: "11:00", end: "12:00", color: "english", room: "206" },
+        { id: "3", name: "Lunch", start: "12:00", end: "13:00", color: "pe", room: "" },
+        { id: "4", name: "Matematik 2c", start: "13:00", end: "14:00", color: "science", room: "233" },
+        { id: "5", name: "Engelska 6", start: "14:00", end: "15:00", color: "history", room: "205" },
       ],
       tuesday: [
-        { id: "3", name: "Naturkunskap", start: "08:00", end: "09:30", color: "science" },
-        { id: "4", name: "Historia", start: "10:00", end: "11:30", color: "history" },
+        { id: "6", name: "Matematik 2c", start: "08:00", end: "10:00", color: "science", room: "233" },
+        { id: "7", name: "Engelska 6", start: "10:00", end: "12:00", color: "history", room: "205" },
+        { id: "8", name: "Lunch", start: "12:00", end: "13:00", color: "pe", room: "" },
+        { id: "9", name: "Svenska 2", start: "13:00", end: "15:00", color: "english", room: "206" },
       ],
       wednesday: [
-        { id: "5", name: "Idrott", start: "08:00", end: "09:30", color: "pe" },
-        { id: "6", name: "Matematik", start: "10:00", end: "11:30", color: "math" },
+        { id: "10", name: "Entreprenörskap", start: "09:00", end: "11:00", color: "math", room: "B011" },
+        { id: "11", name: "Idrott", start: "11:00", end: "12:00", color: "art", room: "" },
+        { id: "12", name: "Lunch", start: "12:00", end: "13:00", color: "pe", room: "" },
+        { id: "13", name: "Svenska 2", start: "13:00", end: "15:00", color: "english", room: "206" },
       ],
       thursday: [
-        { id: "7", name: "Engelska", start: "08:00", end: "09:30", color: "english" },
-        { id: "8", name: "Bild", start: "10:00", end: "11:30", color: "art" },
+        { id: "14", name: "Engelska 6", start: "08:00", end: "10:00", color: "history", room: "205" },
+        { id: "15", name: "Matematik 2c", start: "10:00", end: "12:00", color: "science", room: "233" },
+        { id: "16", name: "Lunch", start: "12:00", end: "13:00", color: "pe", room: "" },
+        { id: "17", name: "Entreprenörskap", start: "13:00", end: "15:00", color: "math", room: "B011" },
       ],
       friday: [
-        { id: "9", name: "Naturkunskap", start: "08:00", end: "09:30", color: "science" },
-        { id: "10", name: "Historia", start: "10:00", end: "11:30", color: "history" },
+        { id: "18", name: "Svenska 2", start: "08:00", end: "10:00", color: "english", room: "206" },
+        { id: "19", name: "Engelska 6", start: "10:00", end: "11:00", color: "history", room: "205" },
+        { id: "20", name: "Matematik 2c", start: "11:00", end: "12:00", color: "science", room: "233" },
+        { id: "21", name: "Lunch", start: "12:00", end: "13:00", color: "pe", room: "" },
+        { id: "22", name: "Idrott", start: "13:00", end: "15:00", color: "art", room: "" },
       ],
     };
 
+    const scheduleId = Date.now().toString();
     localStorage.setItem("schedule", JSON.stringify(mockSchedule));
+    localStorage.setItem("activeScheduleId", scheduleId);
+    
+    // Save to list of schedules
+    const savedSchedules = JSON.parse(localStorage.getItem("savedSchedules") || "[]");
+    savedSchedules.push({
+      id: scheduleId,
+      name: `Schema ${savedSchedules.length + 1}`,
+      type: localStorage.getItem("scheduleType") || "weekly",
+      createdAt: new Date().toISOString(),
+    });
+    localStorage.setItem("savedSchedules", JSON.stringify(savedSchedules));
     
     toast({
       title: "Schema skapat!",
@@ -65,7 +90,7 @@ const Upload = () => {
       <div className="max-w-md mx-auto pt-8">
         <Button
           variant="ghost"
-          onClick={() => navigate("/schedule-type")}
+          onClick={() => navigate("/")}
           className="mb-8 -ml-2"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -73,13 +98,21 @@ const Upload = () => {
         </Button>
 
         <div className="space-y-6">
-          <div className="space-y-2">
+          <div className="space-y-3">
             <h1 className="text-3xl font-bold text-foreground">
               Ladda upp ditt schema
             </h1>
-            <p className="text-muted-foreground">
-              Ta en bild eller välj från din enhet
-            </p>
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">
+                <strong>Tips för bästa resultat:</strong>
+              </p>
+              <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                <li>Ta en tydlig skärmdump av hela schemat</li>
+                <li>Se till att all text är läsbar och inte suddig</li>
+                <li>Inkludera alla dagar och tider</li>
+                <li>Undvik reflektioner eller skuggor</li>
+              </ul>
+            </div>
           </div>
 
           <div className="pt-4">

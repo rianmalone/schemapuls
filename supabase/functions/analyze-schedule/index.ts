@@ -4,12 +4,37 @@ const corsHeaders = {
 };
 
 Deno.serve(async (req) => {
+  console.log('=== EDGE FUNCTION CALLED ===');
+  console.log('Method:', req.method);
+  console.log('URL:', req.url);
+  console.log('Headers:', JSON.stringify(Object.fromEntries(req.headers.entries())));
+  
   if (req.method === 'OPTIONS') {
+    console.log('OPTIONS request - returning CORS headers');
     return new Response('ok', { headers: corsHeaders });
   }
 
   try {
-    const { imageBase64 } = await req.json();
+    console.log('Attempting to parse request body...');
+    let body;
+    try {
+      body = await req.json();
+      console.log('Body parsed successfully');
+    } catch (parseError) {
+      console.error('Failed to parse request body:', parseError);
+      return new Response(
+        JSON.stringify({ 
+          error: 'invalid_request', 
+          message: 'Failed to parse request body',
+          details: parseError instanceof Error ? parseError.message : 'Unknown error'
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
+    }
+
+    const { imageBase64 } = body;
+    console.log('imageBase64 present:', !!imageBase64);
+    console.log('imageBase64 length:', imageBase64?.length || 0);
     
     if (!imageBase64) {
       return new Response(

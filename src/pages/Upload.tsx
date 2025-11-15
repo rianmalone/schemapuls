@@ -4,6 +4,7 @@ import { Upload as UploadIcon, ArrowLeft, Camera } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { notificationService } from "@/services/notificationService";
+import exampleSchedule from "@/assets/example-schedule.png";
 
 const Upload = () => {
   const navigate = useNavigate();
@@ -223,6 +224,18 @@ const Upload = () => {
                 <li>Zooma in vid behov för bättre bildkvalitet</li>
                 <li>Undvik reflektioner, skuggor och blockerade delar</li>
               </ul>
+              
+              <div className="mt-4 p-3 bg-card rounded-xl border border-border">
+                <p className="text-xs font-medium text-foreground mb-2">Exempel på ett bra schema:</p>
+                <img 
+                  src={exampleSchedule} 
+                  alt="Exempel på ett tydligt schema" 
+                  className="w-full rounded-lg border border-border"
+                />
+                <p className="text-xs text-muted-foreground mt-2 text-center">
+                  ↑ Så här ska schemat se ut för bästa resultat
+                </p>
+              </div>
             </div>
           </div>
 

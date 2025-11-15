@@ -27,8 +27,8 @@ const Upload = () => {
             return;
           }
 
-          // Resize to max 800px on longest side while maintaining aspect ratio
-          const maxDimension = 800;
+          // Resize to max 512px on longest side while maintaining aspect ratio
+          const maxDimension = 512;
           let width = img.width;
           let height = img.height;
 
@@ -44,8 +44,8 @@ const Upload = () => {
           canvas.height = height;
           ctx.drawImage(img, 0, 0, width, height);
 
-          // Convert to JPEG with 70% quality
-          const resizedDataUrl = canvas.toDataURL('image/jpeg', 0.70);
+          // Convert to JPEG with 50% quality for very small size
+          const resizedDataUrl = canvas.toDataURL('image/jpeg', 0.50);
           resolve(resizedDataUrl);
         };
         img.onerror = () => reject(new Error('Failed to load image'));

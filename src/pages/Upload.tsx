@@ -137,96 +137,36 @@ const Upload = () => {
     setUploading(true);
     
     try {
-      console.log('Starting schedule analysis...', { scheduleType, hasPreviewOdd: !!previewOdd, hasPreviewEven: !!previewEven });
-      
-      // For odd-even schedules, process both images
-      if (scheduleType === "odd-even") {
-        // Process odd week
-        console.log('Calling analyze-schedule for odd week...');
-        const { data: resultOdd, error: errorOdd } = await supabase.functions.invoke('analyze-schedule', {
-          body: { imageBase64: previewOdd, imageLength: previewOdd?.length || 0 }
-        });
+      // Simple, direct approach - just send the image
+      const { data, error } = await supabase.functions.invoke('analyze-schedule', {
+        body: { imageBase64: previewOdd }
+      });
 
-        if (errorOdd) {
-          throw new Error(`Odd week: ${errorOdd.message}`);
-        }
-        if (resultOdd?.error) {
-          throw new Error(resultOdd?.message || 'Kunde inte analysera udda veckans schema');
-        }
+      console.log('Response:', { data, error });
 
-        const { schedule: scheduleOdd } = resultOdd;
-
-        // Process even week
-        console.log('Calling analyze-schedule for even week...');
-        const { data: resultEven, error: errorEven } = await supabase.functions.invoke('analyze-schedule', {
-          body: { imageBase64: previewEven, imageLength: previewEven?.length || 0 }
-        });
-
-        if (errorEven) {
-          throw new Error(`Even week: ${errorEven.message}`);
-        }
-        if (resultEven?.error) {
-          throw new Error(resultEven?.message || 'Kunde inte analysera jämna veckans schema');
-        }
-
-        const { schedule: scheduleEven } = resultEven;
-
-        const scheduleId = Date.now().toString();
-        localStorage.setItem("scheduleOdd", JSON.stringify(scheduleOdd));
-        localStorage.setItem("scheduleEven", JSON.stringify(scheduleEven));
-        localStorage.setItem("schedule", JSON.stringify(scheduleOdd)); // Default to odd
-        localStorage.setItem("activeScheduleId", scheduleId);
-        
-        // Save to list of schedules
-        const savedSchedules = JSON.parse(localStorage.getItem("savedSchedules") || "[]");
-        savedSchedules.push({
-          id: scheduleId,
-          name: `Schema ${savedSchedules.length + 1}`,
-          type: "odd-even",
-          createdAt: new Date().toISOString(),
-        });
-        localStorage.setItem("savedSchedules", JSON.stringify(savedSchedules));
-      } else {
-        // Process single schedule
-        console.log('Calling analyze-schedule for single week...');
-        console.log('Image data URL length:', previewOdd?.length);
-        
-        // Use Supabase SDK - the preview environment routes this differently than direct fetch
-        const { data: result, error } = await supabase.functions.invoke('analyze-schedule', {
-          body: { 
-            imageBase64: previewOdd,
-            imageLength: previewOdd?.length || 0
-          }
-        });
-
-        console.log('Single week result:', { result, error });
-
-        if (error) {
-          console.error('Supabase SDK error:', error);
-          throw new Error(`Failed to call function: ${error.message}`);
-        }
-
-        if (result?.error) {
-          console.error('Function returned error:', result);
-          throw new Error(result?.message || 'Kunde inte analysera schemat');
-        }
-
-        const { schedule } = result;
-
-        const scheduleId = Date.now().toString();
-        localStorage.setItem("schedule", JSON.stringify(schedule));
-        localStorage.setItem("activeScheduleId", scheduleId);
-        
-        // Save to list of schedules
-        const savedSchedules = JSON.parse(localStorage.getItem("savedSchedules") || "[]");
-        savedSchedules.push({
-          id: scheduleId,
-          name: `Schema ${savedSchedules.length + 1}`,
-          type: scheduleType,
-          createdAt: new Date().toISOString(),
-        });
-        localStorage.setItem("savedSchedules", JSON.stringify(savedSchedules));
+      if (error) {
+        console.error('Error:', error);
+        throw new Error(error.message || 'Kunde inte ansluta till servern');
       }
+
+      if (data?.error) {
+        throw new Error(data.message || 'Kunde inte analysera schemat');
+      }
+
+      const schedule = data.schedule;
+      const scheduleId = Date.now().toString();
+      
+      localStorage.setItem("schedule", JSON.stringify(schedule));
+      localStorage.setItem("activeScheduleId", scheduleId);
+      
+      const savedSchedules = JSON.parse(localStorage.getItem("savedSchedules") || "[]");
+      savedSchedules.push({
+        id: scheduleId,
+        name: `Schema ${savedSchedules.length + 1}`,
+        type: scheduleType,
+        createdAt: new Date().toISOString(),
+      });
+      localStorage.setItem("savedSchedules", JSON.stringify(savedSchedules));
       
       toast({
         title: "Schema skapat!",

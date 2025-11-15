@@ -247,11 +247,11 @@ const Schedule = () => {
         </div>
 
         {viewMode === 'week' ? (
-          <div className="bg-card rounded-2xl border border-border p-3 overflow-x-auto">
-            <div className="grid grid-cols-[60px_repeat(5,1fr)] gap-1 min-w-[600px]">
-              <div className="text-xs font-medium text-muted-foreground p-2">Tid</div>
+          <div className="bg-card rounded-2xl border border-border p-2 overflow-x-auto">
+            <div className="grid grid-cols-[50px_repeat(5,1fr)] gap-0.5 min-w-full">
+              <div className="text-[11px] font-medium text-muted-foreground p-2 sticky left-0 bg-card">Tid</div>
               {days.map((day) => (
-                <div key={day.key} className="text-xs font-semibold text-center p-2 border-l border-border">
+                <div key={day.key} className="text-[11px] font-semibold text-center p-2 border-l border-border">
                   {day.label}
                 </div>
               ))}
@@ -260,7 +260,7 @@ const Schedule = () => {
                 const hour = 8 + i;
                 return (
                   <div key={hour} className="contents">
-                    <div className="text-[10px] text-muted-foreground p-1 border-t border-border">
+                    <div className="text-[10px] text-muted-foreground p-2 border-t border-border sticky left-0 bg-card">
                       {hour.toString().padStart(2, '0')}:00
                     </div>
                     {days.map((day) => {
@@ -271,35 +271,42 @@ const Schedule = () => {
                       });
 
                       return (
-                        <div key={day.key} className="relative border-t border-l border-border min-h-[40px]">
+                        <div key={day.key} className="relative border-t border-l border-border min-h-[60px]">
                           {classAtThisHour.map((classItem) => (
                             <div
                               key={classItem.id}
-                              className={`absolute inset-x-0.5 ${getColorClass(classItem.color)} text-white text-[10px] p-1.5 rounded-lg cursor-pointer`}
+                              className={`absolute inset-x-1 ${getColorClass(classItem.color)} text-white text-[11px] p-2 rounded-lg cursor-pointer`}
                               onClick={() => navigate(`/edit-class/${classItem.id}`)}
                               style={{
-                                height: `${calculateHeight(classItem.start, classItem.end) * 0.4}px`,
-                                minHeight: '30px',
+                                height: `${calculateHeight(classItem.start, classItem.end) * 0.6}px`,
+                                minHeight: '50px',
                               }}
                             >
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleClassToggle(classItem.id);
-                                }}
-                                className="mb-0.5"
-                              >
-                                <div className={`w-3 h-3 rounded-full border border-white flex items-center justify-center ${
-                                  enabledClasses[classItem.id] ? 'bg-white' : 'bg-transparent'
-                                }`}>
-                                  {enabledClasses[classItem.id] && (
-                                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                              <div className="flex items-start gap-1.5">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleClassToggle(classItem.id);
+                                  }}
+                                  className="flex-shrink-0 mt-0.5"
+                                >
+                                  <div className={`w-3.5 h-3.5 rounded-full border-2 border-white flex items-center justify-center ${
+                                    enabledClasses[classItem.id] ? 'bg-white' : 'bg-transparent'
+                                  }`}>
+                                    {enabledClasses[classItem.id] && (
+                                      <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                                    )}
+                                  </div>
+                                </button>
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-semibold leading-tight truncate">{classItem.name}</div>
+                                  <div className="opacity-80 text-[10px] mt-0.5">
+                                    {classItem.start}-{classItem.end}
+                                  </div>
+                                  {classItem.room && (
+                                    <div className="opacity-70 text-[10px] truncate">{classItem.room}</div>
                                   )}
                                 </div>
-                              </button>
-                              <div className="font-semibold leading-tight">{classItem.name}</div>
-                              <div className="opacity-80 text-[9px]">
-                                {classItem.start}-{classItem.end}
                               </div>
                             </div>
                           ))}

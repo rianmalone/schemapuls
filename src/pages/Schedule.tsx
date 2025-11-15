@@ -190,7 +190,7 @@ const Schedule = () => {
             min={1}
             max={15}
             step={1}
-            className="w-full"
+            className="w-full [&_[role=slider]]:transition-all [&_[role=slider]]:duration-200"
           />
           <div className="flex justify-between text-xs text-muted-foreground mt-2">
             <span>1 min</span>
@@ -201,7 +201,7 @@ const Schedule = () => {
         <div className="grid grid-cols-6 gap-1 mb-4">
           <button
             onClick={() => setViewMode('week')}
-            className={`px-2 py-1.5 rounded-xl font-medium transition-all text-xs ${
+            className={`px-1 py-1.5 rounded-xl font-medium transition-all text-[10px] ${
               viewMode === 'week'
                 ? "bg-primary text-primary-foreground shadow-md"
                 : "bg-card text-muted-foreground hover:bg-muted"
@@ -216,7 +216,7 @@ const Schedule = () => {
                 setViewMode('day');
                 setSelectedDay(day.key);
               }}
-              className={`px-2 py-1.5 rounded-xl font-medium transition-all text-xs ${
+              className={`px-1 py-1.5 rounded-xl font-medium transition-all text-[10px] ${
                 viewMode === 'day' && selectedDay === day.key
                   ? "bg-primary text-primary-foreground shadow-md"
                   : "bg-card text-muted-foreground hover:bg-muted"
@@ -229,8 +229,8 @@ const Schedule = () => {
 
         <div className="mb-4 p-3 rounded-2xl bg-card border border-border">
           <h3 className="text-[9px] font-medium mb-2">Aktivera påminnelser för:</h3>
-          <div className="grid grid-cols-6 gap-1">
-            <label className="flex items-center gap-0.5 cursor-pointer">
+          <div className="grid grid-cols-6 gap-2">
+            <label className="flex items-center gap-1 cursor-pointer justify-start">
               <Checkbox
                 checked={allDaysChecked}
                 onCheckedChange={toggleAllDays}
@@ -238,7 +238,7 @@ const Schedule = () => {
               <span className="text-[9px] font-semibold">Vecka</span>
             </label>
             {days.map((day) => (
-              <label key={day.key} className="flex items-center gap-0.5 cursor-pointer">
+              <label key={day.key} className="flex items-center gap-1 cursor-pointer justify-start">
                 <Checkbox
                   checked={enabledDays[day.key]}
                   onCheckedChange={() => handleDayToggle(day.key)}
@@ -268,16 +268,16 @@ const Schedule = () => {
                         onClick={() => navigate(`/edit-class/${classItem.id}`)}
                         className={`w-full p-1.5 rounded-lg ${getColorClass(
                           classItem.name
-                        )} text-white text-left transition-opacity ${
+                        )} text-white text-left transition-all duration-300 ${
                           !enabledClasses[classItem.id] ? 'opacity-50' : 'opacity-100'
                         }`}
                         style={{
-                          minHeight: `${Math.max(calculateHeight(classItem.start, classItem.end) * 0.6, 85)}px`,
+                          minHeight: `${Math.max(calculateHeight(classItem.start, classItem.end) * 0.6, 90)}px`,
                         }}
                       >
                         <div className="flex flex-col h-full justify-between gap-0.5">
                           <div className="flex items-start justify-between gap-1">
-                            <div className="text-[8px] opacity-90">
+                            <div className="text-[8px] opacity-90 font-medium">
                               {classItem.start}
                             </div>
                             <button
@@ -287,24 +287,24 @@ const Schedule = () => {
                               }}
                               className="flex-shrink-0"
                             >
-                              <div className={`w-3 h-3 rounded-full border-2 border-white flex items-center justify-center ${
+                              <div className={`w-3 h-3 rounded-full border-2 border-white flex items-center justify-center transition-all duration-300 ${
                                 enabledClasses[classItem.id] ? 'bg-white' : 'bg-transparent'
                               }`}>
                                 {enabledClasses[classItem.id] && (
-                                  <div className="w-1 h-1 rounded-full bg-primary" />
+                                  <div className="w-1 h-1 rounded-full bg-primary transition-all duration-300" />
                                 )}
                               </div>
                             </button>
                           </div>
-                          <div className="flex-1 flex flex-col justify-center">
-                            <div className="font-semibold text-[10px] leading-tight">
+                          <div className="flex-1 flex flex-col justify-center px-0.5">
+                            <div className="font-semibold text-[9px] leading-tight break-words">
                               {classItem.name}
                             </div>
                             {classItem.room && (
-                              <div className="text-[8px] opacity-80 mt-0.5">{classItem.room}</div>
+                              <div className="text-[7px] opacity-80 mt-0.5 break-words">{classItem.room}</div>
                             )}
                           </div>
-                          <div className="text-[8px] opacity-90">
+                          <div className="text-[8px] opacity-90 font-medium">
                             {classItem.end}
                           </div>
                         </div>
@@ -324,7 +324,7 @@ const Schedule = () => {
                     onClick={() => navigate(`/edit-class/${classItem.id}`)}
                     className={`w-full p-3 rounded-xl ${getColorClass(
                       classItem.name
-                    )} text-white shadow-sm transition-opacity text-left border-l-4 border-white/30 ${
+                    )} text-white shadow-sm transition-all duration-300 text-left border-l-4 border-white/30 ${
                       !enabledClasses[classItem.id] ? 'opacity-50' : 'opacity-100'
                     }`}
                     style={{
@@ -351,11 +351,11 @@ const Schedule = () => {
                         }}
                         className="flex-shrink-0"
                       >
-                        <div className={`w-5 h-5 rounded-full border-2 border-white flex items-center justify-center ${
+                        <div className={`w-5 h-5 rounded-full border-2 border-white flex items-center justify-center transition-all duration-300 ${
                           enabledClasses[classItem.id] ? 'bg-white' : 'bg-transparent'
                         }`}>
                           {enabledClasses[classItem.id] && (
-                            <div className="w-2.5 h-2.5 rounded-full bg-primary" />
+                            <div className="w-2.5 h-2.5 rounded-full bg-primary transition-all duration-300" />
                           )}
                         </div>
                       </button>

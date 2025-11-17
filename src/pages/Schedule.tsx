@@ -316,24 +316,24 @@ const Schedule = () => {
             className="absolute top-1 bottom-1 bg-primary rounded-full transition-all duration-300 ease-out shadow-md"
             style={{
               left: viewMode === 'week' ? '0.25rem' : 
-                    selectedDay === 'monday' ? 'calc(16.666% + 0.125rem)' :
-                    selectedDay === 'tuesday' ? 'calc(33.333% + 0.125rem)' :
+                    selectedDay === 'monday' ? 'calc(16.666%)' :
+                    selectedDay === 'tuesday' ? 'calc(33.333%)' :
                     selectedDay === 'wednesday' ? 'calc(50%)' :
-                    selectedDay === 'thursday' ? 'calc(66.666% - 0.125rem)' :
-                    'calc(83.333% - 0.25rem)',
-              width: 'calc(16.666% - 0.25rem)'
+                    selectedDay === 'thursday' ? 'calc(66.666%)' :
+                    'calc(83.333%)',
+              width: 'calc(16.666%)'
             }}
           />
           <div className="relative flex items-center">
             <button
               onClick={() => setViewMode('week')}
-              className={`flex-1 px-3 py-1.5 rounded-full font-medium transition-colors duration-200 text-xs relative z-10 ${
+              className={`flex-1 px-2 py-1.5 rounded-full font-medium transition-colors duration-200 text-xs relative z-10 ${
                 viewMode === 'week'
                   ? "text-primary-foreground"
                   : "text-muted-foreground"
               }`}
             >
-              Veckovy
+              Vecka
             </button>
             {days.map((day) => (
               <button
@@ -342,7 +342,7 @@ const Schedule = () => {
                   setViewMode('day');
                   setSelectedDay(day.key);
                 }}
-                className={`flex-1 px-3 py-1.5 rounded-full font-medium transition-colors duration-200 text-xs relative z-10 ${
+                className={`flex-1 px-2 py-1.5 rounded-full font-medium transition-colors duration-200 text-xs relative z-10 ${
                   viewMode === 'day' && selectedDay === day.key
                     ? "text-primary-foreground"
                     : "text-muted-foreground"
@@ -355,22 +355,24 @@ const Schedule = () => {
         </div>
 
         <div className="mb-4 p-4 rounded-2xl bg-card border border-border">
-          <h3 className="text-sm font-medium mb-4">Aktivera påminnelser för:</h3>
-          <div className="flex items-center justify-between gap-3">
-            <label className="flex items-center gap-2 cursor-pointer">
+          <h3 className="text-sm font-medium mb-3">Aktivera påminnelser för:</h3>
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-3">
+            <label className="flex items-center gap-1.5 cursor-pointer">
               <Switch
                 checked={allDaysChecked}
                 onCheckedChange={toggleAllDays}
+                className="scale-75"
               />
-              <span className="text-sm font-medium">Vecka</span>
+              <span className="text-xs font-medium">Vecka</span>
             </label>
             {days.map((day) => (
-              <label key={day.key} className="flex items-center gap-2 cursor-pointer">
+              <label key={day.key} className="flex items-center gap-1.5 cursor-pointer">
                 <Switch
                   checked={enabledDays[day.key]}
                   onCheckedChange={() => handleDayToggle(day.key)}
+                  className="scale-75"
                 />
-                <span className="text-sm">{day.label}</span>
+                <span className="text-xs">{day.label}</span>
               </label>
             ))}
           </div>

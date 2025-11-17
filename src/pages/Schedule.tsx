@@ -311,16 +311,16 @@ const Schedule = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-6 gap-1 mb-4">
+        <div className="p-1 bg-muted rounded-full mb-4 flex items-center">
           <button
             onClick={() => setViewMode('week')}
-            className={`px-1 py-1.5 rounded-xl font-medium transition-all text-[10px] ${
+            className={`flex-1 px-3 py-1.5 rounded-full font-medium transition-all text-xs ${
               viewMode === 'week'
-                ? "bg-primary text-primary-foreground shadow-md"
-                : "bg-card text-muted-foreground hover:bg-muted"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground"
             }`}
           >
-            Veckovy
+            Mån
           </button>
           {days.map((day) => (
             <button
@@ -329,10 +329,10 @@ const Schedule = () => {
                 setViewMode('day');
                 setSelectedDay(day.key);
               }}
-              className={`px-1 py-1.5 rounded-xl font-medium transition-all text-[10px] ${
+              className={`flex-1 px-3 py-1.5 rounded-full font-medium transition-all text-xs ${
                 viewMode === 'day' && selectedDay === day.key
-                  ? "bg-primary text-primary-foreground shadow-md"
-                  : "bg-card text-muted-foreground hover:bg-muted"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground"
               }`}
             >
               {day.label}
@@ -342,8 +342,8 @@ const Schedule = () => {
 
         <div className="mb-4 p-3 rounded-2xl bg-card border border-border">
           <h3 className="text-[9px] font-medium mb-2">Aktivera påminnelser för:</h3>
-          <div className="grid grid-cols-6 gap-2">
-            <label className="flex items-center gap-1 cursor-pointer justify-start">
+          <div className="flex items-center justify-between">
+            <label className="flex items-center gap-1 cursor-pointer">
               <Checkbox
                 checked={allDaysChecked}
                 onCheckedChange={toggleAllDays}
@@ -351,7 +351,7 @@ const Schedule = () => {
               <span className="text-[9px] font-semibold">Vecka</span>
             </label>
             {days.map((day) => (
-              <label key={day.key} className="flex items-center gap-1 cursor-pointer justify-start">
+              <label key={day.key} className="flex items-center gap-1 cursor-pointer">
                 <Checkbox
                   checked={enabledDays[day.key]}
                   onCheckedChange={() => handleDayToggle(day.key)}

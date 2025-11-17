@@ -58,7 +58,16 @@ const Schedule = () => {
       const type = localStorage.getItem("scheduleType") || "weekly";
       setScheduleType(type);
 
-      if (type === "odd-even") {
+      // Helper function to get current week number and determine if odd/even
+      const getCurrentWeekType = (): 'odd' | 'even' => {
+        const now = new Date();
+        const startOfYear = new Date(now.getFullYear(), 0, 1);
+        const pastDaysOfYear = (now.getTime() - startOfYear.getTime()) / 86400000;
+        const weekNumber = Math.ceil((pastDaysOfYear + startOfYear.getDay() + 1) / 7);
+        return weekNumber % 2 === 0 ? 'even' : 'odd';
+      };
+
+      if (type === "oddeven") {
         const savedOdd = localStorage.getItem("scheduleOdd");
         const savedEven = localStorage.getItem("scheduleEven");
         
@@ -67,7 +76,11 @@ const Schedule = () => {
           const parsedEven = JSON.parse(savedEven);
           setScheduleOdd(parsedOdd);
           setScheduleEven(parsedEven);
-          setSchedule(parsedOdd); // Default to odd
+          
+          // Automatically set to current week
+          const currentWeek = getCurrentWeekType();
+          setWeekType(currentWeek);
+          setSchedule(currentWeek === 'odd' ? parsedOdd : parsedEven);
           
           // Initialize all classes from both schedules
           const allClasses: Record<string, boolean> = {};

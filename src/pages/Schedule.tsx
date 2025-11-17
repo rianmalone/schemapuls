@@ -338,7 +338,7 @@ const Schedule = () => {
           <h1 className="text-2xl font-bold text-foreground">Mitt Schema</h1>
         </div>
 
-        {scheduleType === "odd-even" && (
+        {scheduleType === "oddeven" && (
           <div className="mb-4 flex gap-2">
             <Button
               variant={weekType === 'odd' ? 'default' : 'outline'}

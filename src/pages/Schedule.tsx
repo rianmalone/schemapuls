@@ -1,11 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Upload, Bell, BellOff } from "lucide-react";
+import { ArrowLeft, Upload, Bell, BellOff, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { notificationService } from "@/services/notificationService";
 import { useToast } from "@/hooks/use-toast";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Class {
   id: string;
@@ -47,6 +51,15 @@ const Schedule = () => {
   const [hasNotificationPermission, setHasNotificationPermission] = useState(false);
   const [checkingPermissions, setCheckingPermissions] = useState(true);
   const [scheduleType, setScheduleType] = useState<string>("weekly");
+  const [isAddClassOpen, setIsAddClassOpen] = useState(false);
+  const [newClass, setNewClass] = useState({
+    name: "",
+    room: "",
+    start: "",
+    end: "",
+    day: "monday",
+    color: "#FF6B6B"
+  });
 
   const days = [
     { key: "monday", label: "Mån" },
@@ -300,6 +313,77 @@ const Schedule = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handleAddClass = () => {
+    if (!newClass.name || !newClass.start || !newClass.end) return;
+
+    const newClassItem: Class = {
+      id: `custom-${Date.now()}`,
+      name: newClass.name,
+      room: newClass.room,
+      start: newClass.start,
+      end: newClass.end,
+      color: newClass.color
+    };
+
+    const currentSchedule = scheduleType === "oddeven" 
+      ? (weekType === 'odd' ? scheduleOdd : scheduleEven)
+      : schedule;
+
+    if (!currentSchedule) return;
+
+    const updatedSchedule = {
+      ...currentSchedule,
+      [newClass.day]: [...(currentSchedule[newClass.day as keyof WeekSchedule] || []), newClassItem]
+    };
+
+    // Update the appropriate schedule
+    if (scheduleType === "oddeven") {
+      if (weekType === 'odd') {
+        setScheduleOdd(updatedSchedule);
+        localStorage.setItem("scheduleOdd", JSON.stringify(updatedSchedule));
+      } else {
+        setScheduleEven(updatedSchedule);
+        localStorage.setItem("scheduleEven", JSON.stringify(updatedSchedule));
+      }
+    } else {
+      localStorage.setItem("schedule", JSON.stringify(updatedSchedule));
+    }
+
+    setSchedule(updatedSchedule);
+
+    // Enable the new class for notifications by default
+    const updatedEnabledClasses = { ...enabledClasses, [newClassItem.id]: true };
+    setEnabledClasses(updatedEnabledClasses);
+    
+    if (scheduleType === "oddeven") {
+      if (weekType === 'odd') {
+        setEnabledClassesOdd(updatedEnabledClasses);
+        localStorage.setItem("enabledClassesOdd", JSON.stringify(updatedEnabledClasses));
+      } else {
+        setEnabledClassesEven(updatedEnabledClasses);
+        localStorage.setItem("enabledClassesEven", JSON.stringify(updatedEnabledClasses));
+      }
+    } else {
+      localStorage.setItem("enabledClasses", JSON.stringify(updatedEnabledClasses));
+    }
+
+    // Reset form and close dialog
+    setNewClass({
+      name: "",
+      room: "",
+      start: "",
+      end: "",
+      day: "monday",
+      color: "#FF6B6B"
+    });
+    setIsAddClassOpen(false);
+
+    toast({
+      title: "Lektion tillagd",
+      description: `${newClass.name} har lagts till i schemat`,
+    });
   };
 
   const getColorClass = (className: string) => {
@@ -637,6 +721,100 @@ const Schedule = () => {
             )}
           </div>
         )}
+
+        {/* Floating Add Button */}
+        <Dialog open={isAddClassOpen} onOpenChange={setIsAddClassOpen}>
+          <DialogTrigger asChild>
+            <Button
+              size="lg"
+              className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg"
+            >
+              <Plus className="h-6 w-6" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Lägg till lektion</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Lektionsnamn</Label>
+                <Input
+                  id="name"
+                  value={newClass.name}
+                  onChange={(e) => setNewClass({ ...newClass, name: e.target.value })}
+                  placeholder="t.ex. Svenska A1"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="room">Sal</Label>
+                <Input
+                  id="room"
+                  value={newClass.room}
+                  onChange={(e) => setNewClass({ ...newClass, room: e.target.value })}
+                  placeholder="t.ex. BRR2"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="start">Starttid</Label>
+                  <Input
+                    id="start"
+                    type="time"
+                    value={newClass.start}
+                    onChange={(e) => setNewClass({ ...newClass, start: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="end">Sluttid</Label>
+                  <Input
+                    id="end"
+                    type="time"
+                    value={newClass.end}
+                    onChange={(e) => setNewClass({ ...newClass, end: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="day">Dag</Label>
+                <Select value={newClass.day} onValueChange={(value) => setNewClass({ ...newClass, day: value })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="monday">Måndag</SelectItem>
+                    <SelectItem value="tuesday">Tisdag</SelectItem>
+                    <SelectItem value="wednesday">Onsdag</SelectItem>
+                    <SelectItem value="thursday">Torsdag</SelectItem>
+                    <SelectItem value="friday">Fredag</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="color">Färg</Label>
+                <div className="flex gap-2">
+                  {["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8", "#F7DC6F", "#BB8FCE"].map((color) => (
+                    <button
+                      key={color}
+                      onClick={() => setNewClass({ ...newClass, color })}
+                      className={`w-10 h-10 rounded-lg transition-all ${
+                        newClass.color === color ? "ring-2 ring-primary ring-offset-2" : ""
+                      }`}
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                </div>
+              </div>
+              <Button
+                onClick={handleAddClass}
+                className="w-full"
+                disabled={!newClass.name || !newClass.start || !newClass.end}
+              >
+                Lägg till
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

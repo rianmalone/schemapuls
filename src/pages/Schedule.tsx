@@ -4,6 +4,7 @@ import { ArrowLeft, Upload, Bell, BellOff } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { notificationService } from "@/services/notificationService";
 import { useToast } from "@/hooks/use-toast";
 
@@ -311,54 +312,55 @@ const Schedule = () => {
           </div>
         </div>
 
-        <div className="p-1 bg-muted rounded-full mb-4 flex items-center">
-          <button
-            onClick={() => setViewMode('week')}
-            className={`flex-1 px-3 py-1.5 rounded-full font-medium transition-all duration-300 ease-in-out text-xs ${
-              viewMode === 'week'
-                ? "bg-primary text-primary-foreground shadow-md scale-105"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            Mån
-          </button>
-          {days.map((day) => (
-            <button
-              key={day.key}
-              onClick={() => {
-                setViewMode('day');
-                setSelectedDay(day.key);
-              }}
-              className={`flex-1 px-3 py-1.5 rounded-full font-medium transition-all duration-300 ease-in-out text-xs ${
-                viewMode === 'day' && selectedDay === day.key
-                  ? "bg-primary text-primary-foreground shadow-md scale-105"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {day.label}
-            </button>
-          ))}
-        </div>
+        <Tabs
+          value={viewMode === 'week' ? 'week' : selectedDay}
+          onValueChange={(value) => {
+            if (value === 'week') {
+              setViewMode('week');
+            } else {
+              setViewMode('day');
+              setSelectedDay(value);
+            }
+          }}
+          className="mb-4"
+        >
+          <TabsList className="w-full bg-muted p-1 h-auto">
+            <TabsTrigger value="week" className="flex-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              Veckovy
+            </TabsTrigger>
+            {days.map((day) => (
+              <TabsTrigger
+                key={day.key}
+                value={day.key}
+                className="flex-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                {day.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
 
         <div className="mb-4 p-3 rounded-2xl bg-card border border-border">
-          <h3 className="text-[9px] font-medium mb-2">Aktivera påminnelser för:</h3>
-          <div className="flex items-center justify-between">
-            <label className="flex items-center gap-1 cursor-pointer">
+          <h3 className="text-sm font-medium mb-3">Aktivera påminnelser för:</h3>
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-muted/50 transition-colors">
               <Checkbox
                 checked={allDaysChecked}
                 onCheckedChange={toggleAllDays}
               />
-              <span className="text-[9px] font-semibold">Vecka</span>
+              <span className="text-sm font-semibold">Vecka</span>
             </label>
-            {days.map((day) => (
-              <label key={day.key} className="flex items-center gap-1 cursor-pointer">
-                <Checkbox
-                  checked={enabledDays[day.key]}
-                  onCheckedChange={() => handleDayToggle(day.key)}
-                />
-                <span className="text-[9px]">{day.label}</span>
-              </label>
-            ))}
+            <div className="grid grid-cols-2 gap-2">
+              {days.map((day) => (
+                <label key={day.key} className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                  <Checkbox
+                    checked={enabledDays[day.key]}
+                    onCheckedChange={() => handleDayToggle(day.key)}
+                  />
+                  <span className="text-sm">{day.label}</span>
+                </label>
+              ))}
+            </div>
           </div>
         </div>
 

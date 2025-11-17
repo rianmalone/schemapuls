@@ -22,9 +22,8 @@ const Home = () => {
     const saved = localStorage.getItem("savedSchedules");
     if (saved) {
       const parsed = JSON.parse(saved);
-      setSchedules(parsed);
       
-      // Migrate old schedules that don't have ID-based storage
+      // Migrate active schedule if needed
       const activeId = localStorage.getItem("activeScheduleId");
       if (activeId && parsed.length > 0) {
         const activeSchedule = parsed.find((s: SavedSchedule) => s.id === activeId);
@@ -54,6 +53,25 @@ const Home = () => {
           }
         }
       }
+      
+      // Filter out schedules that have no data
+      const validSchedules = parsed.filter((schedule: SavedSchedule) => {
+        if (schedule.type === "oddeven") {
+          const hasOdd = localStorage.getItem(`scheduleOdd_${schedule.id}`);
+          const hasEven = localStorage.getItem(`scheduleEven_${schedule.id}`);
+          return hasOdd && hasEven;
+        } else {
+          return !!localStorage.getItem(`schedule_${schedule.id}`);
+        }
+      });
+      
+      // If we filtered out broken schedules, update localStorage
+      if (validSchedules.length !== parsed.length) {
+        console.log(`Cleaned up ${parsed.length - validSchedules.length} broken schedules`);
+        localStorage.setItem("savedSchedules", JSON.stringify(validSchedules));
+      }
+      
+      setSchedules(validSchedules);
     }
 
     const active = localStorage.getItem("activeScheduleId");

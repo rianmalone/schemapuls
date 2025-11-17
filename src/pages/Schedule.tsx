@@ -314,10 +314,10 @@ const Schedule = () => {
         <div className="p-1 bg-muted rounded-full mb-4 flex items-center">
           <button
             onClick={() => setViewMode('week')}
-            className={`flex-1 px-3 py-1.5 rounded-full font-medium transition-all text-xs ${
+            className={`flex-1 px-3 py-1.5 rounded-full font-medium transition-all duration-300 ease-in-out text-xs ${
               viewMode === 'week'
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground"
+                ? "bg-primary text-primary-foreground shadow-md scale-105"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             Mån
@@ -329,10 +329,10 @@ const Schedule = () => {
                 setViewMode('day');
                 setSelectedDay(day.key);
               }}
-              className={`flex-1 px-3 py-1.5 rounded-full font-medium transition-all text-xs ${
+              className={`flex-1 px-3 py-1.5 rounded-full font-medium transition-all duration-300 ease-in-out text-xs ${
                 viewMode === 'day' && selectedDay === day.key
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground"
+                  ? "bg-primary text-primary-foreground shadow-md scale-105"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {day.label}

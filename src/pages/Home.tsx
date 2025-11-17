@@ -153,8 +153,13 @@ const Home = () => {
   };
 
   const handleSaveEdit = (id: string) => {
+    const trimmedName = editingName.trim();
+    if (trimmedName.length === 0 || trimmedName.length > 13) {
+      setEditingId(null);
+      return;
+    }
     const updated = schedules.map(s => 
-      s.id === id ? { ...s, name: editingName } : s
+      s.id === id ? { ...s, name: trimmedName } : s
     );
     setSchedules(updated);
     localStorage.setItem("savedSchedules", JSON.stringify(updated));
@@ -192,12 +197,18 @@ const Home = () => {
                       {editingId === schedule.id ? (
                         <Input
                           value={editingName}
-                          onChange={(e) => setEditingName(e.target.value)}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (value.length <= 13) {
+                              setEditingName(value);
+                            }
+                          }}
                           onBlur={() => handleSaveEdit(schedule.id)}
                           onKeyDown={(e) => e.key === "Enter" && handleSaveEdit(schedule.id)}
                           className="font-semibold text-lg"
                           autoFocus
                           onClick={(e) => e.stopPropagation()}
+                          maxLength={13}
                         />
                       ) : (
                         <>

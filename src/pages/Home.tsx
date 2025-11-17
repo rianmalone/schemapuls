@@ -183,7 +183,8 @@ const Home = () => {
 
         <div className="space-y-3 mb-6">
           {schedules.length > 0 ? (
-            schedules.map((schedule) => (
+            <>
+              {schedules.map((schedule) => (
               <div
                 key={schedule.id}
                 className="w-full p-5 rounded-2xl bg-card border border-border transition-all"
@@ -256,7 +257,9 @@ const Home = () => {
                   </div>
                 </div>
               </div>
-            ))
+            ))}
+            <p className="text-xs text-muted-foreground/60 text-center mt-4">Max 5 schemor</p>
+          </>
           ) : (
             <div className="text-center py-12 px-6 rounded-2xl bg-card border border-border">
               <p className="text-muted-foreground mb-4">Inget schema ännu</p>

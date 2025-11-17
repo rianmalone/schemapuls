@@ -355,37 +355,37 @@ const Schedule = () => {
 
         <div className="mb-4 p-4 rounded-2xl bg-card border border-border">
           <h3 className="text-sm font-medium mb-3">Aktivera påminnelser för:</h3>
-          <div className="flex items-center justify-between">
-            <label className="flex items-center gap-2 cursor-pointer group">
+          <div className="flex items-center justify-between gap-1">
+            <label className="flex items-center gap-1 cursor-pointer group">
               <div 
                 onClick={() => toggleAllDays()}
-                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all ${
                   allDaysChecked 
-                    ? 'bg-primary border-primary' 
+                    ? 'bg-background border-border' 
                     : 'border-muted-foreground/30 group-hover:border-muted-foreground/50'
                 }`}
               >
                 {allDaysChecked && (
-                  <div className="w-2 h-2 rounded-full bg-primary-foreground" />
+                  <div className="w-2 h-2 rounded-full bg-primary" />
                 )}
               </div>
-              <span className="text-sm font-medium">Vecka</span>
+              <span className="text-xs font-medium">Vecka</span>
             </label>
             {days.map((day) => (
-              <label key={day.key} className="flex items-center gap-2 cursor-pointer group">
+              <label key={day.key} className="flex items-center gap-1 cursor-pointer group">
                 <div 
                   onClick={() => handleDayToggle(day.key)}
-                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                  className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all ${
                     enabledDays[day.key]
-                      ? 'bg-primary border-primary' 
+                      ? 'bg-background border-border' 
                       : 'border-muted-foreground/30 group-hover:border-muted-foreground/50'
                   }`}
                 >
                   {enabledDays[day.key] && (
-                    <div className="w-2 h-2 rounded-full bg-primary-foreground" />
+                    <div className="w-2 h-2 rounded-full bg-primary" />
                   )}
                 </div>
-                <span className="text-sm">{day.label}</span>
+                <span className="text-xs">{day.label}</span>
               </label>
             ))}
           </div>

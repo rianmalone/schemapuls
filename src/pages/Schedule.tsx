@@ -333,9 +333,17 @@ const Schedule = () => {
 
     if (!currentSchedule) return;
 
+    // Add and sort classes by start time
+    const dayClasses = [...(currentSchedule[newClass.day as keyof WeekSchedule] || []), newClassItem];
+    dayClasses.sort((a, b) => {
+      const timeA = a.start.split(':').map(Number);
+      const timeB = b.start.split(':').map(Number);
+      return timeA[0] * 60 + timeA[1] - (timeB[0] * 60 + timeB[1]);
+    });
+
     const updatedSchedule = {
       ...currentSchedule,
-      [newClass.day]: [...(currentSchedule[newClass.day as keyof WeekSchedule] || []), newClassItem]
+      [newClass.day]: dayClasses
     };
 
     // Update the appropriate schedule

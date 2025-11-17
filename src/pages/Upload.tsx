@@ -115,7 +115,7 @@ const Upload = () => {
   const handleProcess = async () => {
     const scheduleType = localStorage.getItem("scheduleType") || "weekly";
     
-    if (scheduleType === "odd-even") {
+    if (scheduleType === "oddeven") {
       if (!previewOdd || !previewEven) {
         toast({
           title: "Saknas bilder",
@@ -253,7 +253,7 @@ const Upload = () => {
                 <li>Undvik reflektioner, skuggor och blockerade delar</li>
               </ul>
               
-              {localStorage.getItem("scheduleType") === "odd-even" ? (
+              {localStorage.getItem("scheduleType") === "oddeven" ? (
                 <div className="mt-4 grid grid-cols-2 gap-3">
                   <div className="p-3 bg-card rounded-xl border border-border">
                     <p className="text-xs font-medium text-foreground mb-2 text-center">Exempel på udda vecka:</p>
@@ -289,7 +289,7 @@ const Upload = () => {
           </div>
 
           <div className="pt-4 space-y-4">
-            {localStorage.getItem("scheduleType") === "odd-even" ? (
+            {localStorage.getItem("scheduleType") === "oddeven" ? (
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <h3 className="text-xs font-semibold mb-2 text-foreground text-center">Udda vecka</h3>

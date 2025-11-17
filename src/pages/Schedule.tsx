@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { notificationService } from "@/services/notificationService";
 import { useToast } from "@/hooks/use-toast";
+import { DarkModeToggle } from "@/components/DarkModeToggle";
 
 interface Class {
   id: string;
@@ -349,6 +350,7 @@ const Schedule = () => {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Hem
           </Button>
+          <DarkModeToggle />
           <Button
             variant="outline"
             size="sm"

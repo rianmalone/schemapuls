@@ -140,7 +140,7 @@ const Upload = () => {
     try {
       const scheduleId = Date.now().toString();
       
-      if (scheduleType === "odd-even") {
+      if (scheduleType === "oddeven") {
         // Process both odd and even schedules
         const { data: oddData, error: oddError } = await supabase.functions.invoke('analyze-schedule', {
           body: { imageBase64: previewOdd }

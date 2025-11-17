@@ -162,22 +162,41 @@ DO NOT include any other text, explanations, or markdown formatting.`;
 
     console.log("AI raw content:", content.slice(0, 200));
 
+    // Remove markdown code blocks if present
+    content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+
     // Extract JSON
     let schedule;
     try {
       schedule = JSON.parse(content);
-    } catch {
+    } catch (parseError: any) {
+      console.log("JSON parse failed, trying to extract JSON from text");
       const match = content.match(/\{[\s\S]*\}/);
       if (!match) {
+        console.error("Could not extract JSON from content:", content);
         return corsResponse(
           {
             error: "json_extract_error",
             message: "Could not extract JSON from AI response.",
+            details: parseError?.message || "Unknown error"
           },
           500,
         );
       }
-      schedule = JSON.parse(match[0]);
+      try {
+        schedule = JSON.parse(match[0]);
+      } catch (secondParseError: any) {
+        console.error("Second JSON parse also failed:", secondParseError?.message);
+        console.error("Extracted content:", match[0]);
+        return corsResponse(
+          {
+            error: "json_parse_error",
+            message: "Kunde inte tolka AI-svaret.",
+            details: secondParseError?.message || "Unknown error"
+          },
+          500,
+        );
+      }
     }
 
     if (schedule.error) {

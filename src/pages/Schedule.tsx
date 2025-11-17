@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Upload, Bell, BellOff } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Slider } from "@/components/ui/slider";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
 import { notificationService } from "@/services/notificationService";
 import { useToast } from "@/hooks/use-toast";
 
@@ -312,55 +311,68 @@ const Schedule = () => {
           </div>
         </div>
 
-        <Tabs
-          value={viewMode === 'week' ? 'week' : selectedDay}
-          onValueChange={(value) => {
-            if (value === 'week') {
-              setViewMode('week');
-            } else {
-              setViewMode('day');
-              setSelectedDay(value);
-            }
-          }}
-          className="mb-4"
-        >
-          <TabsList className="w-full bg-muted p-1 h-auto">
-            <TabsTrigger value="week" className="flex-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+        <div className="relative mb-4 p-1 bg-muted rounded-full">
+          <div
+            className="absolute top-1 bottom-1 bg-primary rounded-full transition-all duration-300 ease-out shadow-md"
+            style={{
+              left: viewMode === 'week' ? '0.25rem' : 
+                    selectedDay === 'monday' ? 'calc(16.666% + 0.125rem)' :
+                    selectedDay === 'tuesday' ? 'calc(33.333% + 0.125rem)' :
+                    selectedDay === 'wednesday' ? 'calc(50%)' :
+                    selectedDay === 'thursday' ? 'calc(66.666% - 0.125rem)' :
+                    'calc(83.333% - 0.25rem)',
+              width: 'calc(16.666% - 0.25rem)'
+            }}
+          />
+          <div className="relative flex items-center">
+            <button
+              onClick={() => setViewMode('week')}
+              className={`flex-1 px-3 py-1.5 rounded-full font-medium transition-colors duration-200 text-xs relative z-10 ${
+                viewMode === 'week'
+                  ? "text-primary-foreground"
+                  : "text-muted-foreground"
+              }`}
+            >
               Veckovy
-            </TabsTrigger>
+            </button>
             {days.map((day) => (
-              <TabsTrigger
+              <button
                 key={day.key}
-                value={day.key}
-                className="flex-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                onClick={() => {
+                  setViewMode('day');
+                  setSelectedDay(day.key);
+                }}
+                className={`flex-1 px-3 py-1.5 rounded-full font-medium transition-colors duration-200 text-xs relative z-10 ${
+                  viewMode === 'day' && selectedDay === day.key
+                    ? "text-primary-foreground"
+                    : "text-muted-foreground"
+                }`}
               >
                 {day.label}
-              </TabsTrigger>
+              </button>
             ))}
-          </TabsList>
-        </Tabs>
+          </div>
+        </div>
 
-        <div className="mb-4 p-3 rounded-2xl bg-card border border-border">
-          <h3 className="text-sm font-medium mb-3">Aktivera påminnelser för:</h3>
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-muted/50 transition-colors">
-              <Checkbox
+        <div className="mb-4 p-4 rounded-2xl bg-card border border-border">
+          <h3 className="text-sm font-medium mb-4">Aktivera påminnelser för:</h3>
+          <div className="flex items-center justify-between gap-3">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <Switch
                 checked={allDaysChecked}
                 onCheckedChange={toggleAllDays}
               />
-              <span className="text-sm font-semibold">Vecka</span>
+              <span className="text-sm font-medium">Vecka</span>
             </label>
-            <div className="grid grid-cols-2 gap-2">
-              {days.map((day) => (
-                <label key={day.key} className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-muted/50 transition-colors">
-                  <Checkbox
-                    checked={enabledDays[day.key]}
-                    onCheckedChange={() => handleDayToggle(day.key)}
-                  />
-                  <span className="text-sm">{day.label}</span>
-                </label>
-              ))}
-            </div>
+            {days.map((day) => (
+              <label key={day.key} className="flex items-center gap-2 cursor-pointer">
+                <Switch
+                  checked={enabledDays[day.key]}
+                  onCheckedChange={() => handleDayToggle(day.key)}
+                />
+                <span className="text-sm">{day.label}</span>
+              </label>
+            ))}
           </div>
         </div>
 

@@ -30,29 +30,45 @@ const Home = () => {
   }, []);
 
   const handleSelectSchedule = (id: string) => {
+    console.log('handleSelectSchedule called with id:', id);
     // Find the selected schedule
     const selectedSchedule = schedules.find(s => s.id === id);
-    if (!selectedSchedule) return;
+    if (!selectedSchedule) {
+      console.log('Schedule not found in list');
+      return;
+    }
+    
+    console.log('Selected schedule:', selectedSchedule);
 
     // Load this schedule's data from localStorage
     if (selectedSchedule.type === "oddeven") {
       const scheduleOdd = localStorage.getItem(`scheduleOdd_${id}`);
       const scheduleEven = localStorage.getItem(`scheduleEven_${id}`);
       
+      console.log('Loading oddeven schedule, odd:', !!scheduleOdd, 'even:', !!scheduleEven);
+      
       if (scheduleOdd && scheduleEven) {
         localStorage.setItem("schedule", scheduleOdd);
         localStorage.setItem("scheduleOdd", scheduleOdd);
         localStorage.setItem("scheduleEven", scheduleEven);
         localStorage.setItem("scheduleType", "oddeven");
+        console.log('Set oddeven data, navigating to /schedule');
         navigate("/schedule");
+      } else {
+        console.log('Missing oddeven schedule data for id:', id);
       }
     } else {
       const schedule = localStorage.getItem(`schedule_${id}`);
       
+      console.log('Loading weekly schedule, exists:', !!schedule);
+      
       if (schedule) {
         localStorage.setItem("schedule", schedule);
         localStorage.setItem("scheduleType", "weekly");
+        console.log('Set weekly data, navigating to /schedule');
         navigate("/schedule");
+      } else {
+        console.log('Missing weekly schedule data for id:', id);
       }
     }
   };

@@ -56,6 +56,7 @@ const Schedule = () => {
   useEffect(() => {
     const initializeSchedule = async () => {
       const type = localStorage.getItem("scheduleType") || "weekly";
+      console.log('Schedule page initializing with type:', type);
       setScheduleType(type);
 
       // Helper function to get current week number and determine if odd/even
@@ -70,6 +71,8 @@ const Schedule = () => {
       if (type === "oddeven") {
         const savedOdd = localStorage.getItem("scheduleOdd");
         const savedEven = localStorage.getItem("scheduleEven");
+        
+        console.log('Checking for oddeven schedules, odd:', !!savedOdd, 'even:', !!savedEven);
         
         if (savedOdd && savedEven) {
           const parsedOdd = JSON.parse(savedOdd);

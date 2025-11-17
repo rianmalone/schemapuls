@@ -41,6 +41,8 @@ const Schedule = () => {
     friday: true,
   });
   const [enabledClasses, setEnabledClasses] = useState<Record<string, boolean>>({});
+  const [enabledClassesOdd, setEnabledClassesOdd] = useState<Record<string, boolean>>({});
+  const [enabledClassesEven, setEnabledClassesEven] = useState<Record<string, boolean>>({});
   const [hasNotificationPermission, setHasNotificationPermission] = useState(false);
   const [checkingPermissions, setCheckingPermissions] = useState(true);
   const [scheduleType, setScheduleType] = useState<string>("weekly");
@@ -85,22 +87,35 @@ const Schedule = () => {
           setWeekType(currentWeek);
           setSchedule(currentWeek === 'odd' ? parsedOdd : parsedEven);
           
-          // Initialize all classes from both schedules
-          const allClasses: Record<string, boolean> = {};
-          [parsedOdd, parsedEven].forEach((sched) => {
-            Object.values(sched).forEach((dayClasses: Class[]) => {
-              dayClasses.forEach((classItem) => {
-                allClasses[classItem.id] = true;
-              });
+          // Initialize classes for odd schedule
+          const allClassesOdd: Record<string, boolean> = {};
+          Object.values(parsedOdd).forEach((dayClasses: Class[]) => {
+            dayClasses.forEach((classItem) => {
+              allClassesOdd[classItem.id] = true;
             });
           });
           
-          const savedEnabledClasses = localStorage.getItem("enabledClasses");
-          if (savedEnabledClasses) {
-            setEnabledClasses({ ...allClasses, ...JSON.parse(savedEnabledClasses) });
-          } else {
-            setEnabledClasses(allClasses);
-          }
+          // Initialize classes for even schedule
+          const allClassesEven: Record<string, boolean> = {};
+          Object.values(parsedEven).forEach((dayClasses: Class[]) => {
+            dayClasses.forEach((classItem) => {
+              allClassesEven[classItem.id] = true;
+            });
+          });
+          
+          const savedEnabledClassesOdd = localStorage.getItem("enabledClassesOdd");
+          const savedEnabledClassesEven = localStorage.getItem("enabledClassesEven");
+          
+          const finalOdd = savedEnabledClassesOdd 
+            ? { ...allClassesOdd, ...JSON.parse(savedEnabledClassesOdd) }
+            : allClassesOdd;
+          const finalEven = savedEnabledClassesEven
+            ? { ...allClassesEven, ...JSON.parse(savedEnabledClassesEven) }
+            : allClassesEven;
+            
+          setEnabledClassesOdd(finalOdd);
+          setEnabledClassesEven(finalEven);
+          setEnabledClasses(currentWeek === 'odd' ? finalOdd : finalEven);
         } else {
           navigate("/");
           return;
@@ -154,8 +169,10 @@ const Schedule = () => {
     setWeekType(type);
     if (type === 'odd' && scheduleOdd) {
       setSchedule(scheduleOdd);
+      setEnabledClasses(enabledClassesOdd);
     } else if (type === 'even' && scheduleEven) {
       setSchedule(scheduleEven);
+      setEnabledClasses(enabledClassesEven);
     }
   };
 
@@ -222,7 +239,19 @@ const Schedule = () => {
   const handleClassToggle = async (classId: string) => {
     const updated = { ...enabledClasses, [classId]: !enabledClasses[classId] };
     setEnabledClasses(updated);
-    localStorage.setItem("enabledClasses", JSON.stringify(updated));
+    
+    // Save to the correct storage based on current week type
+    if (scheduleType === "oddeven") {
+      if (weekType === 'odd') {
+        setEnabledClassesOdd(updated);
+        localStorage.setItem("enabledClassesOdd", JSON.stringify(updated));
+      } else {
+        setEnabledClassesEven(updated);
+        localStorage.setItem("enabledClassesEven", JSON.stringify(updated));
+      }
+    } else {
+      localStorage.setItem("enabledClasses", JSON.stringify(updated));
+    }
     
     // Reschedule notifications
     if (schedule && hasNotificationPermission) {

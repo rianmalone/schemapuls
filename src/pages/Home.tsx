@@ -30,6 +30,30 @@ const Home = () => {
   }, []);
 
   const handleSelectSchedule = (id: string) => {
+    // Find the selected schedule
+    const selectedSchedule = schedules.find(s => s.id === id);
+    if (!selectedSchedule) return;
+
+    // Load this schedule's data from localStorage
+    if (selectedSchedule.type === "oddeven") {
+      const scheduleOdd = localStorage.getItem(`scheduleOdd_${id}`);
+      const scheduleEven = localStorage.getItem(`scheduleEven_${id}`);
+      
+      if (scheduleOdd && scheduleEven) {
+        localStorage.setItem("schedule", scheduleOdd);
+        localStorage.setItem("scheduleOdd", scheduleOdd);
+        localStorage.setItem("scheduleEven", scheduleEven);
+        localStorage.setItem("scheduleType", "oddeven");
+      }
+    } else {
+      const schedule = localStorage.getItem(`schedule_${id}`);
+      
+      if (schedule) {
+        localStorage.setItem("schedule", schedule);
+        localStorage.setItem("scheduleType", "weekly");
+      }
+    }
+
     setActiveScheduleId(id);
     localStorage.setItem("activeScheduleId", id);
     navigate("/schedule");
@@ -46,6 +70,12 @@ const Home = () => {
     const updated = schedules.filter(s => s.id !== id);
     setSchedules(updated);
     localStorage.setItem("savedSchedules", JSON.stringify(updated));
+    
+    // Also remove the schedule data
+    localStorage.removeItem(`schedule_${id}`);
+    localStorage.removeItem(`scheduleOdd_${id}`);
+    localStorage.removeItem(`scheduleEven_${id}`);
+    
     if (activeScheduleId === id) {
       setActiveScheduleId(null);
       localStorage.removeItem("activeScheduleId");

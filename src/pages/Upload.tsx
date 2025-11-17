@@ -156,10 +156,13 @@ const Upload = () => {
         if (evenError) throw new Error(evenError.message || 'Kunde inte ansluta till servern');
         if (evenData?.error) throw new Error(evenData.message || 'Kunde inte analysera jämna veckan');
         
+        localStorage.setItem(`scheduleOdd_${scheduleId}`, JSON.stringify(oddData.schedule));
+        localStorage.setItem(`scheduleEven_${scheduleId}`, JSON.stringify(evenData.schedule));
         localStorage.setItem("scheduleOdd", JSON.stringify(oddData.schedule));
         localStorage.setItem("scheduleEven", JSON.stringify(evenData.schedule));
         localStorage.setItem("schedule", JSON.stringify(oddData.schedule)); // Default to odd
         localStorage.setItem("activeScheduleId", scheduleId);
+        localStorage.setItem("scheduleType", "oddeven");
       } else {
         // Process single schedule
         const { data, error } = await supabase.functions.invoke('analyze-schedule', {
@@ -175,8 +178,10 @@ const Upload = () => {
           throw new Error(data.message || 'Kunde inte analysera schemat');
         }
         
+        localStorage.setItem(`schedule_${scheduleId}`, JSON.stringify(data.schedule));
         localStorage.setItem("schedule", JSON.stringify(data.schedule));
         localStorage.setItem("activeScheduleId", scheduleId);
+        localStorage.setItem("scheduleType", "weekly");
       }
       
       const savedSchedules = JSON.parse(localStorage.getItem("savedSchedules") || "[]");

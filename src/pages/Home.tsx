@@ -75,7 +75,7 @@ const Home = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <div className="max-w-md mx-auto p-6 pt-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">KlassPuls</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">SchemaPuls</h1>
           <p className="text-muted-foreground">Dina scheman</p>
         </div>
 
@@ -91,19 +91,28 @@ const Home = () => {
                     onClick={() => handleSelectSchedule(schedule.id)}
                     className="flex-1 text-left"
                   >
-                    {editingId === schedule.id ? (
-                      <Input
-                        value={editingName}
-                        onChange={(e) => setEditingName(e.target.value)}
-                        onBlur={() => handleSaveEdit(schedule.id)}
-                        onKeyDown={(e) => e.key === "Enter" && handleSaveEdit(schedule.id)}
-                        className="font-semibold text-lg mb-1"
-                        autoFocus
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    ) : (
-                      <h3 className="font-semibold text-lg mb-1">{schedule.name}</h3>
-                    )}
+                    <div className="flex items-center gap-2 mb-1">
+                      {editingId === schedule.id ? (
+                        <Input
+                          value={editingName}
+                          onChange={(e) => setEditingName(e.target.value)}
+                          onBlur={() => handleSaveEdit(schedule.id)}
+                          onKeyDown={(e) => e.key === "Enter" && handleSaveEdit(schedule.id)}
+                          className="font-semibold text-lg"
+                          autoFocus
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      ) : (
+                        <>
+                          <h3 className="font-semibold text-lg">{schedule.name}</h3>
+                          {activeScheduleId === schedule.id && (
+                            <span className="px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full">
+                              Aktiv
+                            </span>
+                          )}
+                        </>
+                      )}
+                    </div>
                     <p className="text-xs text-muted-foreground">
                       {new Date(schedule.createdAt).toLocaleDateString("sv-SE")}
                     </p>

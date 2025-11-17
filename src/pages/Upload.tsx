@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { notificationService } from "@/services/notificationService";
 import exampleSchedule from "@/assets/example-schedule.png";
+import exampleScheduleEven from "@/assets/example-schedule-even.png";
 import { supabase } from "@/integrations/supabase/client";
 
 const Upload = () => {
@@ -137,27 +138,46 @@ const Upload = () => {
     setUploading(true);
     
     try {
-      // Simple, direct approach - just send the image
-      const { data, error } = await supabase.functions.invoke('analyze-schedule', {
-        body: { imageBase64: previewOdd }
-      });
-
-      console.log('Response:', { data, error });
-
-      if (error) {
-        console.error('Error:', error);
-        throw new Error(error.message || 'Kunde inte ansluta till servern');
-      }
-
-      if (data?.error) {
-        throw new Error(data.message || 'Kunde inte analysera schemat');
-      }
-
-      const schedule = data.schedule;
       const scheduleId = Date.now().toString();
       
-      localStorage.setItem("schedule", JSON.stringify(schedule));
-      localStorage.setItem("activeScheduleId", scheduleId);
+      if (scheduleType === "odd-even") {
+        // Process both odd and even schedules
+        const { data: oddData, error: oddError } = await supabase.functions.invoke('analyze-schedule', {
+          body: { imageBase64: previewOdd }
+        });
+
+        if (oddError) throw new Error(oddError.message || 'Kunde inte ansluta till servern');
+        if (oddData?.error) throw new Error(oddData.message || 'Kunde inte analysera udda veckan');
+
+        const { data: evenData, error: evenError } = await supabase.functions.invoke('analyze-schedule', {
+          body: { imageBase64: previewEven }
+        });
+
+        if (evenError) throw new Error(evenError.message || 'Kunde inte ansluta till servern');
+        if (evenData?.error) throw new Error(evenData.message || 'Kunde inte analysera jämna veckan');
+        
+        localStorage.setItem("scheduleOdd", JSON.stringify(oddData.schedule));
+        localStorage.setItem("scheduleEven", JSON.stringify(evenData.schedule));
+        localStorage.setItem("schedule", JSON.stringify(oddData.schedule)); // Default to odd
+        localStorage.setItem("activeScheduleId", scheduleId);
+      } else {
+        // Process single schedule
+        const { data, error } = await supabase.functions.invoke('analyze-schedule', {
+          body: { imageBase64: previewOdd }
+        });
+
+        if (error) {
+          console.error('Error:', error);
+          throw new Error(error.message || 'Kunde inte ansluta till servern');
+        }
+
+        if (data?.error) {
+          throw new Error(data.message || 'Kunde inte analysera schemat');
+        }
+        
+        localStorage.setItem("schedule", JSON.stringify(data.schedule));
+        localStorage.setItem("activeScheduleId", scheduleId);
+      }
       
       const savedSchedules = JSON.parse(localStorage.getItem("savedSchedules") || "[]");
       savedSchedules.push({
@@ -233,17 +253,38 @@ const Upload = () => {
                 <li>Undvik reflektioner, skuggor och blockerade delar</li>
               </ul>
               
-              <div className="mt-4 p-3 bg-card rounded-xl border border-border">
-                <p className="text-xs font-medium text-foreground mb-2">Exempel på ett bra schema:</p>
-                <img 
-                  src={exampleSchedule} 
-                  alt="Exempel på ett tydligt schema" 
-                  className="w-full rounded-lg border border-border"
-                />
-                <p className="text-xs text-muted-foreground mt-2 text-center">
-                  ↑ Så här ska schemat se ut för bästa resultat
-                </p>
-              </div>
+              {localStorage.getItem("scheduleType") === "odd-even" ? (
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  <div className="p-3 bg-card rounded-xl border border-border">
+                    <p className="text-xs font-medium text-foreground mb-2 text-center">Exempel på udda vecka:</p>
+                    <img 
+                      src={exampleSchedule} 
+                      alt="Exempel på ett tydligt schema för udda vecka" 
+                      className="w-full rounded-lg border border-border"
+                    />
+                  </div>
+                  <div className="p-3 bg-card rounded-xl border border-border">
+                    <p className="text-xs font-medium text-foreground mb-2 text-center">Exempel på jämn vecka:</p>
+                    <img 
+                      src={exampleScheduleEven} 
+                      alt="Exempel på ett tydligt schema för jämn vecka" 
+                      className="w-full rounded-lg border border-border"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-4 p-3 bg-card rounded-xl border border-border">
+                  <p className="text-xs font-medium text-foreground mb-2">Exempel på ett bra schema:</p>
+                  <img 
+                    src={exampleSchedule} 
+                    alt="Exempel på ett tydligt schema" 
+                    className="w-full rounded-lg border border-border"
+                  />
+                  <p className="text-xs text-muted-foreground mt-2 text-center">
+                    ↑ Så här ska schemat se ut för bästa resultat
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 

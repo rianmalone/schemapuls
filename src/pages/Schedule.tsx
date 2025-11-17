@@ -27,6 +27,9 @@ const Schedule = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [schedule, setSchedule] = useState<WeekSchedule | null>(null);
+  const [scheduleOdd, setScheduleOdd] = useState<WeekSchedule | null>(null);
+  const [scheduleEven, setScheduleEven] = useState<WeekSchedule | null>(null);
+  const [weekType, setWeekType] = useState<'odd' | 'even'>('odd');
   const [viewMode, setViewMode] = useState<'week' | 'day'>('week');
   const [selectedDay, setSelectedDay] = useState("monday");
   const [notificationMinutes, setNotificationMinutes] = useState(5);
@@ -40,6 +43,7 @@ const Schedule = () => {
   const [enabledClasses, setEnabledClasses] = useState<Record<string, boolean>>({});
   const [hasNotificationPermission, setHasNotificationPermission] = useState(false);
   const [checkingPermissions, setCheckingPermissions] = useState(true);
+  const [scheduleType, setScheduleType] = useState<string>("weekly");
 
   const days = [
     { key: "monday", label: "Mån" },
@@ -51,28 +55,64 @@ const Schedule = () => {
 
   useEffect(() => {
     const initializeSchedule = async () => {
-      const savedSchedule = localStorage.getItem("schedule");
-      if (savedSchedule) {
-        const parsedSchedule = JSON.parse(savedSchedule);
-        setSchedule(parsedSchedule);
+      const type = localStorage.getItem("scheduleType") || "weekly";
+      setScheduleType(type);
+
+      if (type === "odd-even") {
+        const savedOdd = localStorage.getItem("scheduleOdd");
+        const savedEven = localStorage.getItem("scheduleEven");
         
-        // Initialize all classes as enabled by default
-        const allClasses: Record<string, boolean> = {};
-        Object.values(parsedSchedule).forEach((dayClasses: Class[]) => {
-          dayClasses.forEach((classItem) => {
-            allClasses[classItem.id] = true;
+        if (savedOdd && savedEven) {
+          const parsedOdd = JSON.parse(savedOdd);
+          const parsedEven = JSON.parse(savedEven);
+          setScheduleOdd(parsedOdd);
+          setScheduleEven(parsedEven);
+          setSchedule(parsedOdd); // Default to odd
+          
+          // Initialize all classes from both schedules
+          const allClasses: Record<string, boolean> = {};
+          [parsedOdd, parsedEven].forEach((sched) => {
+            Object.values(sched).forEach((dayClasses: Class[]) => {
+              dayClasses.forEach((classItem) => {
+                allClasses[classItem.id] = true;
+              });
+            });
           });
-        });
-        
-        const savedEnabledClasses = localStorage.getItem("enabledClasses");
-        if (savedEnabledClasses) {
-          setEnabledClasses({ ...allClasses, ...JSON.parse(savedEnabledClasses) });
+          
+          const savedEnabledClasses = localStorage.getItem("enabledClasses");
+          if (savedEnabledClasses) {
+            setEnabledClasses({ ...allClasses, ...JSON.parse(savedEnabledClasses) });
+          } else {
+            setEnabledClasses(allClasses);
+          }
         } else {
-          setEnabledClasses(allClasses);
+          navigate("/");
+          return;
         }
       } else {
-        navigate("/");
-        return;
+        const savedSchedule = localStorage.getItem("schedule");
+        if (savedSchedule) {
+          const parsedSchedule = JSON.parse(savedSchedule);
+          setSchedule(parsedSchedule);
+          
+          // Initialize all classes as enabled by default
+          const allClasses: Record<string, boolean> = {};
+          Object.values(parsedSchedule).forEach((dayClasses: Class[]) => {
+            dayClasses.forEach((classItem) => {
+              allClasses[classItem.id] = true;
+            });
+          });
+          
+          const savedEnabledClasses = localStorage.getItem("enabledClasses");
+          if (savedEnabledClasses) {
+            setEnabledClasses({ ...allClasses, ...JSON.parse(savedEnabledClasses) });
+          } else {
+            setEnabledClasses(allClasses);
+          }
+        } else {
+          navigate("/");
+          return;
+        }
       }
 
       const savedMinutes = localStorage.getItem("globalNotificationMinutes");
@@ -93,6 +133,15 @@ const Schedule = () => {
 
     initializeSchedule();
   }, [navigate]);
+
+  const handleWeekToggle = (type: 'odd' | 'even') => {
+    setWeekType(type);
+    if (type === 'odd' && scheduleOdd) {
+      setSchedule(scheduleOdd);
+    } else if (type === 'even' && scheduleEven) {
+      setSchedule(scheduleEven);
+    }
+  };
 
   const handleNotificationChange = async (value: number[]) => {
     setNotificationMinutes(value[0]);
@@ -288,6 +337,35 @@ const Schedule = () => {
         <div className="mb-4">
           <h1 className="text-2xl font-bold text-foreground">Mitt Schema</h1>
         </div>
+
+        {scheduleType === "odd-even" && (
+          <div className="mb-4 flex gap-2">
+            <Button
+              variant={weekType === 'odd' ? 'default' : 'outline'}
+              onClick={() => handleWeekToggle('odd')}
+              className="flex-1"
+            >
+              Udda
+              {weekType === 'odd' && (
+                <span className="ml-2 px-1.5 py-0.5 text-xs bg-background/20 rounded">
+                  Aktiv
+                </span>
+              )}
+            </Button>
+            <Button
+              variant={weekType === 'even' ? 'default' : 'outline'}
+              onClick={() => handleWeekToggle('even')}
+              className="flex-1"
+            >
+              Jämna
+              {weekType === 'even' && (
+                <span className="ml-2 px-1.5 py-0.5 text-xs bg-background/20 rounded">
+                  Aktiv
+                </span>
+              )}
+            </Button>
+          </div>
+        )}
 
         <div className="mb-4 p-4 rounded-2xl bg-card border border-border">
           <div className="flex items-center justify-between mb-3">

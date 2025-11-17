@@ -734,10 +734,11 @@ const Schedule = () => {
         <Dialog open={isAddClassOpen} onOpenChange={setIsAddClassOpen}>
           <DialogTrigger asChild>
             <Button
-              size="lg"
-              className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg"
+              size="sm"
+              variant="outline"
+              className="fixed bottom-6 right-6 h-10 w-10 rounded-full shadow-sm bg-background/80 backdrop-blur-sm border-border/50 hover:bg-background hover:border-border transition-all"
             >
-              <Plus className="h-6 w-6" />
+              <Plus className="h-4 w-4" />
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-md">

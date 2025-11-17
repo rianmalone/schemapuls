@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Plus, Check, Trash2, Edit2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
+import { DarkModeToggle } from "@/components/DarkModeToggle";
 
 interface SavedSchedule {
   id: string;
@@ -167,9 +168,12 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <div className="max-w-md mx-auto p-6 pt-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">SchemaPuls</h1>
-          <p className="text-muted-foreground">Dina scheman</p>
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground mb-2">SchemaPuls</h1>
+            <p className="text-muted-foreground">Dina scheman</p>
+          </div>
+          <DarkModeToggle />
         </div>
 
         <div className="space-y-3 mb-6">

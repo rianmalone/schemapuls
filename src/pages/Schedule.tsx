@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Upload, Bell, BellOff } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
 import { notificationService } from "@/services/notificationService";
 import { useToast } from "@/hooks/use-toast";
 
@@ -356,23 +355,37 @@ const Schedule = () => {
 
         <div className="mb-4 p-4 rounded-2xl bg-card border border-border">
           <h3 className="text-sm font-medium mb-3">Aktivera påminnelser för:</h3>
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-3">
-            <label className="flex items-center gap-1.5 cursor-pointer">
-              <Switch
-                checked={allDaysChecked}
-                onCheckedChange={toggleAllDays}
-                className="scale-75"
-              />
-              <span className="text-xs font-medium">Vecka</span>
+          <div className="flex items-center justify-between">
+            <label className="flex items-center gap-2 cursor-pointer group">
+              <div 
+                onClick={() => toggleAllDays()}
+                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                  allDaysChecked 
+                    ? 'bg-primary border-primary' 
+                    : 'border-muted-foreground/30 group-hover:border-muted-foreground/50'
+                }`}
+              >
+                {allDaysChecked && (
+                  <div className="w-2 h-2 rounded-full bg-primary-foreground" />
+                )}
+              </div>
+              <span className="text-sm font-medium">Vecka</span>
             </label>
             {days.map((day) => (
-              <label key={day.key} className="flex items-center gap-1.5 cursor-pointer">
-                <Switch
-                  checked={enabledDays[day.key]}
-                  onCheckedChange={() => handleDayToggle(day.key)}
-                  className="scale-75"
-                />
-                <span className="text-xs">{day.label}</span>
+              <label key={day.key} className="flex items-center gap-2 cursor-pointer group">
+                <div 
+                  onClick={() => handleDayToggle(day.key)}
+                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                    enabledDays[day.key]
+                      ? 'bg-primary border-primary' 
+                      : 'border-muted-foreground/30 group-hover:border-muted-foreground/50'
+                  }`}
+                >
+                  {enabledDays[day.key] && (
+                    <div className="w-2 h-2 rounded-full bg-primary-foreground" />
+                  )}
+                </div>
+                <span className="text-sm">{day.label}</span>
               </label>
             ))}
           </div>

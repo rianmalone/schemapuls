@@ -44,6 +44,7 @@ const Home = () => {
         localStorage.setItem("scheduleOdd", scheduleOdd);
         localStorage.setItem("scheduleEven", scheduleEven);
         localStorage.setItem("scheduleType", "oddeven");
+        navigate("/schedule");
       }
     } else {
       const schedule = localStorage.getItem(`schedule_${id}`);
@@ -51,12 +52,9 @@ const Home = () => {
       if (schedule) {
         localStorage.setItem("schedule", schedule);
         localStorage.setItem("scheduleType", "weekly");
+        navigate("/schedule");
       }
     }
-
-    setActiveScheduleId(id);
-    localStorage.setItem("activeScheduleId", id);
-    navigate("/schedule");
   };
 
   const handleSetActive = (id: string, e: React.MouseEvent) => {

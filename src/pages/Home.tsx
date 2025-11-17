@@ -23,6 +23,37 @@ const Home = () => {
     if (saved) {
       const parsed = JSON.parse(saved);
       setSchedules(parsed);
+      
+      // Migrate old schedules that don't have ID-based storage
+      const activeId = localStorage.getItem("activeScheduleId");
+      if (activeId && parsed.length > 0) {
+        const activeSchedule = parsed.find((s: SavedSchedule) => s.id === activeId);
+        if (activeSchedule) {
+          // Check if this schedule already has ID-based data
+          if (activeSchedule.type === "oddeven") {
+            const hasOddData = localStorage.getItem(`scheduleOdd_${activeId}`);
+            const hasEvenData = localStorage.getItem(`scheduleEven_${activeId}`);
+            if (!hasOddData || !hasEvenData) {
+              // Migrate from generic keys to ID-based keys
+              const genericOdd = localStorage.getItem("scheduleOdd");
+              const genericEven = localStorage.getItem("scheduleEven");
+              if (genericOdd) localStorage.setItem(`scheduleOdd_${activeId}`, genericOdd);
+              if (genericEven) localStorage.setItem(`scheduleEven_${activeId}`, genericEven);
+              console.log('Migrated oddeven schedule to ID-based storage');
+            }
+          } else {
+            const hasData = localStorage.getItem(`schedule_${activeId}`);
+            if (!hasData) {
+              // Migrate from generic key to ID-based key
+              const genericSchedule = localStorage.getItem("schedule");
+              if (genericSchedule) {
+                localStorage.setItem(`schedule_${activeId}`, genericSchedule);
+                console.log('Migrated weekly schedule to ID-based storage');
+              }
+            }
+          }
+        }
+      }
     }
 
     const active = localStorage.getItem("activeScheduleId");

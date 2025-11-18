@@ -124,6 +124,111 @@ DO NOT include any other text, explanations, or markdown formatting.`;
             ],
           },
         ],
+        tools: [
+          {
+            type: "function",
+            function: {
+              name: "extract_schedule",
+              description: "Extract schedule data from a Swedish school schedule image.",
+              parameters: {
+                type: "object",
+                properties: {
+                  error: {
+                    type: "string",
+                    description:
+                      "Optional error code: 'invalid_image' if not a schedule, 'incomplete_schedule' if schedule is unclear.",
+                  },
+                  monday: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        name: { type: "string" },
+                        start: { type: "string" },
+                        end: { type: "string" },
+                        room: { type: "string" },
+                        day: { type: "string" },
+                        color: { type: "string" },
+                      },
+                      required: ["name", "start", "end"],
+                      additionalProperties: false,
+                    },
+                  },
+                  tuesday: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        name: { type: "string" },
+                        start: { type: "string" },
+                        end: { type: "string" },
+                        room: { type: "string" },
+                        day: { type: "string" },
+                        color: { type: "string" },
+                      },
+                      required: ["name", "start", "end"],
+                      additionalProperties: false,
+                    },
+                  },
+                  wednesday: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        name: { type: "string" },
+                        start: { type: "string" },
+                        end: { type: "string" },
+                        room: { type: "string" },
+                        day: { type: "string" },
+                        color: { type: "string" },
+                      },
+                      required: ["name", "start", "end"],
+                      additionalProperties: false,
+                    },
+                  },
+                  thursday: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        name: { type: "string" },
+                        start: { type: "string" },
+                        end: { type: "string" },
+                        room: { type: "string" },
+                        day: { type: "string" },
+                        color: { type: "string" },
+                      },
+                      required: ["name", "start", "end"],
+                      additionalProperties: false,
+                    },
+                  },
+                  friday: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        name: { type: "string" },
+                        start: { type: "string" },
+                        end: { type: "string" },
+                        room: { type: "string" },
+                        day: { type: "string" },
+                        color: { type: "string" },
+                      },
+                      required: ["name", "start", "end"],
+                      additionalProperties: false,
+                    },
+                  },
+                },
+                required: [],
+                additionalProperties: false,
+              },
+            },
+          },
+        ],
+        tool_choice: {
+          type: "function",
+          function: { name: "extract_schedule" },
+        },
       }),
     });
 
@@ -148,53 +253,77 @@ DO NOT include any other text, explanations, or markdown formatting.`;
 
     const aiData = await aiRes.json();
 
-    // --- PARSE CONTENT SAFE ---
-    let content = aiData.choices?.[0]?.message?.content;
+    // --- PARSE CONTENT SAFE (PREFER TOOL CALLS) ---
+    const choice = aiData.choices?.[0];
+    const message = choice?.message;
 
-    if (Array.isArray(content)) {
-      content = content.map((c: any) => c.text || "").join("");
-    }
-
-    if (typeof content !== "string") {
-      return corsResponse({ error: "ai_format", message: "Unexpected AI response format." }, 500);
-    }
-
-    console.log("AI raw content:", content.slice(0, 200));
-
-    // Remove markdown code blocks if present
-    content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-
-    // Extract JSON
     let schedule;
-    try {
-      schedule = JSON.parse(content);
-    } catch (parseError: any) {
-      console.log("JSON parse failed, trying to extract JSON from text");
-      const match = content.match(/\{[\s\S]*\}/);
-      if (!match) {
-        console.error("Could not extract JSON from content:", content);
+
+    // Try tool calls first (structured arguments)
+    const toolCalls = message?.tool_calls;
+    if (Array.isArray(toolCalls) && toolCalls.length > 0) {
+      const toolCall = toolCalls[0];
+      try {
+        const rawArgs = toolCall.function?.arguments ?? "{}";
+        schedule = JSON.parse(rawArgs);
+      } catch (err: any) {
+        console.error("Failed to parse tool call arguments:", err);
         return corsResponse(
           {
-            error: "json_extract_error",
-            message: "Could not extract JSON from AI response.",
-            details: parseError?.message || "Unknown error"
+            error: "ai_tool_parse_error",
+            message: "Kunde inte tolka AI-schemat.",
+            details: err?.message || "Unknown error",
           },
           500,
         );
       }
+    } else {
+      // Fallback: parse plain content as before
+      let content = message?.content;
+
+      if (Array.isArray(content)) {
+        content = content.map((c: any) => c.text || "").join("");
+      }
+
+      if (typeof content !== "string") {
+        return corsResponse({ error: "ai_format", message: "Unexpected AI response format." }, 500);
+      }
+
+      console.log("AI raw content:", content.slice(0, 200));
+
+      // Remove markdown code blocks if present
+      content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+
       try {
-        schedule = JSON.parse(match[0]);
-      } catch (secondParseError: any) {
-        console.error("Second JSON parse also failed:", secondParseError?.message);
-        console.error("Extracted content:", match[0]);
-        return corsResponse(
-          {
-            error: "json_parse_error",
-            message: "Kunde inte tolka AI-svaret.",
-            details: secondParseError?.message || "Unknown error"
-          },
-          500,
-        );
+        schedule = JSON.parse(content);
+      } catch (parseError: any) {
+        console.log("JSON parse failed, trying to extract JSON from text");
+        const match = content.match(/\{[\s\S]*\}/);
+        if (!match) {
+          console.error("Could not extract JSON from content:", content);
+          return corsResponse(
+            {
+              error: "json_extract_error",
+              message: "Could not extract JSON from AI response.",
+              details: parseError?.message || "Unknown error",
+            },
+            500,
+          );
+        }
+        try {
+          schedule = JSON.parse(match[0]);
+        } catch (secondParseError: any) {
+          console.error("Second JSON parse also failed:", secondParseError?.message);
+          console.error("Extracted content:", match[0]);
+          return corsResponse(
+            {
+              error: "json_parse_error",
+              message: "Kunde inte tolka AI-svaret.",
+              details: secondParseError?.message || "Unknown error",
+            },
+            500,
+          );
+        }
       }
     }
 

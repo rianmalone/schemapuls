@@ -105,7 +105,6 @@ DO NOT include any other text, explanations, or markdown formatting.`;
       },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
-        max_tokens: 2000,
         messages: [
           {
             role: "system",

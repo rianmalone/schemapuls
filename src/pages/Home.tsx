@@ -226,7 +226,7 @@ const Home = () => {
                 return `Vecka ${weekNumber} • ${dayName} • ${date}`;
               })()}
             </p>
-            <p className="text-sm text-muted-foreground/70 mb-1 mt-3">Dina scheman:</p>
+            <p className="text-sm text-muted-foreground/70 mb-1 mt-4">Dina scheman:</p>
           </div>
           <div className="flex flex-col items-end gap-2 mt-3">
             <DarkModeToggle />
@@ -340,14 +340,16 @@ const Home = () => {
           )}
         </div>
 
-        <Button
-          onClick={handleCreateNew}
-          className="w-full h-14 rounded-2xl shadow-lg hover:shadow-xl transition-all"
-          size="lg"
-        >
-          <Plus className="w-5 h-5 mr-2" />
-          Skapa nytt schema
-        </Button>
+        <div className="mb-6">
+          <Button
+            onClick={handleCreateNew}
+            className="w-full h-14 rounded-2xl shadow-lg hover:shadow-xl transition-all"
+            size="lg"
+          >
+            <Plus className="w-5 h-5 mr-2" />
+            Skapa nytt schema
+          </Button>
+        </div>
       </div>
     </div>
   );

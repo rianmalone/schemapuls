@@ -33,12 +33,12 @@ const Home = () => {
     const startOfYear = new Date(now.getFullYear(), 0, 1);
     const pastDaysOfYear = (now.getTime() - startOfYear.getTime()) / 86400000;
     const weekNumber = Math.ceil((pastDaysOfYear + startOfYear.getDay() + 1) / 7);
-    const weekType = weekNumber % 2 === 0 ? "Jämn" : "Udda";
     
     const days = ["Söndag", "Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Lördag"];
     const dayName = days[now.getDay()];
+    const date = now.toLocaleDateString("sv-SE", { day: "numeric", month: "short" });
     
-    return { weekNumber, weekType, dayName };
+    return { weekNumber, dayName, date };
   };
 
   const getActiveWeekTypes = (scheduleId: string): string[] => {
@@ -217,10 +217,17 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <div className="max-w-md mx-auto p-6 pt-8">
-        <div className="flex items-start justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">SchemaPuls</h1>
-            <p className="text-muted-foreground">Dina scheman</p>
+        <div className="flex items-start justify-between mb-8">
+          <div className="flex-1">
+            <div className="mb-3">
+              <h1 className="text-2xl font-bold text-foreground">
+                {(() => {
+                  const { weekNumber, dayName, date } = getCurrentWeekAndDay();
+                  return `Vecka ${weekNumber} • ${dayName} • ${date}`;
+                })()}
+              </h1>
+            </div>
+            <p className="text-sm text-muted-foreground">Dina scheman</p>
           </div>
           <div className="flex flex-col items-end gap-2">
             <DarkModeToggle />
@@ -230,15 +237,6 @@ const Home = () => {
               </div>
             </div>
           </div>
-        </div>
-
-        <div className="mb-4">
-          <p className="text-sm text-muted-foreground">
-            {(() => {
-              const { weekNumber, weekType, dayName } = getCurrentWeekAndDay();
-              return `Vecka ${weekNumber} (${weekType}) • ${dayName}`;
-            })()}
-          </p>
         </div>
 
         <div className="space-y-3 mb-6">

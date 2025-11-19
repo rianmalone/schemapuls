@@ -226,9 +226,9 @@ const Home = () => {
                 return `Vecka ${weekNumber} • ${dayName} • ${date}`;
               })()}
             </p>
-            <p className="text-sm text-muted-foreground/70 mb-3 mt-4">Dina scheman:</p>
+            <p className="text-sm text-muted-foreground/70 mb-2 mt-6">Dina scheman:</p>
           </div>
-          <div className="flex flex-col items-end gap-2 mt-4">
+          <div className="flex flex-col items-end gap-2 mt-3">
             <DarkModeToggle />
             <div className="text-right mt-2">
               <div className="text-2xl font-bold text-foreground tabular-nums">
@@ -279,15 +279,21 @@ const Home = () => {
                         </>
                       )}
                     </div>
-                    <div className="space-y-0.5">
+                    <div className="space-y-0.5 overflow-hidden transition-all duration-300">
                       <p className="text-xs text-muted-foreground">
                         {new Date(schedule.createdAt).toLocaleDateString("sv-SE")}
                       </p>
-                      {activeScheduleId === schedule.id && schedule.type === "oddeven" && getActiveWeekTypes(schedule.id).length > 0 && (
-                        <p className="text-xs text-muted-foreground/70 animate-fade-in">
+                      <div 
+                        className={`overflow-hidden transition-all duration-300 ${
+                          activeScheduleId === schedule.id && schedule.type === "oddeven" && getActiveWeekTypes(schedule.id).length > 0
+                            ? "max-h-20 opacity-100"
+                            : "max-h-0 opacity-0"
+                        }`}
+                      >
+                        <p className="text-xs text-muted-foreground/70">
                           Aktuell: {getActiveWeekTypes(schedule.id).join(", ").toLowerCase()}
                         </p>
-                      )}
+                      </div>
                     </div>
                   </button>
                   

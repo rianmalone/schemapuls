@@ -1,13 +1,30 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Calendar, CalendarDays, ArrowLeft } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 const ScheduleType = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [selected, setSelected] = useState<"weekly" | "oddeven" | null>(null);
+  const [scheduleCount, setScheduleCount] = useState(0);
+
+  useEffect(() => {
+    const savedSchedules = JSON.parse(localStorage.getItem("savedSchedules") || "[]");
+    setScheduleCount(savedSchedules.length);
+  }, []);
 
   const handleContinue = () => {
+    if (scheduleCount >= 5) {
+      toast({
+        title: "Max 5 scheman",
+        description: "Du kan bara ha 5 scheman. Ta bort ett schema först för att skapa ett nytt.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (selected) {
       localStorage.setItem("scheduleType", selected);
       navigate("/upload");
@@ -98,12 +115,17 @@ const ScheduleType = () => {
 
           <Button
             onClick={handleContinue}
-            disabled={!selected}
+            disabled={!selected || scheduleCount >= 5}
             className="w-full h-14 text-lg rounded-2xl shadow-lg hover:shadow-xl transition-all mt-8"
             size="lg"
           >
-            Fortsätt
+            {scheduleCount >= 5 ? "Max 5 scheman" : "Fortsätt"}
           </Button>
+          {scheduleCount >= 5 && (
+            <p className="text-sm text-muted-foreground text-center mt-2">
+              Ta bort ett schema först för att skapa ett nytt
+            </p>
+          )}
         </div>
       </div>
     </div>

@@ -219,9 +219,22 @@ const Upload = () => {
     } catch (error) {
       console.error('Error analyzing schedule:', error);
       const errorMessage = error instanceof Error ? error.message : "Kunde inte analysera schemat. Försök igen och se till att hela schemat syns tydligt i bilden.";
+      
+      // Clear preview images so user can upload new ones
+      setPreviewOdd(null);
+      setPreviewEven(null);
+      
+      // Reset file inputs
+      const fileInputs = document.querySelectorAll('input[type="file"]');
+      fileInputs.forEach(input => {
+        if (input instanceof HTMLInputElement) {
+          input.value = '';
+        }
+      });
+      
       toast({
-        title: "Något gick fel",
-        description: errorMessage,
+        title: "Kunde inte analysera bilden",
+        description: "Försök igen med en tydligare bild av schemat. Se till att hela schemat syns och är läsbart.",
         variant: "destructive",
       });
     } finally {

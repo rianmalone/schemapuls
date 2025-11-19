@@ -328,7 +328,7 @@ const Home = () => {
                 </div>
               </div>
             ))}
-            <p className="text-xs text-muted-foreground/60 text-center mt-2">Max 5 schemor</p>
+            <p className="text-xs text-muted-foreground/60 text-center mt-3 mb-2">Max 5 schemor</p>
           </>
           ) : (
             <div className="text-center py-12 px-6 rounded-2xl bg-card border border-border">
@@ -340,7 +340,7 @@ const Home = () => {
           )}
         </div>
 
-        <div className="mb-6">
+        <div className="mb-6 mt-4">
           <Button
             onClick={handleCreateNew}
             className="w-full h-14 rounded-2xl shadow-lg hover:shadow-xl transition-all"

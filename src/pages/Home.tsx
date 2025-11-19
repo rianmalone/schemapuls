@@ -244,7 +244,7 @@ const Home = () => {
               {schedules.map((schedule) => (
               <div
                 key={schedule.id}
-                className="w-full p-4 rounded-2xl bg-card border border-border transition-all"
+                className="w-full p-4 rounded-2xl bg-card border border-border transition-all duration-300"
               >
                 <div className="flex items-center gap-3">
                   <button
@@ -284,7 +284,7 @@ const Home = () => {
                         {new Date(schedule.createdAt).toLocaleDateString("sv-SE")}
                       </p>
                       {activeScheduleId === schedule.id && schedule.type === "oddeven" && getActiveWeekTypes(schedule.id).length > 0 && (
-                        <p className="text-xs text-muted-foreground/70">
+                        <p className="text-xs text-muted-foreground/70 animate-fade-in">
                           Aktuell: {getActiveWeekTypes(schedule.id).join(", ").toLowerCase()}
                         </p>
                       )}

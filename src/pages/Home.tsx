@@ -228,7 +228,7 @@ const Home = () => {
             </p>
             <p className="text-xs text-muted-foreground mb-3">Dina scheman</p>
           </div>
-          <div className="flex flex-col items-end gap-2 mt-1">
+          <div className="flex flex-col items-end gap-2 mt-2">
             <DarkModeToggle />
             <div className="text-right mt-2">
               <div className="text-2xl font-bold text-foreground tabular-nums">

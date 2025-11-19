@@ -213,7 +213,7 @@ const Home = () => {
               >
                 <div className="flex items-center justify-between gap-3">
                   <button
-                    onClick={() => handleSelectSchedule(schedule.id)}
+                    onClick={() => editingId !== schedule.id && handleSelectSchedule(schedule.id)}
                     className="flex-1 text-left"
                   >
                     <div className="flex items-center gap-2 mb-1">

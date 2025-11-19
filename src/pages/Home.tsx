@@ -283,11 +283,12 @@ const Home = () => {
                       <p className="text-xs text-muted-foreground">
                         {new Date(schedule.createdAt).toLocaleDateString("sv-SE")}
                       </p>
-                      {activeScheduleId === schedule.id && schedule.type === "oddeven" && getActiveWeekTypes(schedule.id).length > 0 && (
-                        <p className="text-xs text-muted-foreground/70">
-                          Aktuell: {getActiveWeekTypes(schedule.id).join(", ").toLowerCase()}
-                        </p>
-                      )}
+                      <p className="text-xs text-muted-foreground/70">
+                        {activeScheduleId === schedule.id && schedule.type === "oddeven" && getActiveWeekTypes(schedule.id).length > 0
+                          ? `Aktuell: ${getActiveWeekTypes(schedule.id).join(", ").toLowerCase()}`
+                          : "\u00A0"
+                        }
+                      </p>
                     </div>
                   </button>
                   

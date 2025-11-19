@@ -18,6 +18,28 @@ const Home = () => {
   const [activeScheduleId, setActiveScheduleId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Update time every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const getCurrentWeekAndDay = () => {
+    const now = new Date();
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+    const pastDaysOfYear = (now.getTime() - startOfYear.getTime()) / 86400000;
+    const weekNumber = Math.ceil((pastDaysOfYear + startOfYear.getDay() + 1) / 7);
+    const weekType = weekNumber % 2 === 0 ? "Jämn" : "Udda";
+    
+    const days = ["Söndag", "Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Lördag"];
+    const dayName = days[now.getDay()];
+    
+    return { weekNumber, weekType, dayName };
+  };
 
   const getActiveWeekTypes = (scheduleId: string): string[] => {
     const enabledOdd = localStorage.getItem("enabledClassesOdd");
@@ -195,12 +217,28 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <div className="max-w-md mx-auto p-6 pt-8">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-start justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold text-foreground mb-2">SchemaPuls</h1>
             <p className="text-muted-foreground">Dina scheman</p>
           </div>
-          <DarkModeToggle />
+          <div className="flex flex-col items-end gap-2">
+            <DarkModeToggle />
+            <div className="text-right">
+              <div className="text-2xl font-bold text-foreground tabular-nums">
+                {currentTime.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <p className="text-sm text-muted-foreground">
+            {(() => {
+              const { weekNumber, weekType, dayName } = getCurrentWeekAndDay();
+              return `Vecka ${weekNumber} (${weekType}) • ${dayName}`;
+            })()}
+          </p>
         </div>
 
         <div className="space-y-3 mb-6">

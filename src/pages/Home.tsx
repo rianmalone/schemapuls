@@ -217,16 +217,9 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <div className="max-w-md mx-auto p-6 pt-8">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-2">
           <div className="flex-1">
-            <h1 className="text-4xl font-bold text-foreground mb-1">SchemaPuls</h1>
-            <p className="text-sm font-medium text-foreground/80 mb-2">
-              {(() => {
-                const { weekNumber, dayName, date } = getCurrentWeekAndDay();
-                return `Vecka ${weekNumber} • ${dayName} • ${date}`;
-              })()}
-            </p>
-            <p className="text-xs text-muted-foreground mb-4">Dina scheman</p>
+            <h1 className="text-4xl font-bold text-foreground">SchemaPuls</h1>
           </div>
           <div className="flex flex-col items-end gap-2">
             <DarkModeToggle />
@@ -237,6 +230,17 @@ const Home = () => {
             </div>
           </div>
         </div>
+        
+        <div className="mb-5">
+          <p className="text-sm font-medium text-foreground/80 mb-1">
+            {(() => {
+              const { weekNumber, dayName, date } = getCurrentWeekAndDay();
+              return `Vecka ${weekNumber} • ${dayName} • ${date}`;
+            })()}
+          </p>
+        </div>
+
+        <p className="text-xs text-muted-foreground mb-2">Dina scheman</p>
 
         <div className="space-y-3 mb-6">
           {schedules.length > 0 ? (

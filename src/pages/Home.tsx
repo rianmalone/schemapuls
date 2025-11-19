@@ -238,7 +238,7 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="space-y-3 mb-2">
+        <div className="space-y-3 -mt-4 mb-2">
           {schedules.length > 0 ? (
             <>
               {schedules.map((schedule) => (

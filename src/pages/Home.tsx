@@ -226,7 +226,7 @@ const Home = () => {
                 return `Vecka ${weekNumber} • ${dayName} • ${date}`;
               })()}
             </p>
-            <p className="text-sm text-muted-foreground/70 mb-2">Dina scheman:</p>
+            <p className="text-sm text-muted-foreground/70 mb-6">Dina scheman:</p>
           </div>
           <div className="flex flex-col items-end gap-2">
             <DarkModeToggle />

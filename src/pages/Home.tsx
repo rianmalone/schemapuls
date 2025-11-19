@@ -237,26 +237,23 @@ const Home = () => {
                         <>
                           <h3 className="font-semibold text-lg">{schedule.name}</h3>
                           {activeScheduleId === schedule.id && (
-                            <>
-                              <span className="px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full">
-                                Aktiv
-                              </span>
-                              {schedule.type === "oddeven" && getActiveWeekTypes(schedule.id).map((weekType) => (
-                                <span 
-                                  key={weekType}
-                                  className="px-2 py-0.5 text-xs font-medium bg-muted text-muted-foreground rounded-full"
-                                >
-                                  {weekType}
-                                </span>
-                              ))}
-                            </>
+                            <span className="px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full">
+                              Aktiv
+                            </span>
                           )}
                         </>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(schedule.createdAt).toLocaleDateString("sv-SE")}
-                    </p>
+                    <div className="space-y-0.5">
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(schedule.createdAt).toLocaleDateString("sv-SE")}
+                      </p>
+                      {activeScheduleId === schedule.id && schedule.type === "oddeven" && getActiveWeekTypes(schedule.id).length > 0 && (
+                        <p className="text-xs text-muted-foreground/70">
+                          Aktuell: {getActiveWeekTypes(schedule.id).join(", ").toLowerCase()}
+                        </p>
+                      )}
+                    </div>
                   </button>
                   
                   <div className="flex items-center gap-2">

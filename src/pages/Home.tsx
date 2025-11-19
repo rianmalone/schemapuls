@@ -246,10 +246,10 @@ const Home = () => {
                 key={schedule.id}
                 className="w-full p-5 rounded-2xl bg-card border border-border transition-all"
               >
-                <div className="flex items-center justify-between gap-3">
+                <div className="relative flex items-center gap-3">
                   <button
                     onClick={() => editingId !== schedule.id && handleSelectSchedule(schedule.id)}
-                    className="flex-1 text-left"
+                    className="flex-1 text-left pr-16"
                   >
                     <div className="flex items-center gap-2 mb-1">
                       {editingId === schedule.id ? (
@@ -292,7 +292,7 @@ const Home = () => {
                     </div>
                   </button>
                   
-                  <div className="flex items-center gap-2">
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2">
                     <button
                       onClick={(e) => handleStartEdit(schedule.id, schedule.name, e)}
                       className="p-2 rounded-lg hover:bg-muted transition-colors"

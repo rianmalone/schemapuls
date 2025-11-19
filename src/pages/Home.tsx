@@ -228,7 +228,7 @@ const Home = () => {
             </p>
             <p className="text-sm text-muted-foreground/70 mb-3 mt-4">Dina scheman:</p>
           </div>
-          <div className="flex flex-col items-end gap-2">
+          <div className="flex flex-col items-end gap-2 mt-2">
             <DarkModeToggle />
             <div className="text-right mt-2">
               <div className="text-2xl font-bold text-foreground tabular-nums">
@@ -246,10 +246,10 @@ const Home = () => {
                 key={schedule.id}
                 className="w-full p-5 rounded-2xl bg-card border border-border transition-all"
               >
-                <div className="relative flex items-center gap-3">
+                <div className="flex items-center justify-between gap-3">
                   <button
                     onClick={() => editingId !== schedule.id && handleSelectSchedule(schedule.id)}
-                    className="flex-1 text-left pr-16"
+                    className="flex-1 text-left"
                   >
                     <div className="flex items-center gap-2 mb-1">
                       {editingId === schedule.id ? (
@@ -292,7 +292,7 @@ const Home = () => {
                     </div>
                   </button>
                   
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                  <div className="flex items-center gap-2 shrink-0">
                     <button
                       onClick={(e) => handleStartEdit(schedule.id, schedule.name, e)}
                       className="p-2 rounded-lg hover:bg-muted transition-colors"

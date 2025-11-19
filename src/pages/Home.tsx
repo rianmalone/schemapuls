@@ -238,7 +238,7 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="space-y-3 mb-3">
+        <div className="space-y-3 mb-2">
           {schedules.length > 0 ? (
             <>
               {schedules.map((schedule) => (
@@ -328,7 +328,7 @@ const Home = () => {
                 </div>
               </div>
             ))}
-            <p className="text-xs text-muted-foreground/60 text-center mt-3">Max 5 schemor</p>
+            <p className="text-xs text-muted-foreground/60 text-center mt-2">Max 5 schemor</p>
           </>
           ) : (
             <div className="text-center py-12 px-6 rounded-2xl bg-card border border-border">

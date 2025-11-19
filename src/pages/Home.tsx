@@ -219,14 +219,13 @@ const Home = () => {
       <div className="max-w-md mx-auto p-6 pt-8">
         <div className="flex items-start justify-between mb-8">
           <div className="flex-1">
-            <div className="mb-3">
-              <h1 className="text-2xl font-bold text-foreground">
-                {(() => {
-                  const { weekNumber, dayName, date } = getCurrentWeekAndDay();
-                  return `Vecka ${weekNumber} • ${dayName} • ${date}`;
-                })()}
-              </h1>
-            </div>
+            <h1 className="text-3xl font-bold text-foreground mb-2">SchemaPuls</h1>
+            <p className="text-lg font-semibold text-foreground/90 mb-3">
+              {(() => {
+                const { weekNumber, dayName, date } = getCurrentWeekAndDay();
+                return `Vecka ${weekNumber} • ${dayName} • ${date}`;
+              })()}
+            </p>
             <p className="text-sm text-muted-foreground">Dina scheman</p>
           </div>
           <div className="flex flex-col items-end gap-2">

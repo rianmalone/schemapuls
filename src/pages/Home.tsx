@@ -19,6 +19,28 @@ const Home = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
 
+  const getActiveWeekTypes = (scheduleId: string): string[] => {
+    const enabledOdd = localStorage.getItem("enabledClassesOdd");
+    const enabledEven = localStorage.getItem("enabledClassesEven");
+    const activeTypes: string[] = [];
+
+    if (enabledOdd) {
+      const parsedOdd = JSON.parse(enabledOdd);
+      if (Object.values(parsedOdd).some(enabled => enabled === true)) {
+        activeTypes.push("Udda");
+      }
+    }
+
+    if (enabledEven) {
+      const parsedEven = JSON.parse(enabledEven);
+      if (Object.values(parsedEven).some(enabled => enabled === true)) {
+        activeTypes.push("Jämn");
+      }
+    }
+
+    return activeTypes;
+  };
+
   useEffect(() => {
     const saved = localStorage.getItem("savedSchedules");
     if (saved) {
@@ -215,9 +237,19 @@ const Home = () => {
                         <>
                           <h3 className="font-semibold text-lg">{schedule.name}</h3>
                           {activeScheduleId === schedule.id && (
-                            <span className="px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full">
-                              Aktiv
-                            </span>
+                            <>
+                              <span className="px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full">
+                                Aktiv
+                              </span>
+                              {schedule.type === "oddeven" && getActiveWeekTypes(schedule.id).map((weekType) => (
+                                <span 
+                                  key={weekType}
+                                  className="px-2 py-0.5 text-xs font-medium bg-muted text-muted-foreground rounded-full"
+                                >
+                                  {weekType}
+                                </span>
+                              ))}
+                            </>
                           )}
                         </>
                       )}

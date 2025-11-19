@@ -226,7 +226,7 @@ const Home = () => {
                 return `Vecka ${weekNumber} • ${dayName} • ${date}`;
               })()}
             </p>
-            <p className="text-sm text-muted-foreground/70 mb-1 mt-8">Dina scheman:</p>
+            <p className="text-sm text-muted-foreground/70 mb-1 mt-3">Dina scheman:</p>
           </div>
           <div className="flex flex-col items-end gap-2 mt-3">
             <DarkModeToggle />
@@ -238,7 +238,7 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="space-y-3 -mt-4 mb-2">
+        <div className="space-y-3 mb-2">
           {schedules.length > 0 ? (
             <>
               {schedules.map((schedule) => (

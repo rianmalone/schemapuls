@@ -228,9 +228,9 @@ const Home = () => {
             </p>
             <p className="text-xs text-muted-foreground mb-3">Dina scheman</p>
           </div>
-          <div className="flex flex-col items-end gap-3">
+          <div className="flex flex-col items-end gap-2">
             <DarkModeToggle />
-            <div className="text-right">
+            <div className="text-right mt-1">
               <div className="text-2xl font-bold text-foreground tabular-nums">
                 {currentTime.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
               </div>

@@ -228,7 +228,7 @@ const Home = () => {
             </p>
             <p className="text-sm text-muted-foreground/70 mb-3 mt-4">Dina scheman:</p>
           </div>
-          <div className="flex flex-col items-end gap-2 mt-2">
+          <div className="flex flex-col items-end gap-2 mt-4">
             <DarkModeToggle />
             <div className="text-right mt-2">
               <div className="text-2xl font-bold text-foreground tabular-nums">
@@ -244,12 +244,12 @@ const Home = () => {
               {schedules.map((schedule) => (
               <div
                 key={schedule.id}
-                className="w-full p-5 rounded-2xl bg-card border border-border transition-all"
+                className="w-full p-4 rounded-2xl bg-card border border-border transition-all"
               >
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
                   <button
                     onClick={() => editingId !== schedule.id && handleSelectSchedule(schedule.id)}
-                    className="flex-1 text-left"
+                    className="flex-1 min-w-0 text-left"
                   >
                     <div className="flex items-center gap-2 mb-1">
                       {editingId === schedule.id ? (

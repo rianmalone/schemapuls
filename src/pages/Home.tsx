@@ -219,7 +219,7 @@ const Home = () => {
       <div className="max-w-md mx-auto p-6 pt-8">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-foreground mb-1">SchemaPuls</h1>
+            <h1 className="text-4xl font-bold text-foreground mb-1">SchemaPuls</h1>
             <p className="text-sm font-medium text-foreground/80 mb-2">
               {(() => {
                 const { weekNumber, dayName, date } = getCurrentWeekAndDay();
@@ -228,9 +228,9 @@ const Home = () => {
             </p>
             <p className="text-xs text-muted-foreground mb-3">Dina scheman</p>
           </div>
-          <div className="flex flex-col items-end gap-2">
+          <div className="flex flex-col items-end gap-2 mt-1">
             <DarkModeToggle />
-            <div className="text-right mt-1">
+            <div className="text-right mt-2">
               <div className="text-2xl font-bold text-foreground tabular-nums">
                 {currentTime.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
               </div>

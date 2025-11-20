@@ -36,7 +36,7 @@ const ScheduleCard = ({ classItem, onClick }: ScheduleCardProps) => {
     >
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold">{classItem.name}</h3>
-        <div className="flex items-center gap-1.5 text-xs opacity-90">
+        <div className="flex items-center gap-1 text-sm font-bold">
           <span>{classItem.start}</span>
           <span>-</span>
           <span>{classItem.end}</span>

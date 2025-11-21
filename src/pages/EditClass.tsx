@@ -80,6 +80,25 @@ const EditClass = () => {
       }
       
       localStorage.setItem("schedule", JSON.stringify(schedule));
+
+      const scheduleType = localStorage.getItem("scheduleType") || "weekly";
+      const activeScheduleId = localStorage.getItem("activeScheduleId");
+      const currentWeekType = localStorage.getItem("currentWeekType") as 'odd' | 'even' | null;
+
+      if (activeScheduleId) {
+        if (scheduleType === "weekly") {
+          localStorage.setItem(`schedule_${activeScheduleId}`, JSON.stringify(schedule));
+        } else if (scheduleType === "oddeven") {
+          const weekType = currentWeekType || 'odd';
+          if (weekType === 'odd') {
+            localStorage.setItem("scheduleOdd", JSON.stringify(schedule));
+            localStorage.setItem(`scheduleOdd_${activeScheduleId}`, JSON.stringify(schedule));
+          } else {
+            localStorage.setItem("scheduleEven", JSON.stringify(schedule));
+            localStorage.setItem(`scheduleEven_${activeScheduleId}`, JSON.stringify(schedule));
+          }
+        }
+      }
       
       toast({
         title: "Sparat!",
@@ -102,6 +121,25 @@ const EditClass = () => {
       }
       
       localStorage.setItem("schedule", JSON.stringify(schedule));
+
+      const scheduleType = localStorage.getItem("scheduleType") || "weekly";
+      const activeScheduleId = localStorage.getItem("activeScheduleId");
+      const currentWeekType = localStorage.getItem("currentWeekType") as 'odd' | 'even' | null;
+
+      if (activeScheduleId) {
+        if (scheduleType === "weekly") {
+          localStorage.setItem(`schedule_${activeScheduleId}`, JSON.stringify(schedule));
+        } else if (scheduleType === "oddeven") {
+          const weekType = currentWeekType || 'odd';
+          if (weekType === 'odd') {
+            localStorage.setItem("scheduleOdd", JSON.stringify(schedule));
+            localStorage.setItem(`scheduleOdd_${activeScheduleId}`, JSON.stringify(schedule));
+          } else {
+            localStorage.setItem("scheduleEven", JSON.stringify(schedule));
+            localStorage.setItem(`scheduleEven_${activeScheduleId}`, JSON.stringify(schedule));
+          }
+        }
+      }
       
       toast({
         title: "Raderad",

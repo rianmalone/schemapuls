@@ -170,6 +170,7 @@ const Schedule = () => {
           // Automatically set to current week
           const currentWeek = getCurrentWeekType();
           setWeekType(currentWeek);
+          localStorage.setItem("currentWeekType", currentWeek);
           setSchedule(currentWeek === 'odd' ? parsedOdd : parsedEven);
           
           // Initialize classes for odd schedule
@@ -252,6 +253,7 @@ const Schedule = () => {
 
   const handleWeekToggle = (type: 'odd' | 'even') => {
     setWeekType(type);
+    localStorage.setItem("currentWeekType", type);
     if (type === 'odd' && scheduleOdd) {
       setSchedule(sortSchedule(scheduleOdd));
       setEnabledClasses(enabledClassesOdd);
@@ -452,16 +454,26 @@ const Schedule = () => {
     };
 
     // Update the appropriate schedule
+    const activeScheduleId = localStorage.getItem("activeScheduleId");
     if (scheduleType === "oddeven") {
       if (weekType === 'odd') {
         setScheduleOdd(updatedSchedule);
         localStorage.setItem("scheduleOdd", JSON.stringify(updatedSchedule));
+        if (activeScheduleId) {
+          localStorage.setItem(`scheduleOdd_${activeScheduleId}`, JSON.stringify(updatedSchedule));
+        }
       } else {
         setScheduleEven(updatedSchedule);
         localStorage.setItem("scheduleEven", JSON.stringify(updatedSchedule));
+        if (activeScheduleId) {
+          localStorage.setItem(`scheduleEven_${activeScheduleId}`, JSON.stringify(updatedSchedule));
+        }
       }
     } else {
       localStorage.setItem("schedule", JSON.stringify(updatedSchedule));
+      if (activeScheduleId) {
+        localStorage.setItem(`schedule_${activeScheduleId}`, JSON.stringify(updatedSchedule));
+      }
     }
 
     setSchedule(updatedSchedule);

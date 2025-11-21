@@ -748,7 +748,7 @@ const Schedule = () => {
                         )} text-white text-left transition-all duration-300 ${
                           !enabledClasses[classItem.id] ? 'opacity-50' : 'opacity-100'
                         } ${
-                          isClassActive(classItem, day.key) ? 'active-lesson-glow' : ''
+                          isClassActive(classItem, day.key) ? 'ring-2 ring-primary ring-offset-2 ring-offset-background shadow-lg' : ''
                         }`}
                         style={{
                           minHeight: `${Math.max(calculateHeight(classItem.start, classItem.end) * 0.6, 90)}px`,
@@ -795,7 +795,7 @@ const Schedule = () => {
             </div>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-4">
             {currentDayClasses.length > 0 ? (
               currentDayClasses.map((classItem, index) => (
                 <div key={classItem.id}>
@@ -806,7 +806,7 @@ const Schedule = () => {
                     )} text-white shadow-sm transition-all duration-300 text-left border-l-4 border-white/30 ${
                       !enabledClasses[classItem.id] ? 'opacity-50' : 'opacity-100'
                     } ${
-                      isClassActive(classItem, selectedDay) ? 'active-lesson-glow' : ''
+                      isClassActive(classItem, selectedDay) ? 'ring-4 ring-primary ring-offset-4 ring-offset-background shadow-lg' : ''
                     }`}
                     style={{
                       height: `${calculateHeight(classItem.start, classItem.end)}px`,

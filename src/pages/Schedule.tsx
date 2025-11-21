@@ -326,6 +326,23 @@ const Schedule = () => {
       return;
     }
 
+    const currentSchedule = scheduleType === "oddeven" 
+      ? (weekType === 'odd' ? scheduleOdd : scheduleEven)
+      : schedule;
+
+    if (!currentSchedule) return;
+
+    // Check if day has reached the limit of 20 classes
+    const dayClasses = currentSchedule[newClass.day as keyof WeekSchedule] || [];
+    if (dayClasses.length >= 20) {
+      toast({
+        title: "Daggränsen nådd",
+        description: "Du kan inte lägga till fler än 20 lektioner per dag",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Validate that start time is before end time
     const [startHour, startMin] = newClass.start.split(':').map(Number);
     const [endHour, endMin] = newClass.end.split(':').map(Number);
@@ -350,15 +367,9 @@ const Schedule = () => {
       color: newClass.color
     };
 
-    const currentSchedule = scheduleType === "oddeven" 
-      ? (weekType === 'odd' ? scheduleOdd : scheduleEven)
-      : schedule;
-
-    if (!currentSchedule) return;
-
     // Add and sort classes by start time
-    const dayClasses = [...(currentSchedule[newClass.day as keyof WeekSchedule] || []), newClassItem];
-    dayClasses.sort((a, b) => {
+    const updatedDayClasses = [...dayClasses, newClassItem];
+    updatedDayClasses.sort((a, b) => {
       const timeA = a.start.split(':').map(Number);
       const timeB = b.start.split(':').map(Number);
       return timeA[0] * 60 + timeA[1] - (timeB[0] * 60 + timeB[1]);
@@ -366,7 +377,7 @@ const Schedule = () => {
 
     const updatedSchedule = {
       ...currentSchedule,
-      [newClass.day]: dayClasses
+      [newClass.day]: updatedDayClasses
     };
 
     // Update the appropriate schedule
@@ -415,6 +426,19 @@ const Schedule = () => {
       title: "Lektion tillagd",
       description: `${newClass.name} har lagts till i schemat`,
     });
+  };
+
+  const getClassCountForDay = (dayKey: string): number => {
+    const currentSchedule = scheduleType === "oddeven" 
+      ? (weekType === 'odd' ? scheduleOdd : scheduleEven)
+      : schedule;
+    
+    if (!currentSchedule) return 0;
+    return (currentSchedule[dayKey as keyof WeekSchedule] || []).length;
+  };
+
+  const isDayFull = (dayKey: string): boolean => {
+    return getClassCountForDay(dayKey) >= 20;
   };
 
   const getColorClass = (className: string) => {
@@ -813,11 +837,21 @@ const Schedule = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="monday">Måndag</SelectItem>
-                    <SelectItem value="tuesday">Tisdag</SelectItem>
-                    <SelectItem value="wednesday">Onsdag</SelectItem>
-                    <SelectItem value="thursday">Torsdag</SelectItem>
-                    <SelectItem value="friday">Fredag</SelectItem>
+                    <SelectItem value="monday" disabled={isDayFull("monday")}>
+                      Måndag {isDayFull("monday") ? `(${getClassCountForDay("monday")}/20 full)` : `(${getClassCountForDay("monday")}/20)`}
+                    </SelectItem>
+                    <SelectItem value="tuesday" disabled={isDayFull("tuesday")}>
+                      Tisdag {isDayFull("tuesday") ? `(${getClassCountForDay("tuesday")}/20 full)` : `(${getClassCountForDay("tuesday")}/20)`}
+                    </SelectItem>
+                    <SelectItem value="wednesday" disabled={isDayFull("wednesday")}>
+                      Onsdag {isDayFull("wednesday") ? `(${getClassCountForDay("wednesday")}/20 full)` : `(${getClassCountForDay("wednesday")}/20)`}
+                    </SelectItem>
+                    <SelectItem value="thursday" disabled={isDayFull("thursday")}>
+                      Torsdag {isDayFull("thursday") ? `(${getClassCountForDay("thursday")}/20 full)` : `(${getClassCountForDay("thursday")}/20)`}
+                    </SelectItem>
+                    <SelectItem value="friday" disabled={isDayFull("friday")}>
+                      Fredag {isDayFull("friday") ? `(${getClassCountForDay("friday")}/20 full)` : `(${getClassCountForDay("friday")}/20)`}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>

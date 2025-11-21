@@ -90,6 +90,30 @@ const Schedule = () => {
     return sorted;
   };
 
+  // Helper function to check if a class is currently active
+  const isClassActive = (classItem: Class, dayKey: string): boolean => {
+    const now = new Date();
+    const currentDay = now.getDay();
+    const dayMap: Record<string, number> = {
+      monday: 1,
+      tuesday: 2,
+      wednesday: 3,
+      thursday: 4,
+      friday: 5,
+    };
+    
+    // Check if it's the correct day
+    if (dayMap[dayKey] !== currentDay) return false;
+    
+    const currentTime = now.getHours() * 60 + now.getMinutes();
+    const [startHour, startMin] = classItem.start.split(':').map(Number);
+    const [endHour, endMin] = classItem.end.split(':').map(Number);
+    const startTime = startHour * 60 + startMin;
+    const endTime = endHour * 60 + endMin;
+    
+    return currentTime >= startTime && currentTime <= endTime;
+  };
+
   useEffect(() => {
     const initializeSchedule = async () => {
       const type = localStorage.getItem("scheduleType") || "weekly";
@@ -697,6 +721,8 @@ const Schedule = () => {
                           classItem.name
                         )} text-white text-left transition-all duration-300 ${
                           !enabledClasses[classItem.id] ? 'opacity-50' : 'opacity-100'
+                        } ${
+                          isClassActive(classItem, day.key) ? 'ring-2 ring-primary ring-offset-2 ring-offset-background shadow-lg scale-105' : ''
                         }`}
                         style={{
                           minHeight: `${Math.max(calculateHeight(classItem.start, classItem.end) * 0.6, 90)}px`,
@@ -746,7 +772,9 @@ const Schedule = () => {
           <div className="space-y-2">
             {currentDayClasses.length > 0 ? (
               currentDayClasses.map((classItem) => (
-                <div key={classItem.id} className="relative">
+                <div key={classItem.id} className={`relative ${
+                  isClassActive(classItem, selectedDay) ? 'ring-4 ring-primary ring-offset-4 ring-offset-background rounded-xl shadow-2xl scale-[1.02] transition-all duration-300' : ''
+                }`}>
                   <button
                     onClick={() => navigate(`/edit-class/${classItem.id}`)}
                     className={`w-full p-3 rounded-xl ${getColorClass(

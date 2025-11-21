@@ -69,6 +69,27 @@ const Schedule = () => {
     { key: "friday", label: "Fre" },
   ];
 
+  // Helper function to sort classes by start time
+  const sortClassesByTime = (classes: Class[]): Class[] => {
+    return [...classes].sort((a, b) => {
+      const timeA = a.start.split(':').map(Number);
+      const timeB = b.start.split(':').map(Number);
+      return timeA[0] * 60 + timeA[1] - (timeB[0] * 60 + timeB[1]);
+    });
+  };
+
+  // Helper function to sort all days in a schedule
+  const sortSchedule = (sched: WeekSchedule): WeekSchedule => {
+    const sorted: WeekSchedule = {
+      monday: sortClassesByTime(sched.monday || []),
+      tuesday: sortClassesByTime(sched.tuesday || []),
+      wednesday: sortClassesByTime(sched.wednesday || []),
+      thursday: sortClassesByTime(sched.thursday || []),
+      friday: sortClassesByTime(sched.friday || []),
+    };
+    return sorted;
+  };
+
   useEffect(() => {
     const initializeSchedule = async () => {
       const type = localStorage.getItem("scheduleType") || "weekly";
@@ -91,8 +112,8 @@ const Schedule = () => {
         console.log('Checking for oddeven schedules, odd:', !!savedOdd, 'even:', !!savedEven);
         
         if (savedOdd && savedEven) {
-          const parsedOdd = JSON.parse(savedOdd);
-          const parsedEven = JSON.parse(savedEven);
+          const parsedOdd = sortSchedule(JSON.parse(savedOdd));
+          const parsedEven = sortSchedule(JSON.parse(savedEven));
           setScheduleOdd(parsedOdd);
           setScheduleEven(parsedEven);
           
@@ -137,7 +158,7 @@ const Schedule = () => {
       } else {
         const savedSchedule = localStorage.getItem("schedule");
         if (savedSchedule) {
-          const parsedSchedule = JSON.parse(savedSchedule);
+          const parsedSchedule = sortSchedule(JSON.parse(savedSchedule));
           setSchedule(parsedSchedule);
           
           // Initialize all classes as enabled by default
@@ -182,10 +203,10 @@ const Schedule = () => {
   const handleWeekToggle = (type: 'odd' | 'even') => {
     setWeekType(type);
     if (type === 'odd' && scheduleOdd) {
-      setSchedule(scheduleOdd);
+      setSchedule(sortSchedule(scheduleOdd));
       setEnabledClasses(enabledClassesOdd);
     } else if (type === 'even' && scheduleEven) {
-      setSchedule(scheduleEven);
+      setSchedule(sortSchedule(scheduleEven));
       setEnabledClasses(enabledClassesEven);
     }
   };
@@ -478,7 +499,7 @@ const Schedule = () => {
 
   if (!schedule) return null;
 
-  const currentDayClasses = schedule[selectedDay as keyof WeekSchedule] || [];
+  const currentDayClasses = sortClassesByTime(schedule[selectedDay as keyof WeekSchedule] || []);
   const allDaysChecked = Object.values(enabledDays).every(v => v);
 
   return (

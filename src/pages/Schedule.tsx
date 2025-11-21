@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Upload, Bell, BellOff, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { notificationService } from "@/services/notificationService";
 import { useToast } from "@/hooks/use-toast";
@@ -815,10 +815,10 @@ const Schedule = () => {
             </div>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {currentDayClasses.length > 0 ? (
               currentDayClasses.map((classItem, index) => (
-                <div key={classItem.id}>
+                <Fragment key={classItem.id}>
                   <button
                     onClick={() => navigate(`/edit-class/${classItem.id}`)}
                     className={`w-full p-3 rounded-xl ${getColorClass(
@@ -862,14 +862,13 @@ const Schedule = () => {
                       </button>
                     </div>
                   </button>
-                  
                   {/* Break indicator - shows when current time is between this lesson and next */}
                   {isBreakAfterClass(classItem, currentDayClasses[index + 1], selectedDay) && (
-                    <div className="flex items-center justify-center py-1.5">
+                    <div className="flex items-center justify-center my-1">
                       <div className="h-1 w-4/5 bg-primary/60 rounded-full" />
                     </div>
                   )}
-                </div>
+                </Fragment>
               ))
             ) : (
               <div className="text-center py-8 px-6 rounded-2xl bg-card border border-border">

@@ -921,7 +921,7 @@ const Schedule = () => {
                 />
               </div>
               <div className="flex items-start justify-between gap-2">
-                <div className="space-y-2 w-[47%]">
+                <div className="space-y-2 w-[44%]">
                   <Label htmlFor="start" className="text-sm">Starttid</Label>
                   <Input
                     id="start"
@@ -931,7 +931,7 @@ const Schedule = () => {
                     className="text-sm w-full"
                   />
                 </div>
-                <div className="space-y-2 w-[47%]">
+                <div className="space-y-2 w-[44%]">
                   <Label htmlFor="end" className="text-sm">Sluttid</Label>
                   <Input
                     id="end"

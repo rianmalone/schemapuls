@@ -40,6 +40,16 @@ const EditClass = () => {
   const handleSave = () => {
     if (!classData) return;
 
+    // Validate that both times are filled in
+    if (!classData.start || !classData.end) {
+      toast({
+        title: "Saknade tider",
+        description: "Du måste ange både start- och sluttid",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Validate that start time is before end time
     const [startHour, startMin] = classData.start.split(':').map(Number);
     const [endHour, endMin] = classData.end.split(':').map(Number);

@@ -316,7 +316,15 @@ const Schedule = () => {
   };
 
   const handleAddClass = () => {
-    if (!newClass.name || !newClass.start || !newClass.end) return;
+    // Validate all required fields
+    if (!newClass.name || !newClass.start || !newClass.end) {
+      toast({
+        title: "Saknade uppgifter",
+        description: "Du måste fylla i namn, starttid och sluttid",
+        variant: "destructive",
+      });
+      return;
+    }
 
     // Validate that start time is before end time
     const [startHour, startMin] = newClass.start.split(':').map(Number);

@@ -750,9 +750,9 @@ const Schedule = () => {
               {days.map((day) => {
                 const dayClasses = schedule[day.key as keyof WeekSchedule] || [];
                 return (
-                  <div key={day.key} className="space-y-1 pt-1 px-1">
+                  <div key={day.key} className="space-y-0.5 pt-1 px-1">
                     {dayClasses.map((classItem, index) => (
-                      <div key={classItem.id} className="relative">
+                      <Fragment key={classItem.id}>
                         <button
                           onClick={() => navigate(`/edit-class/${classItem.id}`)}
                           className={`w-full p-1.5 rounded-lg ${getColorClass(
@@ -800,14 +800,13 @@ const Schedule = () => {
                             </div>
                           </div>
                         </button>
-                        
                         {/* Break indicator for week view */}
                         {isBreakAfterClass(classItem, dayClasses[index + 1], day.key) && (
-                          <div className="flex items-center justify-center py-1.5">
+                          <div className="flex items-center justify-center my-1">
                             <div className="h-1 w-4/5 bg-primary/60 rounded-full" />
                           </div>
                         )}
-                      </div>
+                      </Fragment>
                     ))}
                   </div>
                 );

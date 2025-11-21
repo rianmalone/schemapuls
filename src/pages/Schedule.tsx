@@ -802,8 +802,8 @@ const Schedule = () => {
                         </button>
                         {/* Break indicator for week view */}
                         {isBreakAfterClass(classItem, dayClasses[index + 1], day.key) && (
-                          <div className="flex items-center justify-center my-8">
-                            <div className="h-2 w-4/5 bg-primary/60 rounded-full" />
+                          <div className="flex items-center justify-center my-10">
+                            <div className="h-1 w-4/5 bg-primary/60 rounded-full" />
                           </div>
                         )}
                       </Fragment>

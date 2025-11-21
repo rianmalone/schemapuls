@@ -910,23 +910,25 @@ const Schedule = () => {
                   placeholder="t.ex. BRR2"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
-                  <Label htmlFor="start">Starttid</Label>
+                  <Label htmlFor="start" className="text-sm">Starttid</Label>
                   <Input
                     id="start"
                     type="time"
                     value={newClass.start}
                     onChange={(e) => setNewClass({ ...newClass, start: e.target.value })}
+                    className="text-sm"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="end">Sluttid</Label>
+                  <Label htmlFor="end" className="text-sm">Sluttid</Label>
                   <Input
                     id="end"
                     type="time"
                     value={newClass.end}
                     onChange={(e) => setNewClass({ ...newClass, end: e.target.value })}
+                    className="text-sm"
                   />
                 </div>
               </div>

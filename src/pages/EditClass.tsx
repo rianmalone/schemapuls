@@ -40,6 +40,21 @@ const EditClass = () => {
   const handleSave = () => {
     if (!classData) return;
 
+    // Validate that start time is before end time
+    const [startHour, startMin] = classData.start.split(':').map(Number);
+    const [endHour, endMin] = classData.end.split(':').map(Number);
+    const startMinutes = startHour * 60 + startMin;
+    const endMinutes = endHour * 60 + endMin;
+
+    if (startMinutes >= endMinutes) {
+      toast({
+        title: "Ogiltig tid",
+        description: "Starttiden måste vara före sluttiden",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const scheduleData = localStorage.getItem("schedule");
     if (scheduleData) {
       const schedule = JSON.parse(scheduleData);

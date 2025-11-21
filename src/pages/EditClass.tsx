@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { ArrowLeft, Trash2, Clock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -196,30 +196,36 @@ const EditClass = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="start">Starttid</Label>
-                <Input
-                  id="start"
-                  type="text"
-                  value={classData.start}
-                  onChange={(e) =>
-                    setClassData({ ...classData, start: e.target.value })
-                  }
-                  className="rounded-xl"
-                  placeholder="HH:MM"
-                />
+                <div className="relative">
+                  <Input
+                    id="start"
+                    type="text"
+                    value={classData.start}
+                    onChange={(e) =>
+                      setClassData({ ...classData, start: e.target.value })
+                    }
+                    className="rounded-xl pr-10"
+                    placeholder="HH:MM"
+                  />
+                  <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                </div>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="end">Sluttid</Label>
-                <Input
-                  id="end"
-                  type="text"
-                  value={classData.end}
-                  onChange={(e) =>
-                    setClassData({ ...classData, end: e.target.value })
-                  }
-                  className="rounded-xl"
-                  placeholder="HH:MM"
-                />
+                <div className="relative">
+                  <Input
+                    id="end"
+                    type="text"
+                    value={classData.end}
+                    onChange={(e) =>
+                      setClassData({ ...classData, end: e.target.value })
+                    }
+                    className="rounded-xl pr-10"
+                    placeholder="HH:MM"
+                  />
+                  <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                </div>
               </div>
             </div>
           </div>

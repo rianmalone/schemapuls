@@ -752,7 +752,7 @@ const Schedule = () => {
                 return (
                   <div key={day.key} className="space-y-1 pt-1 px-1">
                     {dayClasses.map((classItem, index) => (
-                      <div key={classItem.id}>
+                      <div key={classItem.id} className="relative">
                         <button
                           onClick={() => navigate(`/edit-class/${classItem.id}`)}
                           className={`w-full p-1.5 rounded-lg ${getColorClass(
@@ -803,8 +803,8 @@ const Schedule = () => {
                         
                         {/* Break indicator for week view */}
                         {isBreakAfterClass(classItem, dayClasses[index + 1], day.key) && (
-                          <div className="py-1">
-                            <div className="h-1 w-full bg-primary/60 rounded-full my-1" />
+                          <div className="pointer-events-none absolute inset-x-1 -bottom-2">
+                            <div className="h-1 w-full bg-primary/60 rounded-full" />
                           </div>
                         )}
                       </div>
@@ -865,8 +865,8 @@ const Schedule = () => {
                   
                   {/* Break indicator - shows when current time is between this lesson and next */}
                   {isBreakAfterClass(classItem, currentDayClasses[index + 1], selectedDay) && (
-                    <div className="py-3">
-                      <div className="h-1 w-full bg-primary/60 rounded-full my-2" />
+                    <div className="pointer-events-none absolute inset-x-4 -bottom-3">
+                      <div className="h-1 w-full bg-primary/60 rounded-full" />
                     </div>
                   )}
                 </div>

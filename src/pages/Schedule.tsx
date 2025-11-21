@@ -897,7 +897,7 @@ const Schedule = () => {
               <Plus className="h-5 w-5" />
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-md max-w-[calc(100vw-2rem)] rounded-2xl">
             <DialogHeader>
               <DialogTitle>Lägg till lektion</DialogTitle>
             </DialogHeader>
@@ -920,8 +920,8 @@ const Schedule = () => {
                   placeholder="t.ex. BRR2"
                 />
               </div>
-              <div className="flex gap-3 justify-between">
-                <div className="flex-1 space-y-2">
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-2 min-w-0">
                   <Label htmlFor="start" className="text-sm">Starttid</Label>
                   <Input
                     id="start"
@@ -931,7 +931,7 @@ const Schedule = () => {
                     className="text-sm w-full"
                   />
                 </div>
-                <div className="flex-1 space-y-2">
+                <div className="space-y-2 min-w-0">
                   <Label htmlFor="end" className="text-sm">Sluttid</Label>
                   <Input
                     id="end"
@@ -969,12 +969,12 @@ const Schedule = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="color">Färg</Label>
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex gap-2 justify-between">
                   {["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8", "#F7DC6F", "#BB8FCE"].map((color) => (
                     <button
                       key={color}
                       onClick={() => setNewClass({ ...newClass, color })}
-                      className={`w-10 h-10 rounded-lg transition-all ${
+                      className={`w-10 h-10 rounded-lg transition-all flex-shrink-0 ${
                         newClass.color === color ? "ring-2 ring-primary ring-offset-2" : ""
                       }`}
                       style={{ backgroundColor: color }}

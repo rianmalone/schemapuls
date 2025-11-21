@@ -38,6 +38,7 @@ const Schedule = () => {
   const [viewMode, setViewMode] = useState<'week' | 'day'>('week');
   const [selectedDay, setSelectedDay] = useState("monday");
   const [notificationMinutes, setNotificationMinutes] = useState(5);
+  const [notificationSliderValue, setNotificationSliderValue] = useState(5);
   const [enabledDays, setEnabledDays] = useState<Record<string, boolean>>({
     monday: true,
     tuesday: true,
@@ -234,7 +235,9 @@ const Schedule = () => {
 
       const savedMinutes = localStorage.getItem("globalNotificationMinutes");
       if (savedMinutes) {
-        setNotificationMinutes(parseInt(savedMinutes));
+        const minutes = parseInt(savedMinutes);
+        setNotificationMinutes(minutes);
+        setNotificationSliderValue(minutes);
       }
 
       const savedEnabledDays = localStorage.getItem("enabledDays");
@@ -263,18 +266,24 @@ const Schedule = () => {
     }
   };
 
-  const handleNotificationChange = async (value: number[]) => {
-    setNotificationMinutes(value[0]);
-    localStorage.setItem("globalNotificationMinutes", value[0].toString());
+  const handleNotificationChange = (value: number[]) => {
+    setNotificationSliderValue(value[0]);
+  };
+
+  const handleNotificationCommit = async (value: number[]) => {
+    const rounded = Math.round(value[0]);
+    setNotificationMinutes(rounded);
+    setNotificationSliderValue(rounded);
+    localStorage.setItem("globalNotificationMinutes", rounded.toString());
     
-    // Reschedule notifications with new time
+    // Reschedule notifications with new time when user releases the thumb
     if (schedule && hasNotificationPermission) {
       const scheduleType = localStorage.getItem("scheduleType") || "weekly";
       await notificationService.scheduleNotifications(
         schedule,
         enabledClasses,
         enabledDays,
-        value[0],
+        rounded,
         scheduleType
       );
     }
@@ -640,15 +649,16 @@ const Schedule = () => {
           <div className="flex items-center justify-between mb-3">
             <label className="text-sm font-medium">Påminnelse innan alla lektioner</label>
             <span className="text-sm font-semibold text-primary">
-              {notificationMinutes} min
+              {Math.round(notificationSliderValue)} min
             </span>
           </div>
           <Slider
-            value={[notificationMinutes]}
+            value={[notificationSliderValue]}
             onValueChange={handleNotificationChange}
+            onValueCommit={handleNotificationCommit}
             min={1}
             max={15}
-            step={1}
+            step={0.1}
             className="w-full [&_[role=slider]]:transition-all [&_[role=slider]]:duration-300 [&_[role=slider]]:ease-out"
           />
           <div className="flex justify-between text-xs text-muted-foreground mt-2">
@@ -910,8 +920,8 @@ const Schedule = () => {
                   placeholder="t.ex. BRR2"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-2">
+              <div className="flex items-start gap-3">
+                <div className="flex-1 max-w-[150px] space-y-2">
                   <Label htmlFor="start" className="text-sm">Starttid</Label>
                   <Input
                     id="start"
@@ -921,7 +931,7 @@ const Schedule = () => {
                     className="text-sm"
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="flex-1 max-w-[150px] space-y-2">
                   <Label htmlFor="end" className="text-sm">Sluttid</Label>
                   <Input
                     id="end"

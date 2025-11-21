@@ -146,6 +146,10 @@ const Home = () => {
         localStorage.setItem("scheduleOdd", scheduleOdd);
         localStorage.setItem("scheduleEven", scheduleEven);
         localStorage.setItem("scheduleType", "oddeven");
+        // Clear notification settings so each schedule starts fresh
+        localStorage.removeItem("enabledClassesOdd");
+        localStorage.removeItem("enabledClassesEven");
+        localStorage.removeItem("enabledDays");
         console.log('Set oddeven data, navigating to /schedule');
         navigate("/schedule");
       } else {
@@ -159,6 +163,9 @@ const Home = () => {
       if (schedule) {
         localStorage.setItem("schedule", schedule);
         localStorage.setItem("scheduleType", "weekly");
+        // Clear notification settings so each schedule starts fresh
+        localStorage.removeItem("enabledClasses");
+        localStorage.removeItem("enabledDays");
         console.log('Set weekly data, navigating to /schedule');
         navigate("/schedule");
       } else {

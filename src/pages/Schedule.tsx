@@ -751,55 +751,65 @@ const Schedule = () => {
                 const dayClasses = schedule[day.key as keyof WeekSchedule] || [];
                 return (
                   <div key={day.key} className="space-y-1 pt-1 px-1">
-                    {dayClasses.map((classItem) => (
-                      <button
-                        key={classItem.id}
-                        onClick={() => navigate(`/edit-class/${classItem.id}`)}
-                        className={`w-full p-1.5 rounded-lg ${getColorClass(
-                          classItem.name
-                        )} text-white text-left transition-all duration-300 ${
-                          !enabledClasses[classItem.id] ? 'opacity-50' : 'opacity-100'
-                        } ${
-                          isClassActive(classItem, day.key) ? 'ring-2 ring-primary ring-offset-2 ring-offset-background shadow-lg' : ''
-                        }`}
-                        style={{
-                          minHeight: `${Math.max(calculateHeight(classItem.start, classItem.end) * 0.6, 90)}px`,
-                        }}
-                      >
-                        <div className="flex flex-col h-full justify-between gap-0.5">
-                          <div className="flex items-start justify-between gap-1">
-                            <div className="text-[8px] opacity-90 font-medium">
-                              {classItem.start}
-                            </div>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleClassToggle(classItem.id);
-                              }}
-                              className="flex-shrink-0"
-                            >
-                              <div className={`w-3 h-3 rounded-full border-2 border-white flex items-center justify-center transition-all duration-300 ${
-                                enabledClasses[classItem.id] ? 'bg-white' : 'bg-transparent'
-                              }`}>
-                                {enabledClasses[classItem.id] && (
-                                  <div className="w-1 h-1 rounded-full bg-primary transition-all duration-300" />
-                                )}
+                    {dayClasses.map((classItem, index) => (
+                      <div key={classItem.id}>
+                        <button
+                          onClick={() => navigate(`/edit-class/${classItem.id}`)}
+                          className={`w-full p-1.5 rounded-lg ${getColorClass(
+                            classItem.name
+                          )} text-white text-left transition-all duration-300 ${
+                            !enabledClasses[classItem.id] ? 'opacity-50' : 'opacity-100'
+                          } ${
+                            isClassActive(classItem, day.key) ? 'ring-2 ring-primary ring-offset-2 ring-offset-background shadow-lg' : ''
+                          }`}
+                          style={{
+                            minHeight: `${Math.max(calculateHeight(classItem.start, classItem.end) * 0.6, 90)}px`,
+                          }}
+                        >
+                          <div className="flex flex-col h-full justify-between gap-0.5">
+                            <div className="flex items-start justify-between gap-1">
+                              <div className="text-[8px] opacity-90 font-medium">
+                                {classItem.start}
                               </div>
-                            </button>
-                          </div>
-                          <div className="flex-1 flex flex-col justify-center px-0.5">
-                            <div className="font-semibold text-[9px] leading-tight break-words">
-                              {classItem.name}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleClassToggle(classItem.id);
+                                }}
+                                className="flex-shrink-0"
+                              >
+                                <div className={`w-3 h-3 rounded-full border-2 border-white flex items-center justify-center transition-all duration-300 ${
+                                  enabledClasses[classItem.id] ? 'bg-white' : 'bg-transparent'
+                                }`}>
+                                  {enabledClasses[classItem.id] && (
+                                    <div className="w-1 h-1 rounded-full bg-primary transition-all duration-300" />
+                                  )}
+                                </div>
+                              </button>
                             </div>
-                            {classItem.room && (
-                              <div className="text-[7px] opacity-80 mt-0.5 break-words">{classItem.room}</div>
-                            )}
+                            <div className="flex-1 flex flex-col justify-center px-0.5">
+                              <div className="font-semibold text-[9px] leading-tight break-words">
+                                {classItem.name}
+                              </div>
+                              {classItem.room && (
+                                <div className="text-[7px] opacity-80 mt-0.5 break-words">{classItem.room}</div>
+                              )}
+                            </div>
+                            <div className="text-[8px] opacity-90 font-medium">
+                              {classItem.end}
+                            </div>
                           </div>
-                          <div className="text-[8px] opacity-90 font-medium">
-                            {classItem.end}
+                        </button>
+                        
+                        {/* Break indicator for week view */}
+                        {isBreakAfterClass(classItem, dayClasses[index + 1], day.key) && (
+                          <div className="flex items-center gap-0.5 py-1">
+                            <div className="flex-1 h-px bg-foreground/30"></div>
+                            <span className="text-[6px] font-medium text-muted-foreground">Rast</span>
+                            <div className="flex-1 h-px bg-foreground/30"></div>
                           </div>
-                        </div>
-                      </button>
+                        )}
+                      </div>
                     ))}
                   </div>
                 );

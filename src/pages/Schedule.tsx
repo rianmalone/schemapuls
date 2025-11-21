@@ -920,25 +920,25 @@ const Schedule = () => {
                   placeholder="t.ex. BRR2"
                 />
               </div>
-              <div className="flex items-start gap-3">
-                <div className="flex-1 max-w-[150px] space-y-2">
+              <div className="flex gap-3 justify-between">
+                <div className="flex-1 space-y-2">
                   <Label htmlFor="start" className="text-sm">Starttid</Label>
                   <Input
                     id="start"
                     type="time"
                     value={newClass.start}
                     onChange={(e) => setNewClass({ ...newClass, start: e.target.value })}
-                    className="text-sm"
+                    className="text-sm w-full"
                   />
                 </div>
-                <div className="flex-1 max-w-[150px] space-y-2">
+                <div className="flex-1 space-y-2">
                   <Label htmlFor="end" className="text-sm">Sluttid</Label>
                   <Input
                     id="end"
                     type="time"
                     value={newClass.end}
                     onChange={(e) => setNewClass({ ...newClass, end: e.target.value })}
-                    className="text-sm"
+                    className="text-sm w-full"
                   />
                 </div>
               </div>
@@ -969,7 +969,7 @@ const Schedule = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="color">Färg</Label>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   {["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8", "#F7DC6F", "#BB8FCE"].map((color) => (
                     <button
                       key={color}

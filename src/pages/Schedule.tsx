@@ -565,8 +565,8 @@ const Schedule = () => {
   const allDaysChecked = Object.values(enabledDays).every(v => v);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-      <div className="max-w-4xl mx-auto p-4 pt-6">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 overscroll-none">
+      <div className="max-w-4xl mx-auto p-4 pt-6 overscroll-none">
         <div className="flex items-center justify-between mb-6">
           <Button variant="ghost" onClick={() => navigate("/")} size="sm">
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -649,7 +649,7 @@ const Schedule = () => {
             min={1}
             max={15}
             step={1}
-            className="w-full [&_[role=slider]]:transition-all [&_[role=slider]]:duration-200"
+            className="w-full [&_[role=slider]]:transition-all [&_[role=slider]]:duration-300 [&_[role=slider]]:ease-out"
           />
           <div className="flex justify-between text-xs text-muted-foreground mt-2">
             <span>1 min</span>

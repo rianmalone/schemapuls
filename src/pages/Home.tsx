@@ -63,64 +63,67 @@ const Home = () => {
     return activeTypes;
   };
 
-  useEffect(() => {
+  const loadSchedules = () => {
     const saved = localStorage.getItem("savedSchedules");
+    console.log('Loading schedules from localStorage');
+    
     if (saved) {
-      const parsed = JSON.parse(saved);
-      
-      // Migrate active schedule if needed
-      const activeId = localStorage.getItem("activeScheduleId");
-      if (activeId && parsed.length > 0) {
-        const activeSchedule = parsed.find((s: SavedSchedule) => s.id === activeId);
-        if (activeSchedule) {
-          // Check if this schedule already has ID-based data
-          if (activeSchedule.type === "oddeven") {
-            const hasOddData = localStorage.getItem(`scheduleOdd_${activeId}`);
-            const hasEvenData = localStorage.getItem(`scheduleEven_${activeId}`);
-            if (!hasOddData || !hasEvenData) {
-              // Migrate from generic keys to ID-based keys
-              const genericOdd = localStorage.getItem("scheduleOdd");
-              const genericEven = localStorage.getItem("scheduleEven");
-              if (genericOdd) localStorage.setItem(`scheduleOdd_${activeId}`, genericOdd);
-              if (genericEven) localStorage.setItem(`scheduleEven_${activeId}`, genericEven);
-              console.log('Migrated oddeven schedule to ID-based storage');
+      try {
+        const parsed = JSON.parse(saved);
+        console.log('Found saved schedules:', parsed.length);
+        
+        // Filter out schedules that have no data
+        const validSchedules = parsed.filter((schedule: SavedSchedule) => {
+          if (schedule.type === "oddeven") {
+            const hasOdd = localStorage.getItem(`scheduleOdd_${schedule.id}`);
+            const hasEven = localStorage.getItem(`scheduleEven_${schedule.id}`);
+            const isValid = hasOdd && hasEven;
+            if (!isValid) {
+              console.log(`Schedule ${schedule.name} (${schedule.id}) is missing data`);
             }
+            return isValid;
           } else {
-            const hasData = localStorage.getItem(`schedule_${activeId}`);
+            const hasData = !!localStorage.getItem(`schedule_${schedule.id}`);
             if (!hasData) {
-              // Migrate from generic key to ID-based key
-              const genericSchedule = localStorage.getItem("schedule");
-              if (genericSchedule) {
-                localStorage.setItem(`schedule_${activeId}`, genericSchedule);
-                console.log('Migrated weekly schedule to ID-based storage');
-              }
+              console.log(`Schedule ${schedule.name} (${schedule.id}) is missing data`);
             }
+            return hasData;
           }
+        });
+        
+        // If we filtered out broken schedules, update localStorage
+        if (validSchedules.length !== parsed.length) {
+          console.log(`Cleaned up ${parsed.length - validSchedules.length} broken schedules`);
+          localStorage.setItem("savedSchedules", JSON.stringify(validSchedules));
         }
+        
+        console.log('Valid schedules:', validSchedules.length);
+        setSchedules(validSchedules);
+      } catch (error) {
+        console.error('Error parsing savedSchedules:', error);
+        localStorage.removeItem("savedSchedules");
+        setSchedules([]);
       }
-      
-      // Filter out schedules that have no data
-      const validSchedules = parsed.filter((schedule: SavedSchedule) => {
-        if (schedule.type === "oddeven") {
-          const hasOdd = localStorage.getItem(`scheduleOdd_${schedule.id}`);
-          const hasEven = localStorage.getItem(`scheduleEven_${schedule.id}`);
-          return hasOdd && hasEven;
-        } else {
-          return !!localStorage.getItem(`schedule_${schedule.id}`);
-        }
-      });
-      
-      // If we filtered out broken schedules, update localStorage
-      if (validSchedules.length !== parsed.length) {
-        console.log(`Cleaned up ${parsed.length - validSchedules.length} broken schedules`);
-        localStorage.setItem("savedSchedules", JSON.stringify(validSchedules));
-      }
-      
-      setSchedules(validSchedules);
+    } else {
+      console.log('No saved schedules found');
+      setSchedules([]);
     }
 
     const active = localStorage.getItem("activeScheduleId");
     setActiveScheduleId(active);
+  };
+
+  useEffect(() => {
+    loadSchedules();
+    
+    // Reload schedules when window regains focus (e.g., switching tabs)
+    const handleFocus = () => {
+      console.log('Window focused, reloading schedules');
+      loadSchedules();
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
   }, []);
 
   const handleSelectSchedule = (id: string) => {

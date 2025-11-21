@@ -114,6 +114,32 @@ const Schedule = () => {
     return currentTime >= startTime && currentTime <= endTime;
   };
 
+  // Helper function to check if current time is between this class and the next (on break)
+  const isBreakAfterClass = (classItem: Class, nextClass: Class | undefined, dayKey: string): boolean => {
+    if (!nextClass) return false;
+    
+    const now = new Date();
+    const currentDay = now.getDay();
+    const dayMap: Record<string, number> = {
+      monday: 1,
+      tuesday: 2,
+      wednesday: 3,
+      thursday: 4,
+      friday: 5,
+    };
+    
+    // Check if it's the correct day
+    if (dayMap[dayKey] !== currentDay) return false;
+    
+    const currentTime = now.getHours() * 60 + now.getMinutes();
+    const [endHour, endMin] = classItem.end.split(':').map(Number);
+    const [nextStartHour, nextStartMin] = nextClass.start.split(':').map(Number);
+    const endTime = endHour * 60 + endMin;
+    const nextStartTime = nextStartHour * 60 + nextStartMin;
+    
+    return currentTime > endTime && currentTime < nextStartTime;
+  };
+
   useEffect(() => {
     const initializeSchedule = async () => {
       const type = localStorage.getItem("scheduleType") || "weekly";
@@ -722,7 +748,7 @@ const Schedule = () => {
                         )} text-white text-left transition-all duration-300 ${
                           !enabledClasses[classItem.id] ? 'opacity-50' : 'opacity-100'
                         } ${
-                          isClassActive(classItem, day.key) ? 'ring-2 ring-primary ring-offset-2 ring-offset-background shadow-lg scale-105' : ''
+                          isClassActive(classItem, day.key) ? 'active-lesson-glow' : ''
                         }`}
                         style={{
                           minHeight: `${Math.max(calculateHeight(classItem.start, classItem.end) * 0.6, 90)}px`,
@@ -771,16 +797,16 @@ const Schedule = () => {
         ) : (
           <div className="space-y-2">
             {currentDayClasses.length > 0 ? (
-              currentDayClasses.map((classItem) => (
-                <div key={classItem.id} className={`relative ${
-                  isClassActive(classItem, selectedDay) ? 'ring-4 ring-primary ring-offset-4 ring-offset-background rounded-xl shadow-2xl scale-[1.02] transition-all duration-300' : ''
-                }`}>
+              currentDayClasses.map((classItem, index) => (
+                <div key={classItem.id}>
                   <button
                     onClick={() => navigate(`/edit-class/${classItem.id}`)}
                     className={`w-full p-3 rounded-xl ${getColorClass(
                       classItem.name
                     )} text-white shadow-sm transition-all duration-300 text-left border-l-4 border-white/30 ${
                       !enabledClasses[classItem.id] ? 'opacity-50' : 'opacity-100'
+                    } ${
+                      isClassActive(classItem, selectedDay) ? 'active-lesson-glow' : ''
                     }`}
                     style={{
                       height: `${calculateHeight(classItem.start, classItem.end)}px`,
@@ -816,6 +842,15 @@ const Schedule = () => {
                       </button>
                     </div>
                   </button>
+                  
+                  {/* Break indicator - shows when current time is between this lesson and next */}
+                  {isBreakAfterClass(classItem, currentDayClasses[index + 1], selectedDay) && (
+                    <div className="flex items-center gap-2 py-3">
+                      <div className="flex-1 h-0.5 bg-foreground/20"></div>
+                      <span className="text-xs font-medium text-muted-foreground px-2">Rast</span>
+                      <div className="flex-1 h-0.5 bg-foreground/20"></div>
+                    </div>
+                  )}
                 </div>
               ))
             ) : (

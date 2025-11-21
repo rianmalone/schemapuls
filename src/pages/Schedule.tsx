@@ -863,7 +863,7 @@ const Schedule = () => {
                   </button>
                   {/* Break indicator - shows when current time is between this lesson and next */}
                   {isBreakAfterClass(classItem, currentDayClasses[index + 1], selectedDay) && (
-                    <div className="flex items-center justify-center my-1">
+                    <div className="flex items-center justify-center my-2">
                       <div className="h-1 w-4/5 bg-primary/60 rounded-full" />
                     </div>
                   )}

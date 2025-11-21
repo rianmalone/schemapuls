@@ -199,13 +199,12 @@ const EditClass = () => {
                 <div className="relative">
                   <Input
                     id="start"
-                    type="text"
+                    type="time"
                     value={classData.start}
                     onChange={(e) =>
                       setClassData({ ...classData, start: e.target.value })
                     }
                     className="rounded-xl pr-10"
-                    placeholder="HH:MM"
                   />
                   <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                 </div>
@@ -216,13 +215,12 @@ const EditClass = () => {
                 <div className="relative">
                   <Input
                     id="end"
-                    type="text"
+                    type="time"
                     value={classData.end}
                     onChange={(e) =>
                       setClassData({ ...classData, end: e.target.value })
                     }
                     className="rounded-xl pr-10"
-                    placeholder="HH:MM"
                   />
                   <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                 </div>

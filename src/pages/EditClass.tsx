@@ -198,12 +198,13 @@ const EditClass = () => {
                 <Label htmlFor="start">Starttid</Label>
                 <Input
                   id="start"
-                  type="time"
+                  type="text"
                   value={classData.start}
                   onChange={(e) =>
                     setClassData({ ...classData, start: e.target.value })
                   }
                   className="rounded-xl"
+                  placeholder="HH:MM"
                 />
               </div>
 
@@ -211,12 +212,13 @@ const EditClass = () => {
                 <Label htmlFor="end">Sluttid</Label>
                 <Input
                   id="end"
-                  type="time"
+                  type="text"
                   value={classData.end}
                   onChange={(e) =>
                     setClassData({ ...classData, end: e.target.value })
                   }
                   className="rounded-xl"
+                  placeholder="HH:MM"
                 />
               </div>
             </div>

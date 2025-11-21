@@ -803,10 +803,8 @@ const Schedule = () => {
                         
                         {/* Break indicator for week view */}
                         {isBreakAfterClass(classItem, dayClasses[index + 1], day.key) && (
-                          <div className="flex items-center gap-0.5 py-1">
-                            <div className="flex-1 h-px bg-foreground/30"></div>
-                            <span className="text-[6px] font-medium text-muted-foreground">Rast</span>
-                            <div className="flex-1 h-px bg-foreground/30"></div>
+                          <div className="py-1">
+                            <div className="h-1 w-full bg-primary/60 rounded-full" />
                           </div>
                         )}
                       </div>
@@ -867,10 +865,8 @@ const Schedule = () => {
                   
                   {/* Break indicator - shows when current time is between this lesson and next */}
                   {isBreakAfterClass(classItem, currentDayClasses[index + 1], selectedDay) && (
-                    <div className="flex items-center gap-2 py-3">
-                      <div className="flex-1 h-0.5 bg-foreground/20"></div>
-                      <span className="text-xs font-medium text-muted-foreground px-2">Rast</span>
-                      <div className="flex-1 h-0.5 bg-foreground/20"></div>
+                    <div className="py-3">
+                      <div className="h-1 w-full bg-primary/60 rounded-full" />
                     </div>
                   )}
                 </div>

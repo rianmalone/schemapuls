@@ -750,7 +750,7 @@ const Schedule = () => {
               {days.map((day) => {
                 const dayClasses = schedule[day.key as keyof WeekSchedule] || [];
                 return (
-                  <div key={day.key} className="space-y-0.5 pt-1 px-1">
+                  <div key={day.key} className="space-y-2 pt-1 px-1">
                     {dayClasses.map((classItem, index) => (
                       <Fragment key={classItem.id}>
                         <button

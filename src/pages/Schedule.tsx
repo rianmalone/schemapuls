@@ -859,19 +859,19 @@ const Schedule = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="monday" disabled={isDayFull("monday")}>
-                      Måndag {isDayFull("monday") ? `(${getClassCountForDay("monday")}/20 full)` : `(${getClassCountForDay("monday")}/20)`}
+                      Måndag
                     </SelectItem>
                     <SelectItem value="tuesday" disabled={isDayFull("tuesday")}>
-                      Tisdag {isDayFull("tuesday") ? `(${getClassCountForDay("tuesday")}/20 full)` : `(${getClassCountForDay("tuesday")}/20)`}
+                      Tisdag
                     </SelectItem>
                     <SelectItem value="wednesday" disabled={isDayFull("wednesday")}>
-                      Onsdag {isDayFull("wednesday") ? `(${getClassCountForDay("wednesday")}/20 full)` : `(${getClassCountForDay("wednesday")}/20)`}
+                      Onsdag
                     </SelectItem>
                     <SelectItem value="thursday" disabled={isDayFull("thursday")}>
-                      Torsdag {isDayFull("thursday") ? `(${getClassCountForDay("thursday")}/20 full)` : `(${getClassCountForDay("thursday")}/20)`}
+                      Torsdag
                     </SelectItem>
                     <SelectItem value="friday" disabled={isDayFull("friday")}>
-                      Fredag {isDayFull("friday") ? `(${getClassCountForDay("friday")}/20 full)` : `(${getClassCountForDay("friday")}/20)`}
+                      Fredag
                     </SelectItem>
                   </SelectContent>
                 </Select>

@@ -291,34 +291,48 @@ DO NOT include any other text, explanations, or markdown formatting.`;
 
       console.log("AI raw content:", content.slice(0, 200));
 
-      // Remove markdown code blocks if present
-      content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      // Remove markdown code blocks and clean the content
+      content = content
+        .replace(/```json\n?/g, '')
+        .replace(/```\n?/g, '')
+        .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // Remove control characters
+        .trim();
 
       try {
         schedule = JSON.parse(content);
       } catch (parseError: any) {
-        console.log("JSON parse failed, trying to extract JSON from text");
+        console.log("JSON parse failed, attempting to extract and repair JSON");
+        
+        // Try to extract JSON object
         const match = content.match(/\{[\s\S]*\}/);
         if (!match) {
           console.error("Could not extract JSON from content:", content);
           return corsResponse(
             {
               error: "json_extract_error",
-              message: "Could not extract JSON from AI response.",
+              message: "Kunde inte hitta schema i AI-svaret. Försök igen.",
               details: parseError?.message || "Unknown error",
             },
             500,
           );
         }
+
+        // Clean extracted JSON - replace common encoding issues
+        let cleanedJson = match[0]
+          .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // Remove control characters
+          .replace(/[^\x20-\x7E\u00A0-\uFFFF]/g, '') // Remove non-printable chars except valid unicode
+          .replace(/,(\s*[}\]])/g, '$1') // Remove trailing commas
+          .replace(/\]\s*,?\s*\{/g, '],\n  "'); // Fix common malformed boundaries
+
         try {
-          schedule = JSON.parse(match[0]);
+          schedule = JSON.parse(cleanedJson);
         } catch (secondParseError: any) {
-          console.error("Second JSON parse also failed:", secondParseError?.message);
-          console.error("Extracted content:", match[0]);
+          console.error("Second JSON parse failed:", secondParseError?.message);
+          console.error("Cleaned content:", cleanedJson.slice(0, 500));
           return corsResponse(
             {
-              error: "json_parse_error",
-              message: "Kunde inte tolka AI-svaret.",
+              error: "json_parse_error", 
+              message: "Kunde inte tolka schemat. Försök ta en tydligare bild.",
               details: secondParseError?.message || "Unknown error",
             },
             500,

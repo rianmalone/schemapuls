@@ -276,20 +276,44 @@ const Schedule = () => {
     setNotificationSliderValue(value[0]);
   };
 
-  const handleNotificationCommit = (value: number[]) => {
+  const handleNotificationCommit = async (value: number[]) => {
     const rounded = Math.round(value[0]);
     setNotificationMinutes(rounded);
     setNotificationSliderValue(rounded);
     localStorage.setItem("globalNotificationMinutes", rounded.toString());
+    
+    // Reschedule notifications with new time when user releases the thumb
+    if (schedule && hasNotificationPermission) {
+      const scheduleType = localStorage.getItem("scheduleType") || "weekly";
+      await notificationService.scheduleNotifications(
+        schedule,
+        enabledClasses,
+        enabledDays,
+        rounded,
+        scheduleType
+      );
+    }
   };
 
-  const handleDayToggle = (day: string) => {
+  const handleDayToggle = async (day: string) => {
     const updated = { ...enabledDays, [day]: !enabledDays[day] };
     setEnabledDays(updated);
     localStorage.setItem("enabledDays", JSON.stringify(updated));
+    
+    // Reschedule notifications
+    if (schedule && hasNotificationPermission) {
+      const scheduleType = localStorage.getItem("scheduleType") || "weekly";
+      await notificationService.scheduleNotifications(
+        schedule,
+        enabledClasses,
+        updated,
+        notificationMinutes,
+        scheduleType
+      );
+    }
   };
 
-  const toggleAllDays = () => {
+  const toggleAllDays = async () => {
     const allChecked = Object.values(enabledDays).every(v => v);
     const updated = {
       monday: !allChecked,
@@ -300,9 +324,21 @@ const Schedule = () => {
     };
     setEnabledDays(updated);
     localStorage.setItem("enabledDays", JSON.stringify(updated));
+    
+    // Reschedule notifications
+    if (schedule && hasNotificationPermission) {
+      const scheduleType = localStorage.getItem("scheduleType") || "weekly";
+      await notificationService.scheduleNotifications(
+        schedule,
+        enabledClasses,
+        updated,
+        notificationMinutes,
+        scheduleType
+      );
+    }
   };
 
-  const handleClassToggle = (classId: string) => {
+  const handleClassToggle = async (classId: string) => {
     const updated = { ...enabledClasses, [classId]: !enabledClasses[classId] };
     setEnabledClasses(updated);
     
@@ -318,35 +354,18 @@ const Schedule = () => {
     } else {
       localStorage.setItem("enabledClasses", JSON.stringify(updated));
     }
-  };
-
-  const handleApplyNotificationChanges = async () => {
-    if (!schedule) return;
-
-    const hasPermission = await notificationService.checkPermissions();
-    if (!hasPermission) {
-      toast({
-        title: "Notiser inte aktiverade",
-        description: "Aktivera notiser först för att få påminnelser.",
-        variant: "destructive",
-      });
-      return;
+    
+    // Reschedule notifications
+    if (schedule && hasNotificationPermission) {
+      const scheduleType = localStorage.getItem("scheduleType") || "weekly";
+      await notificationService.scheduleNotifications(
+        schedule,
+        updated,
+        enabledDays,
+        notificationMinutes,
+        scheduleType
+      );
     }
-
-    const scheduleType = localStorage.getItem("scheduleType") || "weekly";
-
-    await notificationService.scheduleNotifications(
-      schedule,
-      enabledClasses,
-      enabledDays,
-      notificationMinutes,
-      scheduleType
-    );
-
-    toast({
-      title: "Påminnelser uppdaterade",
-      description: "Dina notiser har uppdaterats enligt dina inställningar.",
-    });
   };
 
   const handleReplaceSchedule = async () => {
@@ -652,14 +671,6 @@ const Schedule = () => {
             <span>1 min</span>
             <span>15 min</span>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleApplyNotificationChanges}
-            className="mt-3 w-full"
-          >
-            Uppdatera påminnelser
-          </Button>
         </div>
  
         <div className="relative mb-4 p-1 bg-muted rounded-full">

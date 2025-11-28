@@ -200,14 +200,16 @@ const Schedule = () => {
             });
           });
           
-          // Always start with all classes enabled for new schedules
-          setEnabledClassesOdd(allClassesOdd);
-          setEnabledClassesEven(allClassesEven);
-          setEnabledClasses(currentWeek === 'odd' ? allClassesOdd : allClassesEven);
+          // Load saved enabled state or use all classes enabled as default
+          const savedEnabledOdd = localStorage.getItem("enabledClassesOdd");
+          const savedEnabledEven = localStorage.getItem("enabledClassesEven");
           
-          // Save initial enabled state
-          localStorage.setItem("enabledClassesOdd", JSON.stringify(allClassesOdd));
-          localStorage.setItem("enabledClassesEven", JSON.stringify(allClassesEven));
+          const finalEnabledOdd = savedEnabledOdd ? JSON.parse(savedEnabledOdd) : allClassesOdd;
+          const finalEnabledEven = savedEnabledEven ? JSON.parse(savedEnabledEven) : allClassesEven;
+          
+          setEnabledClassesOdd(finalEnabledOdd);
+          setEnabledClassesEven(finalEnabledEven);
+          setEnabledClasses(currentWeek === 'odd' ? finalEnabledOdd : finalEnabledEven);
         } else {
           navigate("/");
           return;
@@ -226,9 +228,11 @@ const Schedule = () => {
             });
           });
           
-          // Always start with all classes enabled for new schedules
-          setEnabledClasses(allClasses);
-          localStorage.setItem("enabledClasses", JSON.stringify(allClasses));
+          // Load saved enabled state or use all classes enabled as default
+          const savedEnabledClasses = localStorage.getItem("enabledClasses");
+          const finalEnabledClasses = savedEnabledClasses ? JSON.parse(savedEnabledClasses) : allClasses;
+          
+          setEnabledClasses(finalEnabledClasses);
         } else {
           navigate("/");
           return;

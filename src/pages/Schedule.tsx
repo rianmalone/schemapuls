@@ -775,12 +775,12 @@ const Schedule = () => {
                             isClassActive(classItem, day.key) ? 'ring-2 ring-primary ring-offset-2 ring-offset-background shadow-lg' : ''
                           }`}
                           style={{
-                            height: `${Math.max(calculateHeight(classItem.start, classItem.end) * 0.6, 90)}px`,
+                            height: `${Math.max(calculateHeight(classItem.start, classItem.end) * 0.6, 100)}px`,
                           }}
                         >
                           <div className="flex flex-col h-full items-center justify-center">
                             <div className="w-full flex items-start justify-between mb-1">
-                              <div className="text-[9px] opacity-90 font-medium">
+                              <div className="text-[9px] opacity-70 font-medium">
                                 {classItem.start}
                               </div>
                               <button
@@ -807,7 +807,7 @@ const Schedule = () => {
                                 <div className="text-[8px] opacity-80 mt-0.5 break-words">{classItem.room}</div>
                               )}
                             </div>
-                            <div className="w-full text-[9px] opacity-90 font-medium mt-1">
+                            <div className="w-full text-[9px] opacity-70 font-medium mt-1">
                               {classItem.end}
                             </div>
                           </div>

@@ -303,7 +303,7 @@ const Home = () => {
                   <div className="flex items-center gap-2 shrink-0">
                     <button
                       onClick={(e) => handleStartEdit(schedule.id, schedule.name, e)}
-                      className="p-2 rounded-lg hover:bg-muted transition-colors"
+                      className="p-2 rounded-lg transition-colors active:bg-muted"
                     >
                       <Edit2 className="w-4 h-4 text-muted-foreground" />
                     </button>
@@ -313,7 +313,7 @@ const Home = () => {
                       className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
                         activeScheduleId === schedule.id
                           ? "border-primary bg-primary"
-                          : "border-muted-foreground hover:border-primary"
+                          : "border-muted-foreground"
                       }`}
                     >
                       {activeScheduleId === schedule.id && (
@@ -323,7 +323,7 @@ const Home = () => {
                     
                     <button
                       onClick={(e) => handleDeleteSchedule(schedule.id, e)}
-                      className="p-2 rounded-lg hover:bg-destructive/10 transition-colors"
+                      className="p-2 rounded-lg transition-colors active:bg-destructive/10"
                     >
                       <Trash2 className="w-4 h-4 text-destructive" />
                     </button>
@@ -346,7 +346,7 @@ const Home = () => {
         <div className="mb-6 mt-4">
           <Button
             onClick={handleCreateNew}
-            className="w-full h-14 rounded-2xl shadow-lg hover:shadow-xl transition-all"
+            className="w-full h-14 rounded-2xl shadow-lg transition-all"
             size="lg"
           >
             <Plus className="w-5 h-5 mr-2" />

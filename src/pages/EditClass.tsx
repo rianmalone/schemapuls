@@ -248,7 +248,7 @@ const EditClass = () => {
 
           <Button
             onClick={handleSave}
-            className="w-full h-14 text-lg rounded-2xl shadow-lg hover:shadow-xl transition-all"
+            className="w-full h-14 text-lg rounded-2xl shadow-lg transition-all"
             size="lg"
           >
             Spara ändringar

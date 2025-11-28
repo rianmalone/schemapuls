@@ -313,7 +313,7 @@ const Upload = () => {
                   <h3 className="text-xs font-semibold mb-2 text-foreground text-center">Udda vecka</h3>
                   <label
                     htmlFor="file-upload-odd"
-                    className="block w-full p-4 border-2 border-dashed border-border rounded-2xl bg-card hover:bg-accent transition-colors cursor-pointer"
+                    className="block w-full p-4 border-2 border-dashed border-border rounded-2xl bg-card transition-colors cursor-pointer active:bg-accent"
                   >
                     <div className="flex flex-col items-center gap-2">
                       {previewOdd ? (
@@ -352,7 +352,7 @@ const Upload = () => {
                   <h3 className="text-xs font-semibold mb-2 text-foreground text-center">Jämn vecka</h3>
                   <label
                     htmlFor="file-upload-even"
-                    className="block w-full p-4 border-2 border-dashed border-border rounded-2xl bg-card hover:bg-accent transition-colors cursor-pointer"
+                    className="block w-full p-4 border-2 border-dashed border-border rounded-2xl bg-card transition-colors cursor-pointer active:bg-accent"
                   >
                     <div className="flex flex-col items-center gap-2">
                       {previewEven ? (
@@ -425,7 +425,7 @@ const Upload = () => {
             ) : (
               <label
                 htmlFor="file-upload"
-                className="block w-full p-8 border-2 border-dashed border-border rounded-2xl bg-card hover:bg-accent transition-colors cursor-pointer"
+                className="block w-full p-8 border-2 border-dashed border-border rounded-2xl bg-card transition-colors cursor-pointer active:bg-accent"
               >
                 <div className="flex flex-col items-center gap-3">
                   {previewOdd ? (

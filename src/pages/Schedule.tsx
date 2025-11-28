@@ -771,14 +771,16 @@ const Schedule = () => {
                       <Fragment key={classItem.id}>
                         <button
                           onClick={() => navigate(`/edit-class/${classItem.id}`)}
-                          className={`w-full p-2 rounded-lg text-white text-left transition-all duration-300 active:scale-95 ${
+                          className={`w-full p-2 rounded-lg ${getColorClass(
+                            classItem.name
+                          )} text-white text-left transition-all duration-300 active:scale-95 ${
                             !enabledClasses[classItem.id] ? 'opacity-50' : 'opacity-100'
                           } ${
                             isClassActive(classItem, day.key) ? 'ring-2 ring-primary ring-offset-2 ring-offset-background shadow-lg' : ''
                           }`}
                           style={{
                             minHeight: `${Math.max(calculateHeight(classItem.start, classItem.end) * 0.6, 100)}px`,
-                            backgroundColor: classItem.color || '#4ECDC4',
+                            backgroundColor: classItem.color || undefined,
                           }}
                         >
                           <div className="flex flex-col items-start justify-center py-1">
@@ -835,7 +837,9 @@ const Schedule = () => {
                 <Fragment key={classItem.id}>
                   <button
                     onClick={() => navigate(`/edit-class/${classItem.id}`)}
-                    className={`w-full p-3 rounded-xl text-white shadow-sm transition-all duration-300 active:scale-95 text-left border-l-4 border-white/30 ${
+                    className={`w-full p-3 rounded-xl ${getColorClass(
+                      classItem.name
+                    )} text-white shadow-sm transition-all duration-300 active:scale-95 text-left border-l-4 border-white/30 ${
                       !enabledClasses[classItem.id] ? 'opacity-50' : 'opacity-100'
                     } ${
                       isClassActive(classItem, selectedDay) ? 'ring-4 ring-primary ring-offset-4 ring-offset-background shadow-lg' : ''
@@ -843,7 +847,7 @@ const Schedule = () => {
                     style={{
                       height: `${calculateHeight(classItem.start, classItem.end)}px`,
                       minHeight: "80px",
-                      backgroundColor: classItem.color || '#4ECDC4',
+                      backgroundColor: classItem.color || undefined,
                     }}
                   >
                     <div className="flex items-start justify-between h-full">

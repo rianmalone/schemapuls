@@ -72,8 +72,11 @@ export class NotificationService {
     }
 
     try {
-      // Cancel all existing notifications first
-      await LocalNotifications.cancel({ notifications: (await LocalNotifications.getPending()).notifications });
+      // Cancel all existing notifications first (only if there are any)
+      const pending = await LocalNotifications.getPending();
+      if (pending.notifications.length > 0) {
+        await LocalNotifications.cancel({ notifications: pending.notifications });
+      }
 
       const hasPermission = await this.checkPermissions();
       if (!hasPermission) {

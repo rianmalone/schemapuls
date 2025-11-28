@@ -16,7 +16,7 @@ export function Toaster() {
             </div>
             {action}
             <ToastClose />
-            <ToastProgressBar duration={3500} />
+            <ToastProgressBar duration={4000} />
           </Toast>
         );
       })}
@@ -44,9 +44,9 @@ function ToastProgressBar({ duration }: { duration: number }) {
   }, [duration]);
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary/20 rounded-b-md overflow-hidden">
+    <div className="absolute bottom-0 inset-x-0 h-1 bg-transparent overflow-hidden">
       <div 
-        className="h-full bg-primary transition-all duration-[16ms] ease-linear"
+        className="h-full bg-primary transition-all duration-[16ms] ease-linear rounded-bl-md"
         style={{ width: `${progress}%` }}
       />
     </div>

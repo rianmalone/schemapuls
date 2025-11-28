@@ -12,17 +12,9 @@ export const DarkModeToggle = () => {
   }, []);
 
   if (!mounted) {
-    // Return a placeholder with correct initial state during SSR
-    return (
-      <div className="flex items-center gap-2">
-        <Sun className="h-4 w-4 text-muted-foreground" />
-        <Switch checked={false} onCheckedChange={() => {}} />
-        <Moon className="h-4 w-4 text-muted-foreground" />
-      </div>
-    );
+    return null;
   }
 
-  // Use resolvedTheme to get actual applied theme (accounts for system preference)
   const isDark = resolvedTheme === "dark";
 
   return (

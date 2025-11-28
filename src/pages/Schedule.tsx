@@ -718,14 +718,14 @@ const Schedule = () => {
             <label className="flex items-center gap-1 cursor-pointer active:scale-95 transition-transform">
               <div 
                 onClick={() => toggleAllDays()}
-                className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all ${
+                className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all ${
                   allDaysChecked 
                     ? 'bg-background border-border' 
                     : 'border-muted-foreground/30'
                 }`}
               >
                 {allDaysChecked && (
-                  <div className="w-3.5 h-3.5 rounded-full bg-primary" />
+                  <div className="w-2 h-2 rounded-full bg-primary" />
                 )}
               </div>
               <span className="text-xs font-medium">Vecka</span>
@@ -734,14 +734,14 @@ const Schedule = () => {
               <label key={day.key} className="flex items-center gap-1 cursor-pointer active:scale-95 transition-transform">
                 <div 
                   onClick={() => handleDayToggle(day.key)}
-                  className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all ${
+                  className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all ${
                     enabledDays[day.key]
                       ? 'bg-background border-border' 
                       : 'border-muted-foreground/30'
                   }`}
                 >
                   {enabledDays[day.key] && (
-                    <div className="w-3.5 h-3.5 rounded-full bg-primary" />
+                    <div className="w-2 h-2 rounded-full bg-primary" />
                   )}
                 </div>
                 <span className="text-xs">{day.label}</span>
@@ -790,11 +790,11 @@ const Schedule = () => {
                                 }}
                                 className="flex-shrink-0 active:scale-90 transition-transform"
                               >
-                                <div className={`w-5 h-5 rounded-full border-2 border-white flex items-center justify-center transition-all duration-300 ${
+                                <div className={`w-3 h-3 rounded-full border-2 border-white flex items-center justify-center transition-all duration-300 ${
                                   enabledClasses[classItem.id] ? 'bg-white' : 'bg-transparent'
                                 }`}>
                                   {enabledClasses[classItem.id] && (
-                                    <div className="w-2.5 h-2.5 rounded-full bg-primary transition-all duration-300" />
+                                    <div className="w-1 h-1 rounded-full bg-primary transition-all duration-300" />
                                   )}
                                 </div>
                               </button>
@@ -863,11 +863,11 @@ const Schedule = () => {
                         }}
                         className="flex-shrink-0 active:scale-90 transition-transform"
                       >
-                        <div className={`w-7 h-7 rounded-full border-2 border-white flex items-center justify-center transition-all duration-300 ${
+                        <div className={`w-5 h-5 rounded-full border-2 border-white flex items-center justify-center transition-all duration-300 ${
                           enabledClasses[classItem.id] ? 'bg-white' : 'bg-transparent'
                         }`}>
                           {enabledClasses[classItem.id] && (
-                            <div className="w-3.5 h-3.5 rounded-full bg-primary transition-all duration-300" />
+                            <div className="w-2.5 h-2.5 rounded-full bg-primary transition-all duration-300" />
                           )}
                         </div>
                       </button>

@@ -108,22 +108,22 @@ export class NotificationService {
             const [hours, minutes] = classItem.start.split(':').map(Number);
             const targetDay = dayMap[day];
             
-            // Calculate the next occurrence of this day
-            const classDate = new Date(now);
-            classDate.setHours(hours, minutes, 0, 0);
+            // Calculate the actual lesson start time
+            const lessonStartTime = new Date(now);
+            lessonStartTime.setHours(hours, minutes, 0, 0);
             
-            const currentDay = classDate.getDay() || 7; // Sunday = 7
+            const currentDay = lessonStartTime.getDay() || 7; // Sunday = 7
             let daysUntilClass = targetDay - currentDay;
             
-            if (daysUntilClass < 0 || (daysUntilClass === 0 && classDate <= now)) {
+            if (daysUntilClass < 0 || (daysUntilClass === 0 && lessonStartTime <= now)) {
               daysUntilClass += 7;
             }
             
-            classDate.setDate(classDate.getDate() + daysUntilClass + (weekOffset * 7));
+            lessonStartTime.setDate(lessonStartTime.getDate() + daysUntilClass + (weekOffset * 7));
             
             // For odd-even schedules, only schedule if week matches
             if (scheduleType === 'odd-even') {
-              const classWeekNumber = this.getWeekNumber(classDate);
+              const classWeekNumber = this.getWeekNumber(lessonStartTime);
               const isClassOddWeek = classWeekNumber % 2 === 1;
               
               // Skip if this class is in the wrong week type
@@ -133,27 +133,43 @@ export class NotificationService {
               }
             }
 
-            // Subtract notification minutes
-            classDate.setMinutes(classDate.getMinutes() - notificationMinutes);
+            // Calculate reminder time (lesson start - notification minutes)
+            const reminderTime = new Date(lessonStartTime);
+            reminderTime.setMinutes(reminderTime.getMinutes() - notificationMinutes);
 
-            // Only schedule future notifications
-            if (classDate > now) {
-              const notificationId = parseInt(`${classItem.id.slice(-6)}${weekOffset}${targetDay}`);
-              
-              notifications.push({
-                id: notificationId,
-                title: `${classItem.name} om ${notificationMinutes} minuter`,
-                body: `${classItem.room ? `Sal: ${classItem.room} • ` : ''}Börjar ${classItem.start}`,
-                schedule: {
-                  at: classDate,
-                },
-                sound: 'default',
-                actionTypeId: '',
-                extra: {
-                  classId: classItem.id,
-                },
-              });
+            // Determine notification schedule time
+            let notificationTime: Date;
+            let notificationTitle: string;
+            
+            if (reminderTime > now) {
+              // Case 1: Reminder time is in the future - schedule normally
+              notificationTime = reminderTime;
+              notificationTitle = `${classItem.name} om ${notificationMinutes} minuter`;
+            } else if (lessonStartTime > now) {
+              // Case 2: Reminder time passed but lesson hasn't started - immediate notification
+              notificationTime = new Date(now.getTime() + 3000); // 3 seconds from now
+              const minutesUntilStart = Math.ceil((lessonStartTime.getTime() - now.getTime()) / 60000);
+              notificationTitle = `${classItem.name} börjar om ${minutesUntilStart} ${minutesUntilStart === 1 ? 'minut' : 'minuter'}`;
+            } else {
+              // Case 3: Lesson already started - skip
+              return;
             }
+
+            const notificationId = parseInt(`${classItem.id.slice(-6)}${weekOffset}${targetDay}`);
+            
+            notifications.push({
+              id: notificationId,
+              title: notificationTitle,
+              body: `${classItem.room ? `Sal: ${classItem.room} • ` : ''}Börjar ${classItem.start}`,
+              schedule: {
+                at: notificationTime,
+              },
+              sound: 'default',
+              actionTypeId: '',
+              extra: {
+                classId: classItem.id,
+              },
+            });
           });
         });
       }

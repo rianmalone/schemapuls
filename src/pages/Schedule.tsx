@@ -994,6 +994,13 @@ const Schedule = () => {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Info bar */}
+        <div className="mt-6 p-3 rounded-xl bg-muted/30 border border-border/50">
+          <p className="text-xs text-muted-foreground text-center leading-relaxed">
+            AI:n kan göra misstag. Du kan alltid lägga till, redigera och ta bort lektioner själv.
+          </p>
+        </div>
       </div>
     </div>
   );

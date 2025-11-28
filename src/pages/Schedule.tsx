@@ -1005,6 +1005,18 @@ const Schedule = () => {
             AI:n kan göra misstag. Du kan alltid lägga till, redigera och ta bort lektioner själv.
           </p>
         </div>
+
+        {/* Privacy Policy Link */}
+        <div className="mt-3 text-center">
+          <a 
+            href="https://schemapuls.se/sekretesspolicy" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-xs text-blue-500 hover:text-blue-600 active:text-blue-700 transition-colors underline"
+          >
+            Sekretesspolicy
+          </a>
+        </div>
       </div>
     </div>
   );

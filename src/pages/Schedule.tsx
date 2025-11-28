@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Upload, Bell, BellOff, Plus } from "lucide-react";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useState, useMemo } from "react";
 import { Slider } from "@/components/ui/slider";
 import { notificationService } from "@/services/notificationService";
 import { useToast } from "@/hooks/use-toast";
@@ -10,6 +10,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+function debounce<T extends (...args: any[]) => void>(fn: T, wait = 600) {
+  let timer: number | undefined;
+  return (...args: Parameters<T>) => {
+    if (timer) window.clearTimeout(timer);
+    timer = window.setTimeout(() => fn(...args), wait);
+  };
+}
 
 interface Class {
   id: string;
@@ -69,6 +77,17 @@ const Schedule = () => {
     { key: "thursday", label: "Tor" },
     { key: "friday", label: "Fre" },
   ];
+
+  const debouncedSchedule = useMemo(
+    () => debounce((
+      schedule: WeekSchedule,
+      enabledClasses: Record<string, boolean>,
+      enabledDays: Record<string, boolean>,
+      notificationMinutes: number,
+      scheduleType: string
+    ) => notificationService.scheduleNotifications(schedule, enabledClasses, enabledDays, notificationMinutes, scheduleType), 700),
+    []
+  );
 
   // Helper function to sort classes by start time
   const sortClassesByTime = (classes: Class[]): Class[] => {
@@ -285,7 +304,7 @@ const Schedule = () => {
     // Reschedule notifications with new time when user releases the thumb
     if (schedule && hasNotificationPermission) {
       const scheduleType = localStorage.getItem("scheduleType") || "weekly";
-      await notificationService.scheduleNotifications(
+      debouncedSchedule(
         schedule,
         enabledClasses,
         enabledDays,
@@ -303,7 +322,7 @@ const Schedule = () => {
     // Reschedule notifications
     if (schedule && hasNotificationPermission) {
       const scheduleType = localStorage.getItem("scheduleType") || "weekly";
-      await notificationService.scheduleNotifications(
+      debouncedSchedule(
         schedule,
         enabledClasses,
         updated,
@@ -328,7 +347,7 @@ const Schedule = () => {
     // Reschedule notifications
     if (schedule && hasNotificationPermission) {
       const scheduleType = localStorage.getItem("scheduleType") || "weekly";
-      await notificationService.scheduleNotifications(
+      debouncedSchedule(
         schedule,
         enabledClasses,
         updated,
@@ -358,7 +377,7 @@ const Schedule = () => {
     // Reschedule notifications
     if (schedule && hasNotificationPermission) {
       const scheduleType = localStorage.getItem("scheduleType") || "weekly";
-      await notificationService.scheduleNotifications(
+      debouncedSchedule(
         schedule,
         updated,
         enabledDays,
@@ -386,7 +405,7 @@ const Schedule = () => {
       // Schedule notifications immediately
       if (schedule) {
         const scheduleType = localStorage.getItem("scheduleType") || "weekly";
-        await notificationService.scheduleNotifications(
+        debouncedSchedule(
           schedule,
           enabledClasses,
           enabledDays,

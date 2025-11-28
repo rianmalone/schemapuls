@@ -72,11 +72,10 @@ export class NotificationService {
     }
 
     try {
-      // Cancel all existing notifications first (only if there are any)
+      // Get currently pending notifications
       const pending = await LocalNotifications.getPending();
-      if (pending.notifications.length > 0) {
-        await LocalNotifications.cancel({ notifications: pending.notifications });
-      }
+      const pendingMap = new Set(pending.notifications.map((n: any) => n.id));
+      const toScheduleIds = new Set<number>();
 
       const hasPermission = await this.checkPermissions();
       if (!hasPermission) {
@@ -136,6 +135,7 @@ export class NotificationService {
             // Calculate reminder time (lesson start - notification minutes)
             const reminderTime = new Date(lessonStartTime);
             reminderTime.setMinutes(reminderTime.getMinutes() - notificationMinutes);
+            reminderTime.setSeconds(0);
 
             // Determine notification schedule time
             let notificationTime: Date;
@@ -156,6 +156,7 @@ export class NotificationService {
             }
 
             const notificationId = parseInt(`${classItem.id.slice(-6)}${weekOffset}${targetDay}`);
+            toScheduleIds.add(notificationId);
             
             notifications.push({
               id: notificationId,
@@ -171,6 +172,14 @@ export class NotificationService {
               },
             });
           });
+        });
+      }
+
+      // Only cancel notifications that are being replaced
+      const idsToCancel = Array.from(pendingMap).filter(id => toScheduleIds.has(id));
+      if (idsToCancel.length > 0) {
+        await LocalNotifications.cancel({
+          notifications: idsToCancel.map(id => ({ id }))
         });
       }
 

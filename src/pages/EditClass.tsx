@@ -202,20 +202,10 @@ const EditClass = () => {
                   <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                   <Input
                     id="start"
-                    type="text"
+                    type="time"
                     value={classData.start}
-                    onChange={(e) => {
-                      let value = e.target.value.replace(/[^\d:]/g, '');
-                      if (value.length === 2 && !value.includes(':')) {
-                        value = value + ':';
-                      }
-                      if (value.length <= 5) {
-                        setClassData({ ...classData, start: value });
-                      }
-                    }}
+                    onChange={(e) => setClassData({ ...classData, start: e.target.value })}
                     className="rounded-xl pl-10"
-                    placeholder="12:00"
-                    maxLength={5}
                   />
                 </div>
               </div>
@@ -226,20 +216,10 @@ const EditClass = () => {
                   <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                   <Input
                     id="end"
-                    type="text"
+                    type="time"
                     value={classData.end}
-                    onChange={(e) => {
-                      let value = e.target.value.replace(/[^\d:]/g, '');
-                      if (value.length === 2 && !value.includes(':')) {
-                        value = value + ':';
-                      }
-                      if (value.length <= 5) {
-                        setClassData({ ...classData, end: value });
-                      }
-                    }}
+                    onChange={(e) => setClassData({ ...classData, end: e.target.value })}
                     className="rounded-xl pl-10"
-                    placeholder="13:00"
-                    maxLength={5}
                   />
                 </div>
               </div>

@@ -149,10 +149,6 @@ const Home = () => {
         localStorage.setItem("scheduleOdd", scheduleOdd);
         localStorage.setItem("scheduleEven", scheduleEven);
         localStorage.setItem("scheduleType", "oddeven");
-        // Clear notification settings so each schedule starts fresh
-        localStorage.removeItem("enabledClassesOdd");
-        localStorage.removeItem("enabledClassesEven");
-        localStorage.removeItem("enabledDays");
         console.log('Set oddeven data, navigating to /schedule');
         navigate("/schedule");
       } else {
@@ -166,9 +162,6 @@ const Home = () => {
       if (schedule) {
         localStorage.setItem("schedule", schedule);
         localStorage.setItem("scheduleType", "weekly");
-        // Clear notification settings so each schedule starts fresh
-        localStorage.removeItem("enabledClasses");
-        localStorage.removeItem("enabledDays");
         console.log('Set weekly data, navigating to /schedule');
         navigate("/schedule");
       } else {
@@ -226,7 +219,7 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-      <div className="max-w-md mx-auto p-6 pt-8">
+      <div className="max-w-md mx-auto p-6 pt-12">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
             <h1 className="text-4xl font-bold text-foreground mb-1">SchemaPuls</h1>

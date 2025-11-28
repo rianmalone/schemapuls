@@ -778,7 +778,7 @@ const Schedule = () => {
                             minHeight: `${Math.max(calculateHeight(classItem.start, classItem.end) * 0.6, 100)}px`,
                           }}
                         >
-                          <div className="flex flex-col items-start justify-center py-1 px-1">
+                          <div className="flex flex-col items-start justify-center py-1">
                             <div className="w-full flex items-start justify-between mb-0.5">
                               <div className="text-[8px] opacity-80 font-medium">
                                 {classItem.start}
@@ -799,7 +799,7 @@ const Schedule = () => {
                                 </div>
                               </button>
                             </div>
-                            <div className="w-full">
+                            <div className="w-full text-left">
                               <div className="font-semibold text-[9px] leading-tight break-words">
                                 {classItem.name}
                               </div>

@@ -199,32 +199,48 @@ const EditClass = () => {
               <div className="space-y-2">
                 <Label htmlFor="start">Starttid</Label>
                 <div className="relative">
+                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                   <Input
                     id="start"
-                    type="time"
+                    type="text"
                     value={classData.start}
-                    onChange={(e) =>
-                      setClassData({ ...classData, start: e.target.value })
-                    }
-                    className="rounded-xl pr-10"
+                    onChange={(e) => {
+                      let value = e.target.value.replace(/[^\d:]/g, '');
+                      if (value.length === 2 && !value.includes(':')) {
+                        value = value + ':';
+                      }
+                      if (value.length <= 5) {
+                        setClassData({ ...classData, start: value });
+                      }
+                    }}
+                    className="rounded-xl pl-10"
+                    placeholder="12:00"
+                    maxLength={5}
                   />
-                  <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="end">Sluttid</Label>
                 <div className="relative">
+                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                   <Input
                     id="end"
-                    type="time"
+                    type="text"
                     value={classData.end}
-                    onChange={(e) =>
-                      setClassData({ ...classData, end: e.target.value })
-                    }
-                    className="rounded-xl pr-10"
+                    onChange={(e) => {
+                      let value = e.target.value.replace(/[^\d:]/g, '');
+                      if (value.length === 2 && !value.includes(':')) {
+                        value = value + ':';
+                      }
+                      if (value.length <= 5) {
+                        setClassData({ ...classData, end: value });
+                      }
+                    }}
+                    className="rounded-xl pl-10"
+                    placeholder="13:00"
+                    maxLength={5}
                   />
-                  <Clock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                 </div>
               </div>
             </div>

@@ -56,10 +56,10 @@ const ScheduleType = () => {
           <div className="space-y-4 pt-4">
             <button
               onClick={() => setSelected("weekly")}
-              className={`w-full p-6 rounded-2xl border-2 transition-all text-left ${
+              className={`w-full p-6 rounded-2xl border-2 transition-all text-left active:scale-95 ${
                 selected === "weekly"
                   ? "border-primary bg-primary/5 shadow-lg"
-                  : "border-border bg-card hover:border-primary/50"
+                  : "border-border bg-card"
               }`}
             >
               <div className="flex items-start gap-4">
@@ -85,10 +85,10 @@ const ScheduleType = () => {
 
             <button
               onClick={() => setSelected("oddeven")}
-              className={`w-full p-6 rounded-2xl border-2 transition-all text-left ${
+              className={`w-full p-6 rounded-2xl border-2 transition-all text-left active:scale-95 ${
                 selected === "oddeven"
                   ? "border-primary bg-primary/5 shadow-lg"
-                  : "border-border bg-card hover:border-primary/50"
+                  : "border-border bg-card"
               }`}
             >
               <div className="flex items-start gap-4">
@@ -116,7 +116,7 @@ const ScheduleType = () => {
           <Button
             onClick={handleContinue}
             disabled={!selected || scheduleCount >= 5}
-            className="w-full h-14 text-lg rounded-2xl shadow-lg hover:shadow-xl transition-all mt-8"
+            className="w-full h-14 text-lg rounded-2xl shadow-lg transition-all mt-8"
             size="lg"
           >
             {scheduleCount >= 5 ? "Max 5 scheman" : "Fortsätt"}

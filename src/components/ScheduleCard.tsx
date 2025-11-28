@@ -32,7 +32,7 @@ const ScheduleCard = ({ classItem, onClick }: ScheduleCardProps) => {
       onClick={onClick}
       className={`w-full p-3 rounded-xl ${getColorClass(
         classItem.color
-      )} text-white shadow-sm hover:shadow-md transition-all text-left`}
+      )} text-white shadow-sm transition-all text-left active:scale-95`}
     >
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold">{classItem.name}</h3>

@@ -46,7 +46,7 @@ const Welcome = () => {
 
         <Button
           onClick={() => navigate("/schedule-type")}
-          className="w-full h-14 text-lg rounded-2xl shadow-lg hover:shadow-xl transition-all"
+          className="w-full h-14 text-lg rounded-2xl shadow-lg transition-all"
           size="lg"
         >
           Skapa nytt schema

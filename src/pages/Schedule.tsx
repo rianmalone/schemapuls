@@ -778,9 +778,9 @@ const Schedule = () => {
                             height: `${Math.max(calculateHeight(classItem.start, classItem.end) * 0.6, 90)}px`,
                           }}
                         >
-                          <div className="flex flex-col h-full">
-                            <div className="flex items-start justify-between gap-1 mb-0.5">
-                              <div className="text-[8px] opacity-90 font-medium">
+                          <div className="flex flex-col h-full items-center justify-center">
+                            <div className="w-full flex items-start justify-between mb-1">
+                              <div className="text-[9px] opacity-90 font-medium">
                                 {classItem.start}
                               </div>
                               <button
@@ -799,15 +799,15 @@ const Schedule = () => {
                                 </div>
                               </button>
                             </div>
-                            <div className="flex-1 flex flex-col justify-center min-h-0">
-                              <div className="font-semibold text-[8px] leading-tight break-words">
+                            <div className="w-full">
+                              <div className="font-semibold text-[9px] leading-tight break-words">
                                 {classItem.name}
                               </div>
                               {classItem.room && (
-                                <div className="text-[7px] opacity-80 mt-0.5 break-words">{classItem.room}</div>
+                                <div className="text-[8px] opacity-80 mt-0.5 break-words">{classItem.room}</div>
                               )}
                             </div>
-                            <div className="text-[8px] opacity-90 font-medium mt-0.5">
+                            <div className="w-full text-[9px] opacity-90 font-medium mt-1">
                               {classItem.end}
                             </div>
                           </div>

@@ -353,6 +353,18 @@ const Home = () => {
             Skapa nytt schema
           </Button>
         </div>
+
+        {/* Privacy Policy Link */}
+        <div className="text-center">
+          <a 
+            href="https://schemapuls.se/sekretesspolicy" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-xs text-blue-500 hover:text-blue-600 active:text-blue-700 transition-colors underline"
+          >
+            Sekretesspolicy
+          </a>
+        </div>
       </div>
     </div>
   );

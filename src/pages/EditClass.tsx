@@ -177,6 +177,7 @@ const EditClass = () => {
                   setClassData({ ...classData, name: e.target.value })
                 }
                 className="rounded-xl"
+                maxLength={25}
               />
             </div>
 
@@ -190,6 +191,7 @@ const EditClass = () => {
                 }
                 className="rounded-xl"
                 placeholder="t.ex. 206"
+                maxLength={25}
               />
             </div>
 

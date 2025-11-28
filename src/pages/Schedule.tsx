@@ -767,7 +767,7 @@ const Schedule = () => {
                       <Fragment key={classItem.id}>
                         <button
                           onClick={() => navigate(`/edit-class/${classItem.id}`)}
-                          className={`w-full p-1.5 rounded-lg ${getColorClass(
+                          className={`w-full p-2 rounded-lg ${getColorClass(
                             classItem.name
                           )} text-white text-left transition-all duration-300 active:scale-95 ${
                             !enabledClasses[classItem.id] ? 'opacity-50' : 'opacity-100'
@@ -778,9 +778,9 @@ const Schedule = () => {
                             height: `${Math.max(calculateHeight(classItem.start, classItem.end) * 0.6, 90)}px`,
                           }}
                         >
-                          <div className="flex flex-col h-full justify-between gap-0.5">
+                          <div className="flex flex-col h-full justify-between">
                             <div className="flex items-start justify-between gap-1">
-                              <div className="text-[8px] opacity-90 font-medium">
+                              <div className="text-[9px] opacity-90 font-medium">
                                 {classItem.start}
                               </div>
                               <button
@@ -799,15 +799,15 @@ const Schedule = () => {
                                 </div>
                               </button>
                             </div>
-                            <div className="flex-1 flex flex-col justify-center px-0.5">
-                              <div className="font-semibold text-[9px] leading-tight break-words">
+                            <div className="flex-1 flex flex-col justify-center">
+                              <div className="font-semibold text-[10px] leading-tight break-words">
                                 {classItem.name}
                               </div>
                               {classItem.room && (
-                                <div className="text-[7px] opacity-80 mt-0.5 break-words">{classItem.room}</div>
+                                <div className="text-[8px] opacity-80 mt-0.5 break-words">{classItem.room}</div>
                               )}
                             </div>
-                            <div className="text-[8px] opacity-90 font-medium">
+                            <div className="text-[9px] opacity-90 font-medium">
                               {classItem.end}
                             </div>
                           </div>

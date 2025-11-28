@@ -343,7 +343,7 @@ const Home = () => {
           )}
         </div>
 
-        <div className="mb-6 mt-4">
+        <div className="mb-3 mt-4">
           <Button
             onClick={handleCreateNew}
             className="w-full h-14 rounded-2xl shadow-lg transition-all"

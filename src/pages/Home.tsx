@@ -20,6 +20,18 @@ const Home = () => {
   const [editingName, setEditingName] = useState("");
   const [currentTime, setCurrentTime] = useState(new Date());
 
+  // TEMPORARY: Clear all schedule data on mount
+  useEffect(() => {
+    const keys = Object.keys(localStorage);
+    keys.forEach(key => {
+      if (key.startsWith('schedule') || key.includes('Schedule') || key.startsWith('enabled') || key === 'activeScheduleId') {
+        localStorage.removeItem(key);
+      }
+    });
+    console.log('All schedule data cleared from localStorage');
+    window.location.reload();
+  }, []);
+
   // Update time every second
   useEffect(() => {
     const timer = setInterval(() => {

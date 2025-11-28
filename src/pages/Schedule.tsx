@@ -141,6 +141,16 @@ const Schedule = () => {
     return currentTime > endTime && currentTime < nextStartTime;
   };
 
+  // Add real-time updates for active class indicator
+  useEffect(() => {
+    // Update every 30 seconds
+    const interval = setInterval(() => {
+      setSchedule(prev => prev ? { ...prev } : null);
+    }, 30000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     const initializeSchedule = async () => {
       const type = localStorage.getItem("scheduleType") || "weekly";
@@ -190,19 +200,14 @@ const Schedule = () => {
             });
           });
           
-          const savedEnabledClassesOdd = localStorage.getItem("enabledClassesOdd");
-          const savedEnabledClassesEven = localStorage.getItem("enabledClassesEven");
+          // Always start with all classes enabled for new schedules
+          setEnabledClassesOdd(allClassesOdd);
+          setEnabledClassesEven(allClassesEven);
+          setEnabledClasses(currentWeek === 'odd' ? allClassesOdd : allClassesEven);
           
-          const finalOdd = savedEnabledClassesOdd 
-            ? { ...allClassesOdd, ...JSON.parse(savedEnabledClassesOdd) }
-            : allClassesOdd;
-          const finalEven = savedEnabledClassesEven
-            ? { ...allClassesEven, ...JSON.parse(savedEnabledClassesEven) }
-            : allClassesEven;
-            
-          setEnabledClassesOdd(finalOdd);
-          setEnabledClassesEven(finalEven);
-          setEnabledClasses(currentWeek === 'odd' ? finalOdd : finalEven);
+          // Save initial enabled state
+          localStorage.setItem("enabledClassesOdd", JSON.stringify(allClassesOdd));
+          localStorage.setItem("enabledClassesEven", JSON.stringify(allClassesEven));
         } else {
           navigate("/");
           return;
@@ -221,12 +226,9 @@ const Schedule = () => {
             });
           });
           
-          const savedEnabledClasses = localStorage.getItem("enabledClasses");
-          if (savedEnabledClasses) {
-            setEnabledClasses({ ...allClasses, ...JSON.parse(savedEnabledClasses) });
-          } else {
-            setEnabledClasses(allClasses);
-          }
+          // Always start with all classes enabled for new schedules
+          setEnabledClasses(allClasses);
+          localStorage.setItem("enabledClasses", JSON.stringify(allClasses));
         } else {
           navigate("/");
           return;
@@ -574,8 +576,8 @@ const Schedule = () => {
   const allDaysChecked = Object.values(enabledDays).every(v => v);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 overscroll-none">
-      <div className="max-w-4xl mx-auto p-4 pt-6 overscroll-none">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 overscroll-none pb-20">
+      <div className="max-w-4xl mx-auto p-4 pt-8 pb-6 overscroll-none">
         <div className="flex items-center justify-between mb-6">
           <Button variant="ghost" onClick={() => navigate("/")} size="sm">
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -713,33 +715,33 @@ const Schedule = () => {
         <div className="mb-4 p-4 rounded-2xl bg-card border border-border">
           <h3 className="text-sm font-medium mb-3">Aktivera påminnelser för:</h3>
           <div className="flex items-center justify-between gap-1">
-            <label className="flex items-center gap-1 cursor-pointer group">
+            <label className="flex items-center gap-1 cursor-pointer active:scale-95 transition-transform">
               <div 
                 onClick={() => toggleAllDays()}
-                className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all ${
+                className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all ${
                   allDaysChecked 
                     ? 'bg-background border-border' 
-                    : 'border-muted-foreground/30 group-hover:border-muted-foreground/50'
+                    : 'border-muted-foreground/30'
                 }`}
               >
                 {allDaysChecked && (
-                  <div className="w-2 h-2 rounded-full bg-primary" />
+                  <div className="w-3.5 h-3.5 rounded-full bg-primary" />
                 )}
               </div>
               <span className="text-xs font-medium">Vecka</span>
             </label>
             {days.map((day) => (
-              <label key={day.key} className="flex items-center gap-1 cursor-pointer group">
+              <label key={day.key} className="flex items-center gap-1 cursor-pointer active:scale-95 transition-transform">
                 <div 
                   onClick={() => handleDayToggle(day.key)}
-                  className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all ${
+                  className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all ${
                     enabledDays[day.key]
                       ? 'bg-background border-border' 
-                      : 'border-muted-foreground/30 group-hover:border-muted-foreground/50'
+                      : 'border-muted-foreground/30'
                   }`}
                 >
                   {enabledDays[day.key] && (
-                    <div className="w-2 h-2 rounded-full bg-primary" />
+                    <div className="w-3.5 h-3.5 rounded-full bg-primary" />
                   )}
                 </div>
                 <span className="text-xs">{day.label}</span>
@@ -767,13 +769,13 @@ const Schedule = () => {
                           onClick={() => navigate(`/edit-class/${classItem.id}`)}
                           className={`w-full p-1.5 rounded-lg ${getColorClass(
                             classItem.name
-                          )} text-white text-left transition-all duration-300 ${
+                          )} text-white text-left transition-all duration-300 active:scale-95 ${
                             !enabledClasses[classItem.id] ? 'opacity-50' : 'opacity-100'
                           } ${
                             isClassActive(classItem, day.key) ? 'ring-2 ring-primary ring-offset-2 ring-offset-background shadow-lg' : ''
                           }`}
                           style={{
-                            minHeight: `${Math.max(calculateHeight(classItem.start, classItem.end) * 0.6, 90)}px`,
+                            height: `${Math.max(calculateHeight(classItem.start, classItem.end) * 0.6, 90)}px`,
                           }}
                         >
                           <div className="flex flex-col h-full justify-between gap-0.5">
@@ -786,13 +788,13 @@ const Schedule = () => {
                                   e.stopPropagation();
                                   handleClassToggle(classItem.id);
                                 }}
-                                className="flex-shrink-0"
+                                className="flex-shrink-0 active:scale-90 transition-transform"
                               >
-                                <div className={`w-3 h-3 rounded-full border-2 border-white flex items-center justify-center transition-all duration-300 ${
+                                <div className={`w-5 h-5 rounded-full border-2 border-white flex items-center justify-center transition-all duration-300 ${
                                   enabledClasses[classItem.id] ? 'bg-white' : 'bg-transparent'
                                 }`}>
                                   {enabledClasses[classItem.id] && (
-                                    <div className="w-1 h-1 rounded-full bg-primary transition-all duration-300" />
+                                    <div className="w-2.5 h-2.5 rounded-full bg-primary transition-all duration-300" />
                                   )}
                                 </div>
                               </button>
@@ -832,7 +834,7 @@ const Schedule = () => {
                     onClick={() => navigate(`/edit-class/${classItem.id}`)}
                     className={`w-full p-3 rounded-xl ${getColorClass(
                       classItem.name
-                    )} text-white shadow-sm transition-all duration-300 text-left border-l-4 border-white/30 ${
+                    )} text-white shadow-sm transition-all duration-300 active:scale-95 text-left border-l-4 border-white/30 ${
                       !enabledClasses[classItem.id] ? 'opacity-50' : 'opacity-100'
                     } ${
                       isClassActive(classItem, selectedDay) ? 'ring-4 ring-primary ring-offset-4 ring-offset-background shadow-lg' : ''
@@ -859,13 +861,13 @@ const Schedule = () => {
                           e.stopPropagation();
                           handleClassToggle(classItem.id);
                         }}
-                        className="flex-shrink-0"
+                        className="flex-shrink-0 active:scale-90 transition-transform"
                       >
-                        <div className={`w-5 h-5 rounded-full border-2 border-white flex items-center justify-center transition-all duration-300 ${
+                        <div className={`w-7 h-7 rounded-full border-2 border-white flex items-center justify-center transition-all duration-300 ${
                           enabledClasses[classItem.id] ? 'bg-white' : 'bg-transparent'
                         }`}>
                           {enabledClasses[classItem.id] && (
-                            <div className="w-2.5 h-2.5 rounded-full bg-primary transition-all duration-300" />
+                            <div className="w-3.5 h-3.5 rounded-full bg-primary transition-all duration-300" />
                           )}
                         </div>
                       </button>
@@ -921,24 +923,24 @@ const Schedule = () => {
                 />
               </div>
               <div className="flex items-start gap-3">
-                <div className="space-y-2 flex-1">
+                <div className="space-y-2 w-[45%]">
                   <Label htmlFor="start" className="text-sm">Starttid</Label>
                   <Input
                     id="start"
                     type="time"
                     value={newClass.start}
                     onChange={(e) => setNewClass({ ...newClass, start: e.target.value })}
-                    className="text-sm w-full"
+                    className="text-sm"
                   />
                 </div>
-                <div className="space-y-2 flex-1">
+                <div className="space-y-2 w-[45%]">
                   <Label htmlFor="end" className="text-sm">Sluttid</Label>
                   <Input
                     id="end"
                     type="time"
                     value={newClass.end}
                     onChange={(e) => setNewClass({ ...newClass, end: e.target.value })}
-                    className="text-sm w-full"
+                    className="text-sm"
                   />
                 </div>
               </div>
@@ -974,7 +976,7 @@ const Schedule = () => {
                     <button
                       key={color}
                       onClick={() => setNewClass({ ...newClass, color })}
-                      className={`w-10 h-10 rounded-lg transition-all flex-shrink-0 ${
+                      className={`w-10 h-10 rounded-lg transition-all active:scale-90 flex-shrink-0 ${
                         newClass.color === color ? "ring-2 ring-primary ring-offset-2" : ""
                       }`}
                       style={{ backgroundColor: color }}

@@ -31,7 +31,7 @@ function generateNotificationId(classId: string, targetDateIso: string): number 
 
 export class NotificationService {
   private static instance: NotificationService;
-  private scheduleWindowDays = 3; // Only schedule next N days
+  private scheduleWindowDays = 7; // Only schedule next N days
 
   private constructor() {}
 

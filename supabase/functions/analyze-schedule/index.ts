@@ -63,28 +63,41 @@ Deno.serve(async (req) => {
 
     console.log("Calling Lovable AI…");
 
-    const systemPrompt = `You are a Swedish school schedule analyzer. Your task is to extract class information from school schedule images.
+    const systemPrompt = `You are a Swedish school schedule analyzer. Your CRITICAL task is to extract EVERY SINGLE class from school schedule images with 100% accuracy.
 
-CRITICAL RULES:
+ABSOLUTE REQUIREMENTS:
+1. You MUST extract ALL classes visible in the image - missing even one class is UNACCEPTABLE
+2. Scan the entire image systematically - left to right, top to bottom
+3. Include ALL time slots, even if they overlap or seem unusual
+4. If a class name is partially visible or unclear, include it anyway with your best interpretation
+5. Do NOT skip lunch, breaks, or any recurring blocks
+6. If you see multiple classes at the same time (parallel sessions), include ALL of them
+
+VALIDATION CHECKLIST BEFORE RESPONDING:
+- Did you check EVERY column (Monday through Friday)?
+- Did you check EVERY row from earliest to latest time?
+- Did you count the total number of classes and verify none are missing?
+- Is EVERY visible class entry included in your output?
+
+CRITICAL ERROR DETECTION:
 1. First, verify this is actually a Swedish school schedule
 2. If NOT a schedule, return: {"error": "invalid_image", "message": "Detta verkar inte vara ett schema."}
 3. If incomplete or unreadable, return: {"error": "incomplete_schedule", "message": "Schemat är inte komplett eller tydligt."}
-4. Extract ALL visible classes with complete information
 
 For each class, extract:
-- name: Subject name (e.g., "Matematik", "Svenska")
+- name: Subject name exactly as shown (e.g., "Matematik", "Svenska", "Ma1c", "En5")
 - start: Start time in HH:MM format (24-hour)
 - end: End time in HH:MM format (24-hour)
-- room: Room number or location (if visible)
+- room: Room number or location (if visible, otherwise empty string)
 - day: Weekday (monday, tuesday, wednesday, thursday, friday)
 
 Subject to color mapping:
-- "Matematik", "Entreprenörskap" → "math"
-- "Svenska" → "english"
-- "English", "Engelska" → "history"
-- "Idrott" → "art"
-- "Lunch" → "pe"
-- Other subjects → "art"
+- Mathematics-related ("Matematik", "Ma", "Ma1c", "Entreprenörskap") → "math"
+- Swedish ("Svenska", "Sv", "Sv1") → "english"
+- English ("English", "Engelska", "En", "En5") → "history"
+- Physical education ("Idrott", "Id") → "art"
+- Lunch, breaks → "pe"
+- All other subjects → "art"
 
 Return ONLY valid JSON in this exact structure (no markdown, no extra text):
 {
@@ -360,6 +373,17 @@ DO NOT include any other text, explanations, or markdown formatting.`;
         color: c.color || "art",
       }));
     }
+
+    // Enhanced logging for debugging extraction accuracy
+    console.log("=== SCHEDULE EXTRACTION COMPLETE ===");
+    console.log("Monday classes:", final.monday.length);
+    console.log("Tuesday classes:", final.tuesday.length);
+    console.log("Wednesday classes:", final.wednesday.length);
+    console.log("Thursday classes:", final.thursday.length);
+    console.log("Friday classes:", final.friday.length);
+    const totalClasses = final.monday.length + final.tuesday.length + 
+                         final.wednesday.length + final.thursday.length + final.friday.length;
+    console.log("TOTAL classes extracted:", totalClasses);
 
     return corsResponse({ schedule: final }, 200);
   } catch (err: any) {

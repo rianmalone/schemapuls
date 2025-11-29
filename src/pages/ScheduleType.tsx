@@ -26,7 +26,10 @@ const ScheduleType = () => {
     }
     
     if (selected) {
-      localStorage.setItem("scheduleType", selected);
+      // Normalize to "odd-even" format for consistency with notification service
+      const normalizedType = selected === "oddeven" ? "odd-even" : selected;
+      localStorage.setItem("scheduleType", normalizedType);
+      console.log('[ScheduleType] Set scheduleType to:', normalizedType);
       navigate("/upload");
     }
   };

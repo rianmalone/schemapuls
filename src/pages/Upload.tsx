@@ -28,8 +28,8 @@ const Upload = () => {
             return;
           }
 
-          // Resize to max 1024px on longest side while maintaining aspect ratio
-          const maxDimension = 1024;
+          // Resize to max 2048px on longest side for better AI analysis while maintaining aspect ratio
+          const maxDimension = 2048;
           let width = img.width;
           let height = img.height;
 
@@ -45,24 +45,24 @@ const Upload = () => {
           canvas.height = height;
           ctx.drawImage(img, 0, 0, width, height);
 
-          // Convert to JPEG with quality adjustment for size limits
-          let quality = 0.85; // Start with 85% for balance between quality and size
+          // Convert to JPEG with higher quality for better AI analysis
+          let quality = 0.92; // Start with 92% for better text recognition
           let resizedDataUrl = canvas.toDataURL('image/jpeg', quality);
           
-          // Check size - Supabase edge functions have ~2MB limit
-          // Base64 is ~33% larger than binary, so keep under 1.5MB to be safe
+          // Check size - Edge functions accept up to ~2MB
+          // Base64 is ~33% larger than binary, so keep under 2MB to be safe
           const sizeInBytes = (resizedDataUrl.length * 3) / 4;
           const sizeInMB = sizeInBytes / (1024 * 1024);
           
           console.log(`Image size: ${sizeInMB.toFixed(2)}MB at quality ${quality}`);
           
-          // If too large, reduce quality
-          while (sizeInMB > 1.5 && quality > 0.4) {
+          // If too large, reduce quality but not below 60% to maintain text readability
+          while (sizeInMB > 2 && quality > 0.6) {
             quality -= 0.1;
             resizedDataUrl = canvas.toDataURL('image/jpeg', quality);
             const newSize = (resizedDataUrl.length * 3) / 4 / (1024 * 1024);
             console.log(`Reduced quality to ${quality.toFixed(2)}, new size: ${newSize.toFixed(2)}MB`);
-            if (newSize <= 1.5) break;
+            if (newSize <= 2) break;
           }
           
           resolve(resizedDataUrl);
@@ -162,7 +162,7 @@ const Upload = () => {
         localStorage.setItem("scheduleEven", JSON.stringify(evenData.schedule));
         localStorage.setItem("schedule", JSON.stringify(oddData.schedule)); // Default to odd
         localStorage.setItem("activeScheduleId", scheduleId);
-        localStorage.setItem("scheduleType", "oddeven");
+        localStorage.setItem("scheduleType", "odd-even");
       } else {
         // Process single schedule
         const { data, error } = await supabase.functions.invoke('analyze-schedule', {

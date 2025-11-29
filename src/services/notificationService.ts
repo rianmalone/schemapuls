@@ -19,8 +19,9 @@ interface WeekSchedule {
 }
 
 // Stable notification ID generator - returns an integer ID (max 9 digits)
-function generateNotificationId(classId: string, targetDateIso: string): number {
-  const input = `${classId}|${targetDateIso}`;
+// Now includes class start time to ensure unique IDs for recurring classes
+function generateNotificationId(classId: string, targetDateIso: string, classStart: string): number {
+  const input = `${classId}|${targetDateIso}|${classStart}`;
   let hash = 0;
   for (let i = 0; i < input.length; i++) {
     hash = (hash * 31 + input.charCodeAt(i)) >>> 0;
@@ -91,6 +92,11 @@ export class NotificationService {
     }
 
     try {
+      // Normalize scheduleType to handle both "oddeven" and "odd-even"
+      if (scheduleType === 'oddeven') {
+        scheduleType = 'odd-even';
+      }
+      
       const hasPermission = await this.checkPermissions();
       if (!hasPermission) {
         console.log('[Notifications] No notification permission');
@@ -112,9 +118,12 @@ export class NotificationService {
       };
 
       const now = new Date();
-      console.log('[Notifications] Starting scheduling for next', this.scheduleWindowDays, 'days');
-      console.log('[Notifications] Schedule type:', scheduleType);
-      console.log('[Notifications] Notification minutes before:', notificationMinutes);
+      console.log('[Notifications] ===== SCHEDULING START =====');
+      console.log('[Notifications] Current time:', now.toISOString());
+      console.log('[Notifications] Schedule window:', this.scheduleWindowDays, 'days');
+      console.log('[Notifications] Schedule type (normalized):', scheduleType);
+      console.log('[Notifications] Notification minutes before class:', notificationMinutes);
+      console.log('[Notifications] Total pending before scheduling:', pendingMap.size);
 
       // Schedule notifications for the next N days (not weeks)
       for (let dayOffset = 0; dayOffset < this.scheduleWindowDays; dayOffset++) {
@@ -191,8 +200,8 @@ export class NotificationService {
             return;
           }
 
-          // Generate stable notification ID using hash of classId and date
-          const notificationId = generateNotificationId(classItem.id, targetDateIso);
+          // Generate stable notification ID using hash of classId, date, and start time
+          const notificationId = generateNotificationId(classItem.id, targetDateIso, classItem.start);
           toScheduleIds.add(notificationId);
           
           notifications.push({
@@ -212,37 +221,41 @@ export class NotificationService {
         });
       }
 
-      // Only cancel notifications that are being replaced (targeted cancellation)
-      const idsToCancel = Array.from(pendingMap).filter(id => toScheduleIds.has(id));
+      // Smart cancellation: Cancel outdated notifications (pending but NOT in new schedule)
+      const idsToCancel = Array.from(pendingMap).filter(id => !toScheduleIds.has(id));
       
-      console.log('[Notifications] Total pending before:', pendingMap.size);
-      console.log('[Notifications] Will cancel IDs:', idsToCancel);
-      console.log('[Notifications] Will schedule:', notifications.length, 'notifications');
+      console.log('[Notifications] Analysis:');
+      console.log('[Notifications]   • Pending notifications:', pendingMap.size);
+      console.log('[Notifications]   • New notifications to schedule:', notifications.length);
+      console.log('[Notifications]   • Outdated to cancel:', idsToCancel.length);
       
       if (idsToCancel.length > 0) {
         await LocalNotifications.cancel({
           notifications: idsToCancel.map(id => ({ id }))
         });
-        console.log('[Notifications] Cancelled', idsToCancel.length, 'existing notifications');
+        console.log('[Notifications] 🚫 Cancelled', idsToCancel.length, 'outdated notifications');
       }
 
       if (notifications.length > 0) {
         // iOS has a limit of 64 notifications, so we take the first 64
         const notificationsToSchedule = notifications.slice(0, 64);
         
-        // Log each notification for debugging
-        notificationsToSchedule.forEach(n => {
-          console.log('[Notifications] Schedule ID:', n.id, 'at', n.schedule.at, '|', n.title);
+        if (notifications.length > 64) {
+          console.warn('[Notifications] ⚠️ iOS 64-notification limit reached! Truncating from', notifications.length, 'to 64');
+        }
+        
+        // Enhanced logging: show each notification being scheduled
+        console.log('[Notifications] Scheduling', notificationsToSchedule.length, 'notifications:');
+        notificationsToSchedule.forEach((n, idx) => {
+          console.log(`[Notifications]   ${idx + 1}. ID:${n.id} | ${n.schedule.at.toISOString()} | ${n.title}`);
         });
         
         await LocalNotifications.schedule({ notifications: notificationsToSchedule });
         console.log('[Notifications] ✅ Successfully scheduled', notificationsToSchedule.length, 'notifications');
-        
-        if (notifications.length > 64) {
-          console.warn('[Notifications] ⚠️ Truncated to 64 notifications (iOS limit)');
-        }
+        console.log('[Notifications] ===== SCHEDULING COMPLETE =====');
       } else {
-        console.log('[Notifications] No notifications to schedule');
+        console.log('[Notifications] ⚠️ No notifications to schedule');
+        console.log('[Notifications] ===== SCHEDULING COMPLETE (EMPTY) =====');
       }
     } catch (error) {
       console.error('[Notifications] Error scheduling notifications:', error);

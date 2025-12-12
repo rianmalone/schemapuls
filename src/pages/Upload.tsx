@@ -139,6 +139,9 @@ const Upload = () => {
     
     try {
       const scheduleId = Date.now().toString();
+      let savedOddSchedule: any = null;
+      let savedEvenSchedule: any = null;
+      let savedWeeklySchedule: any = null;
       
       if (scheduleType === "oddeven") {
         // Process both odd and even schedules
@@ -156,13 +159,13 @@ const Upload = () => {
         if (evenError) throw new Error(evenError.message || 'Kunde inte ansluta till servern');
         if (evenData?.error) throw new Error(evenData.message || 'Kunde inte analysera jämna veckan');
         
-        localStorage.setItem(`scheduleOdd_${scheduleId}`, JSON.stringify(oddData.schedule));
-        localStorage.setItem(`scheduleEven_${scheduleId}`, JSON.stringify(evenData.schedule));
-        localStorage.setItem("scheduleOdd", JSON.stringify(oddData.schedule));
-        localStorage.setItem("scheduleEven", JSON.stringify(evenData.schedule));
-        localStorage.setItem("schedule", JSON.stringify(oddData.schedule)); // Default to odd
+        savedOddSchedule = oddData.schedule;
+        savedEvenSchedule = evenData.schedule;
+        
+        localStorage.setItem(`scheduleOdd_${scheduleId}`, JSON.stringify(savedOddSchedule));
+        localStorage.setItem(`scheduleEven_${scheduleId}`, JSON.stringify(savedEvenSchedule));
         localStorage.setItem("activeScheduleId", scheduleId);
-        localStorage.setItem("scheduleType", "odd-even");
+        localStorage.setItem("scheduleType", "oddeven");
       } else {
         // Process single schedule
         const { data, error } = await supabase.functions.invoke('analyze-schedule', {
@@ -178,8 +181,9 @@ const Upload = () => {
           throw new Error(data.message || 'Kunde inte analysera schemat');
         }
         
-        localStorage.setItem(`schedule_${scheduleId}`, JSON.stringify(data.schedule));
-        localStorage.setItem("schedule", JSON.stringify(data.schedule));
+        savedWeeklySchedule = data.schedule;
+        
+        localStorage.setItem(`schedule_${scheduleId}`, JSON.stringify(savedWeeklySchedule));
         localStorage.setItem("activeScheduleId", scheduleId);
         localStorage.setItem("scheduleType", "weekly");
       }
@@ -198,18 +202,54 @@ const Upload = () => {
         description: "Ditt schema har analyserats med AI",
       });
 
-      // Schedule notifications if permission is granted
-      const hasPermission = await notificationService.checkPermissions();
+      // Schedule notifications if permission is granted - use saved data directly
+      const hasPermission = await notificationService.requestPermissions();
       if (hasPermission) {
-        const schedule = JSON.parse(localStorage.getItem("schedule") || "{}");
-        const enabledClasses = JSON.parse(localStorage.getItem("enabledClasses") || "{}");
-        const enabledDays = JSON.parse(localStorage.getItem("enabledDays") || "{}");
+        let scheduleData;
+        
+        if (scheduleType === "oddeven") {
+          // Use odd week schedule for notifications by default
+          // The notification service will handle week parity internally
+          scheduleData = savedOddSchedule;
+        } else {
+          scheduleData = savedWeeklySchedule;
+        }
+        
+        // Initialize all classes as enabled
+        const allEnabledClasses: Record<string, boolean> = {};
+        Object.values(scheduleData).forEach((dayClasses: any) => {
+          if (Array.isArray(dayClasses)) {
+            dayClasses.forEach((classItem: any) => {
+              if (classItem && classItem.id) {
+                allEnabledClasses[classItem.id] = true;
+              }
+            });
+          }
+        });
+        
+        const allEnabledDays = {
+          monday: true,
+          tuesday: true,
+          wednesday: true,
+          thursday: true,
+          friday: true,
+        };
+        
+        // Save enabled classes/days to per-schedule keys only
+        if (scheduleType === "oddeven") {
+          localStorage.setItem(`enabledClassesOdd_${scheduleId}`, JSON.stringify(allEnabledClasses));
+          localStorage.setItem(`enabledClassesEven_${scheduleId}`, JSON.stringify(allEnabledClasses));
+        } else {
+          localStorage.setItem(`enabledClasses_${scheduleId}`, JSON.stringify(allEnabledClasses));
+        }
+        localStorage.setItem(`enabledDays_${scheduleId}`, JSON.stringify(allEnabledDays));
+        
         const notificationMinutes = parseInt(localStorage.getItem("globalNotificationMinutes") || "5");
         
         await notificationService.scheduleNotifications(
-          schedule,
-          enabledClasses,
-          enabledDays,
+          scheduleData,
+          allEnabledClasses,
+          allEnabledDays,
           notificationMinutes,
           scheduleType
         );

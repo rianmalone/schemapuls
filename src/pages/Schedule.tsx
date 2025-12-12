@@ -185,77 +185,89 @@ const Schedule = () => {
         return weekNumber % 2 === 0 ? 'even' : 'odd';
       };
 
+      const viewingId = localStorage.getItem("activeScheduleId");
+      
       if (type === "oddeven") {
-        const savedOdd = localStorage.getItem("scheduleOdd");
-        const savedEven = localStorage.getItem("scheduleEven");
+        if (!viewingId) {
+          navigate("/");
+          return;
+        }
+        
+        const savedOdd = localStorage.getItem(`scheduleOdd_${viewingId}`);
+        const savedEven = localStorage.getItem(`scheduleEven_${viewingId}`);
         
         console.log('Checking for oddeven schedules, odd:', !!savedOdd, 'even:', !!savedEven);
         
-        if (savedOdd && savedEven) {
-          const parsedOdd = sortSchedule(JSON.parse(savedOdd));
-          const parsedEven = sortSchedule(JSON.parse(savedEven));
-          setScheduleOdd(parsedOdd);
-          setScheduleEven(parsedEven);
-          
-          // Automatically set to current week
-          const currentWeek = getCurrentWeekType();
-          setWeekType(currentWeek);
-          localStorage.setItem("currentWeekType", currentWeek);
-          setSchedule(currentWeek === 'odd' ? parsedOdd : parsedEven);
-          
-          // Initialize classes for odd schedule
-          const allClassesOdd: Record<string, boolean> = {};
-          Object.values(parsedOdd).forEach((dayClasses: Class[]) => {
-            dayClasses.forEach((classItem) => {
-              allClassesOdd[classItem.id] = true;
-            });
-          });
-          
-          // Initialize classes for even schedule
-          const allClassesEven: Record<string, boolean> = {};
-          Object.values(parsedEven).forEach((dayClasses: Class[]) => {
-            dayClasses.forEach((classItem) => {
-              allClassesEven[classItem.id] = true;
-            });
-          });
-          
-          // Load saved enabled state or use all classes enabled as default
-          const savedEnabledOdd = localStorage.getItem("enabledClassesOdd");
-          const savedEnabledEven = localStorage.getItem("enabledClassesEven");
-          
-          const finalEnabledOdd = savedEnabledOdd ? JSON.parse(savedEnabledOdd) : allClassesOdd;
-          const finalEnabledEven = savedEnabledEven ? JSON.parse(savedEnabledEven) : allClassesEven;
-          
-          setEnabledClassesOdd(finalEnabledOdd);
-          setEnabledClassesEven(finalEnabledEven);
-          setEnabledClasses(currentWeek === 'odd' ? finalEnabledOdd : finalEnabledEven);
-        } else {
+        if (!savedOdd || !savedEven) {
           navigate("/");
           return;
         }
+        
+        const parsedOdd = sortSchedule(JSON.parse(savedOdd));
+        const parsedEven = sortSchedule(JSON.parse(savedEven));
+        setScheduleOdd(parsedOdd);
+        setScheduleEven(parsedEven);
+        
+        // Automatically set to current week
+        const currentWeek = getCurrentWeekType();
+        setWeekType(currentWeek);
+        localStorage.setItem("currentWeekType", currentWeek);
+        setSchedule(currentWeek === 'odd' ? parsedOdd : parsedEven);
+        
+        // Initialize classes for odd schedule
+        const allClassesOdd: Record<string, boolean> = {};
+        Object.values(parsedOdd).forEach((dayClasses: Class[]) => {
+          dayClasses.forEach((classItem) => {
+            allClassesOdd[classItem.id] = true;
+          });
+        });
+        
+        // Initialize classes for even schedule
+        const allClassesEven: Record<string, boolean> = {};
+        Object.values(parsedEven).forEach((dayClasses: Class[]) => {
+          dayClasses.forEach((classItem) => {
+            allClassesEven[classItem.id] = true;
+          });
+        });
+        
+        // Load saved enabled state from per-schedule keys or use all classes enabled as default
+        const savedEnabledOdd = localStorage.getItem(`enabledClassesOdd_${viewingId}`);
+        const savedEnabledEven = localStorage.getItem(`enabledClassesEven_${viewingId}`);
+        
+        const finalEnabledOdd = savedEnabledOdd ? JSON.parse(savedEnabledOdd) : allClassesOdd;
+        const finalEnabledEven = savedEnabledEven ? JSON.parse(savedEnabledEven) : allClassesEven;
+        
+        setEnabledClassesOdd(finalEnabledOdd);
+        setEnabledClassesEven(finalEnabledEven);
+        setEnabledClasses(currentWeek === 'odd' ? finalEnabledOdd : finalEnabledEven);
       } else {
-        const savedSchedule = localStorage.getItem("schedule");
-        if (savedSchedule) {
-          const parsedSchedule = sortSchedule(JSON.parse(savedSchedule));
-          setSchedule(parsedSchedule);
-          
-          // Initialize all classes as enabled by default
-          const allClasses: Record<string, boolean> = {};
-          Object.values(parsedSchedule).forEach((dayClasses: Class[]) => {
-            dayClasses.forEach((classItem) => {
-              allClasses[classItem.id] = true;
-            });
-          });
-          
-          // Load saved enabled state or use all classes enabled as default
-          const savedEnabledClasses = localStorage.getItem("enabledClasses");
-          const finalEnabledClasses = savedEnabledClasses ? JSON.parse(savedEnabledClasses) : allClasses;
-          
-          setEnabledClasses(finalEnabledClasses);
-        } else {
+        if (!viewingId) {
           navigate("/");
           return;
         }
+        
+        const savedSchedule = localStorage.getItem(`schedule_${viewingId}`);
+        if (!savedSchedule) {
+          navigate("/");
+          return;
+        }
+        
+        const parsedSchedule = sortSchedule(JSON.parse(savedSchedule));
+        setSchedule(parsedSchedule);
+        
+        // Initialize all classes as enabled by default
+        const allClasses: Record<string, boolean> = {};
+        Object.values(parsedSchedule).forEach((dayClasses: Class[]) => {
+          dayClasses.forEach((classItem) => {
+            allClasses[classItem.id] = true;
+          });
+        });
+        
+        // Load saved enabled state from per-schedule key or use all classes enabled as default
+        const savedEnabledClasses = localStorage.getItem(`enabledClasses_${viewingId}`);
+        const finalEnabledClasses = savedEnabledClasses ? JSON.parse(savedEnabledClasses) : allClasses;
+        
+        setEnabledClasses(finalEnabledClasses);
       }
 
       const savedMinutes = localStorage.getItem("globalNotificationMinutes");
@@ -265,9 +277,21 @@ const Schedule = () => {
         setNotificationSliderValue(minutes);
       }
 
-      const savedEnabledDays = localStorage.getItem("enabledDays");
+      const viewingIdForDays = localStorage.getItem("activeScheduleId");
+      const savedEnabledDays = viewingIdForDays 
+        ? localStorage.getItem(`enabledDays_${viewingIdForDays}`)
+        : null;
       if (savedEnabledDays) {
         setEnabledDays(JSON.parse(savedEnabledDays));
+      } else {
+        // Default all days enabled
+        setEnabledDays({
+          monday: true,
+          tuesday: true,
+          wednesday: true,
+          thursday: true,
+          friday: true,
+        });
       }
 
       // Check notification permissions
@@ -317,7 +341,10 @@ const Schedule = () => {
   const handleDayToggle = async (day: string) => {
     const updated = { ...enabledDays, [day]: !enabledDays[day] };
     setEnabledDays(updated);
-    localStorage.setItem("enabledDays", JSON.stringify(updated));
+    const activeId = localStorage.getItem("activeScheduleId");
+    if (activeId) {
+      localStorage.setItem(`enabledDays_${activeId}`, JSON.stringify(updated));
+    }
     
     // Reschedule notifications
     if (schedule && hasNotificationPermission) {
@@ -342,7 +369,10 @@ const Schedule = () => {
       friday: !allChecked,
     };
     setEnabledDays(updated);
-    localStorage.setItem("enabledDays", JSON.stringify(updated));
+    const activeId = localStorage.getItem("activeScheduleId");
+    if (activeId) {
+      localStorage.setItem(`enabledDays_${activeId}`, JSON.stringify(updated));
+    }
     
     // Reschedule notifications
     if (schedule && hasNotificationPermission) {
@@ -362,16 +392,17 @@ const Schedule = () => {
     setEnabledClasses(updated);
     
     // Save to the correct storage based on current week type
+    const activeId = localStorage.getItem("activeScheduleId");
     if (scheduleType === "oddeven") {
       if (weekType === 'odd') {
         setEnabledClassesOdd(updated);
-        localStorage.setItem("enabledClassesOdd", JSON.stringify(updated));
+        if (activeId) localStorage.setItem(`enabledClassesOdd_${activeId}`, JSON.stringify(updated));
       } else {
         setEnabledClassesEven(updated);
-        localStorage.setItem("enabledClassesEven", JSON.stringify(updated));
+        if (activeId) localStorage.setItem(`enabledClassesEven_${activeId}`, JSON.stringify(updated));
       }
     } else {
-      localStorage.setItem("enabledClasses", JSON.stringify(updated));
+      if (activeId) localStorage.setItem(`enabledClasses_${activeId}`, JSON.stringify(updated));
     }
     
     // Reschedule notifications
@@ -487,24 +518,21 @@ const Schedule = () => {
       [newClass.day]: updatedDayClasses
     };
 
-    // Update the appropriate schedule
+    // Update the appropriate schedule - only save to per-schedule keys
     const activeScheduleId = localStorage.getItem("activeScheduleId");
     if (scheduleType === "oddeven") {
       if (weekType === 'odd') {
         setScheduleOdd(updatedSchedule);
-        localStorage.setItem("scheduleOdd", JSON.stringify(updatedSchedule));
         if (activeScheduleId) {
           localStorage.setItem(`scheduleOdd_${activeScheduleId}`, JSON.stringify(updatedSchedule));
         }
       } else {
         setScheduleEven(updatedSchedule);
-        localStorage.setItem("scheduleEven", JSON.stringify(updatedSchedule));
         if (activeScheduleId) {
           localStorage.setItem(`scheduleEven_${activeScheduleId}`, JSON.stringify(updatedSchedule));
         }
       }
     } else {
-      localStorage.setItem("schedule", JSON.stringify(updatedSchedule));
       if (activeScheduleId) {
         localStorage.setItem(`schedule_${activeScheduleId}`, JSON.stringify(updatedSchedule));
       }
@@ -512,20 +540,20 @@ const Schedule = () => {
 
     setSchedule(updatedSchedule);
 
-    // Enable the new class for notifications by default
+    // Enable the new class for notifications by default - only save to per-schedule keys
     const updatedEnabledClasses = { ...enabledClasses, [newClassItem.id]: true };
     setEnabledClasses(updatedEnabledClasses);
     
     if (scheduleType === "oddeven") {
       if (weekType === 'odd') {
         setEnabledClassesOdd(updatedEnabledClasses);
-        localStorage.setItem("enabledClassesOdd", JSON.stringify(updatedEnabledClasses));
+        if (activeScheduleId) localStorage.setItem(`enabledClassesOdd_${activeScheduleId}`, JSON.stringify(updatedEnabledClasses));
       } else {
         setEnabledClassesEven(updatedEnabledClasses);
-        localStorage.setItem("enabledClassesEven", JSON.stringify(updatedEnabledClasses));
+        if (activeScheduleId) localStorage.setItem(`enabledClassesEven_${activeScheduleId}`, JSON.stringify(updatedEnabledClasses));
       }
     } else {
-      localStorage.setItem("enabledClasses", JSON.stringify(updatedEnabledClasses));
+      if (activeScheduleId) localStorage.setItem(`enabledClasses_${activeScheduleId}`, JSON.stringify(updatedEnabledClasses));
     }
 
     // Reset form and close dialog
@@ -563,7 +591,7 @@ const Schedule = () => {
     
     if (nameLower.includes('mat') || nameLower.includes('math')) return "bg-schedule-math";
     if (nameLower.includes('sven') || nameLower.includes('svensk')) return "bg-schedule-history";
-    if (nameLower.includes('eng')) return "bg-schedule-art";
+    if (nameLower.includes('eng')) return "bg-schedule-english";
     if (nameLower.includes('lunch')) return "bg-schedule-pe";
     if (nameLower.includes('prog') || nameLower.includes('tek')) return "bg-schedule-science";
     if (nameLower.includes('fys') || nameLower.includes('kemi')) return "bg-schedule-science";
@@ -571,6 +599,47 @@ const Schedule = () => {
     if (nameLower.includes('kons')) return "bg-schedule-science";
     
     return "bg-primary";
+  };
+
+  // Map AI color strings (like "math", "art", "history") to CSS classes
+  const getColorClassFromColor = (color: string) => {
+    if (!color) return "bg-primary";
+    
+    // If it's a hex color (starts with #), return empty to use backgroundColor style
+    if (color.startsWith('#')) return "";
+    
+    const colorMap: Record<string, string> = {
+      math: "bg-schedule-math",
+      english: "bg-schedule-english",
+      science: "bg-schedule-science",
+      history: "bg-schedule-history",
+      pe: "bg-schedule-pe",
+      art: "bg-schedule-art",
+    };
+    return colorMap[color.toLowerCase()] || "bg-primary";
+  };
+
+  // Determine whether to use CSS class or inline style for colors
+  const getClassColorStyle = (classItem: Class) => {
+    // If color is a hex value, use it as backgroundColor
+    if (classItem.color && classItem.color.startsWith('#')) {
+      return { backgroundColor: classItem.color };
+    }
+    // Otherwise, color comes from CSS class
+    return {};
+  };
+
+  const getClassColorClassName = (classItem: Class) => {
+    // If color is a hex value, don't add a color class
+    if (classItem.color && classItem.color.startsWith('#')) {
+      return "";
+    }
+    // If color is a string like "math", "art", etc., map to CSS class
+    if (classItem.color) {
+      return getColorClassFromColor(classItem.color);
+    }
+    // Fallback to name-based coloring
+    return getColorClass(classItem.name);
   };
 
   const calculateHeight = (start: string, end: string) => {
@@ -790,16 +859,14 @@ const Schedule = () => {
                       <Fragment key={classItem.id}>
                         <button
                           onClick={() => navigate(`/edit-class/${classItem.id}`)}
-                          className={`w-full p-2 rounded-lg ${getColorClass(
-                            classItem.name
-                          )} text-white text-left transition-all duration-300 active:scale-95 ${
+                          className={`w-full p-2 rounded-lg ${getClassColorClassName(classItem)} text-white text-left transition-all duration-300 active:scale-95 ${
                             !enabledClasses[classItem.id] ? 'opacity-50' : 'opacity-100'
                           } ${
                             isClassActive(classItem, day.key) ? 'ring-2 ring-primary ring-offset-2 ring-offset-background shadow-lg' : ''
                           }`}
                           style={{
                             minHeight: `${Math.max(calculateHeight(classItem.start, classItem.end) * 0.6, 100)}px`,
-                            backgroundColor: classItem.color || undefined,
+                            ...getClassColorStyle(classItem),
                           }}
                         >
                           <div className="flex flex-col items-start justify-center py-1">
@@ -856,9 +923,7 @@ const Schedule = () => {
                 <Fragment key={classItem.id}>
                   <button
                     onClick={() => navigate(`/edit-class/${classItem.id}`)}
-                    className={`w-full p-3 rounded-xl ${getColorClass(
-                      classItem.name
-                    )} text-white shadow-sm transition-all duration-300 active:scale-95 text-left border-l-4 border-white/30 ${
+                    className={`w-full p-3 rounded-xl ${getClassColorClassName(classItem)} text-white shadow-sm transition-all duration-300 active:scale-95 text-left border-l-4 border-white/30 ${
                       !enabledClasses[classItem.id] ? 'opacity-50' : 'opacity-100'
                     } ${
                       isClassActive(classItem, selectedDay) ? 'ring-4 ring-primary ring-offset-4 ring-offset-background shadow-lg' : ''
@@ -866,7 +931,7 @@ const Schedule = () => {
                     style={{
                       height: `${calculateHeight(classItem.start, classItem.end)}px`,
                       minHeight: "80px",
-                      backgroundColor: classItem.color || undefined,
+                      ...getClassColorStyle(classItem),
                     }}
                   >
                     <div className="flex items-start justify-between h-full">

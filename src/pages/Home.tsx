@@ -42,8 +42,9 @@ const Home = () => {
   };
 
   const getActiveWeekTypes = (scheduleId: string): string[] => {
-    const enabledOdd = localStorage.getItem("enabledClassesOdd");
-    const enabledEven = localStorage.getItem("enabledClassesEven");
+    // Read from per-schedule keys only
+    const enabledOdd = localStorage.getItem(`enabledClassesOdd_${scheduleId}`);
+    const enabledEven = localStorage.getItem(`enabledClassesEven_${scheduleId}`);
     const activeTypes: string[] = [];
 
     if (enabledOdd) {
@@ -137,7 +138,7 @@ const Home = () => {
     
     console.log('Selected schedule:', selectedSchedule);
 
-    // Load this schedule's data from localStorage
+    // Load this schedule's data from localStorage - only set metadata, not global keys
     if (selectedSchedule.type === "oddeven") {
       const scheduleOdd = localStorage.getItem(`scheduleOdd_${id}`);
       const scheduleEven = localStorage.getItem(`scheduleEven_${id}`);
@@ -145,11 +146,10 @@ const Home = () => {
       console.log('Loading oddeven schedule, odd:', !!scheduleOdd, 'even:', !!scheduleEven);
       
       if (scheduleOdd && scheduleEven) {
-        localStorage.setItem("schedule", scheduleOdd);
-        localStorage.setItem("scheduleOdd", scheduleOdd);
-        localStorage.setItem("scheduleEven", scheduleEven);
+        // Only set metadata keys, NOT global data keys
         localStorage.setItem("scheduleType", "oddeven");
-        console.log('Set oddeven data, navigating to /schedule');
+        localStorage.setItem("activeScheduleId", id);
+        console.log('Set oddeven metadata, navigating to /schedule');
         navigate("/schedule");
       } else {
         console.log('Missing oddeven schedule data for id:', id);
@@ -160,9 +160,10 @@ const Home = () => {
       console.log('Loading weekly schedule, exists:', !!schedule);
       
       if (schedule) {
-        localStorage.setItem("schedule", schedule);
+        // Only set metadata keys, NOT global data keys
         localStorage.setItem("scheduleType", "weekly");
-        console.log('Set weekly data, navigating to /schedule');
+        localStorage.setItem("activeScheduleId", id);
+        console.log('Set weekly metadata, navigating to /schedule');
         navigate("/schedule");
       } else {
         console.log('Missing weekly schedule data for id:', id);

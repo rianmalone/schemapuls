@@ -6,10 +6,11 @@ import { Input } from "@/components/ui/input";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
 import { notificationService } from "@/services/notificationService";
 import { useToast } from "@/hooks/use-toast";
+
 interface SavedSchedule {
   id: string;
   name: string;
-  type: "weekly" | "oddeven";
+  type: "weekly";
   createdAt: string;
 }
 
@@ -43,29 +44,6 @@ const Home = () => {
     return { weekNumber, dayName, date };
   };
 
-  const getActiveWeekTypes = (scheduleId: string): string[] => {
-    // Read from per-schedule keys only
-    const enabledOdd = localStorage.getItem(`enabledClassesOdd_${scheduleId}`);
-    const enabledEven = localStorage.getItem(`enabledClassesEven_${scheduleId}`);
-    const activeTypes: string[] = [];
-
-    if (enabledOdd) {
-      const parsedOdd = JSON.parse(enabledOdd);
-      if (Object.values(parsedOdd).some(enabled => enabled === true)) {
-        activeTypes.push("Udda");
-      }
-    }
-
-    if (enabledEven) {
-      const parsedEven = JSON.parse(enabledEven);
-      if (Object.values(parsedEven).some(enabled => enabled === true)) {
-        activeTypes.push("Jämn");
-      }
-    }
-
-    return activeTypes;
-  };
-
   const loadSchedules = () => {
     const saved = localStorage.getItem("savedSchedules");
     console.log('Loading schedules from localStorage');
@@ -77,21 +55,11 @@ const Home = () => {
         
         // Filter out schedules that have no data
         const validSchedules = parsed.filter((schedule: SavedSchedule) => {
-          if (schedule.type === "oddeven") {
-            const hasOdd = localStorage.getItem(`scheduleOdd_${schedule.id}`);
-            const hasEven = localStorage.getItem(`scheduleEven_${schedule.id}`);
-            const isValid = hasOdd && hasEven;
-            if (!isValid) {
-              console.log(`Schedule ${schedule.name} (${schedule.id}) is missing data`);
-            }
-            return isValid;
-          } else {
-            const hasData = !!localStorage.getItem(`schedule_${schedule.id}`);
-            if (!hasData) {
-              console.log(`Schedule ${schedule.name} (${schedule.id}) is missing data`);
-            }
-            return hasData;
+          const hasData = !!localStorage.getItem(`schedule_${schedule.id}`);
+          if (!hasData) {
+            console.log(`Schedule ${schedule.name} (${schedule.id}) is missing data`);
           }
+          return hasData;
         });
         
         // If we filtered out broken schedules, update localStorage
@@ -131,7 +99,6 @@ const Home = () => {
 
   const handleSelectSchedule = (id: string) => {
     console.log('handleSelectSchedule called with id:', id);
-    // Find the selected schedule
     const selectedSchedule = schedules.find(s => s.id === id);
     if (!selectedSchedule) {
       console.log('Schedule not found in list');
@@ -140,37 +107,17 @@ const Home = () => {
     
     console.log('Selected schedule:', selectedSchedule);
 
-    // Load this schedule's data from localStorage - only set metadata, NOT activeScheduleId
-    // activeScheduleId should ONLY be set by handleSetActive (the Aktiv button)
-    if (selectedSchedule.type === "oddeven") {
-      const scheduleOdd = localStorage.getItem(`scheduleOdd_${id}`);
-      const scheduleEven = localStorage.getItem(`scheduleEven_${id}`);
-      
-      console.log('Loading oddeven schedule, odd:', !!scheduleOdd, 'even:', !!scheduleEven);
-      
-      if (scheduleOdd && scheduleEven) {
-        // Set viewing ID and schedule type, but NOT activeScheduleId
-        localStorage.setItem("scheduleType", "oddeven");
-        localStorage.setItem("currentlyViewingScheduleId", id);
-        console.log('Set oddeven viewing metadata, navigating to /schedule');
-        navigate("/schedule");
-      } else {
-        console.log('Missing oddeven schedule data for id:', id);
-      }
+    const schedule = localStorage.getItem(`schedule_${id}`);
+    
+    console.log('Loading weekly schedule, exists:', !!schedule);
+    
+    if (schedule) {
+      localStorage.setItem("scheduleType", "weekly");
+      localStorage.setItem("currentlyViewingScheduleId", id);
+      console.log('Set weekly viewing metadata, navigating to /schedule');
+      navigate("/schedule");
     } else {
-      const schedule = localStorage.getItem(`schedule_${id}`);
-      
-      console.log('Loading weekly schedule, exists:', !!schedule);
-      
-      if (schedule) {
-        // Set viewing ID and schedule type, but NOT activeScheduleId
-        localStorage.setItem("scheduleType", "weekly");
-        localStorage.setItem("currentlyViewingScheduleId", id);
-        console.log('Set weekly viewing metadata, navigating to /schedule');
-        navigate("/schedule");
-      } else {
-        console.log('Missing weekly schedule data for id:', id);
-      }
+      console.log('Missing weekly schedule data for id:', id);
     }
   };
 
@@ -206,27 +153,9 @@ const Home = () => {
     localStorage.setItem("activeScheduleId", id);
 
     // Load schedule data
-    let scheduleData: Record<string, any> = {};
-    
-    if (selectedSchedule.type === "oddeven") {
-      // Calculate week number locally (ISO-8601)
-      const now = new Date();
-      const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
-      const dayNum = d.getUTCDay() || 7;
-      d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-      const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-      const weekNumber = Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
-      const activeWeekType = weekNumber % 2 === 0 ? 'even' : 'odd';
-      
-      const key = activeWeekType === 'odd' ? `scheduleOdd_${id}` : `scheduleEven_${id}`;
-      const data = localStorage.getItem(key);
-      scheduleData = data ? JSON.parse(data) : {};
-      console.log('[Home] Loaded oddeven schedule, week:', weekNumber, 'type:', activeWeekType);
-    } else {
-      const data = localStorage.getItem(`schedule_${id}`);
-      scheduleData = data ? JSON.parse(data) : {};
-      console.log('[Home] Loaded weekly schedule');
-    }
+    const data = localStorage.getItem(`schedule_${id}`);
+    const scheduleData = data ? JSON.parse(data) : {};
+    console.log('[Home] Loaded weekly schedule');
 
     // Build enabled classes from schedule data (default all enabled)
     let enabledClasses: Record<string, boolean> = {};
@@ -241,10 +170,7 @@ const Home = () => {
     });
 
     // Try to load saved enabled classes from per-schedule key only (NO global fallback)
-    const perScheduleKey = selectedSchedule.type === "oddeven"
-      ? `enabledClasses_${id}`  // Use generic key for oddeven too
-      : `enabledClasses_${id}`;
-    const savedEnabled = localStorage.getItem(perScheduleKey);
+    const savedEnabled = localStorage.getItem(`enabledClasses_${id}`);
     if (savedEnabled) {
       try {
         const saved = JSON.parse(savedEnabled);
@@ -280,7 +206,7 @@ const Home = () => {
       enabledClasses,
       enabledDays,
       notificationMinutes,
-      selectedSchedule.type
+      "weekly"
     );
 
     toast({
@@ -299,8 +225,6 @@ const Home = () => {
     
     // Also remove the schedule data
     localStorage.removeItem(`schedule_${id}`);
-    localStorage.removeItem(`scheduleOdd_${id}`);
-    localStorage.removeItem(`scheduleEven_${id}`);
     
     if (activeScheduleId === id) {
       setActiveScheduleId(null);
@@ -329,7 +253,7 @@ const Home = () => {
   };
 
   const handleCreateNew = () => {
-    navigate("/schedule-type");
+    navigate("/upload");
   };
 
   return (
@@ -401,17 +325,6 @@ const Home = () => {
                       <p className="text-xs text-muted-foreground">
                         {new Date(schedule.createdAt).toLocaleDateString("sv-SE")}
                       </p>
-                      <div 
-                        className={`overflow-hidden transition-all duration-300 ${
-                          activeScheduleId === schedule.id && schedule.type === "oddeven" && getActiveWeekTypes(schedule.id).length > 0
-                            ? "max-h-20 opacity-100"
-                            : "max-h-0 opacity-0"
-                        }`}
-                      >
-                        <p className="text-xs text-muted-foreground/70">
-                          Aktuell: {getActiveWeekTypes(schedule.id).join(", ").toLowerCase()}
-                        </p>
-                      </div>
                     </div>
                   </button>
                   
@@ -446,31 +359,34 @@ const Home = () => {
                 </div>
               </div>
             ))}
-            <p className="text-xs text-muted-foreground/60 text-center mt-3 mb-2">Max 5 schemor</p>
-          </>
+            </>
           ) : (
-            <div className="text-center py-12 px-6 rounded-2xl bg-card border border-border">
-              <p className="text-muted-foreground mb-4">Inget schema ännu</p>
-              <p className="text-sm text-muted-foreground">
-                Skapa ditt första schema för att komma igång
+            <div className="text-center py-8 px-6 rounded-2xl bg-card border border-border mb-6">
+              <p className="text-muted-foreground text-sm">
+                Du har inga scheman än. Skapa ett nytt schema för att komma igång!
               </p>
             </div>
           )}
         </div>
-
-        <div className="mb-3 mt-4">
-          <Button
-            onClick={handleCreateNew}
-            className="w-full h-14 rounded-2xl shadow-lg transition-all"
-            size="lg"
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            Skapa nytt schema
-          </Button>
-        </div>
-
+        
+        <Button 
+          onClick={handleCreateNew}
+          className="w-full h-14 text-lg rounded-2xl shadow-lg transition-all mt-4"
+          size="lg"
+          disabled={schedules.length >= 5}
+        >
+          <Plus className="w-5 h-5 mr-2" />
+          {schedules.length >= 5 ? "Max 5 scheman" : "Skapa nytt schema"}
+        </Button>
+        
+        {schedules.length >= 5 && (
+          <p className="text-sm text-muted-foreground text-center mt-2">
+            Ta bort ett schema först för att skapa ett nytt
+          </p>
+        )}
+        
         {/* Privacy Policy Link */}
-        <div className="text-center">
+        <div className="mt-6 text-center">
           <a 
             href="https://schemapuls.se/sekretesspolicy" 
             target="_blank" 

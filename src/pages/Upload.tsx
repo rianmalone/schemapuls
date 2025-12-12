@@ -5,15 +5,13 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { notificationService } from "@/services/notificationService";
 import exampleSchedule from "@/assets/example-schedule.png";
-import exampleScheduleEven from "@/assets/example-schedule-even.png";
 import { supabase } from "@/integrations/supabase/client";
 
 const Upload = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
-  const [previewOdd, setPreviewOdd] = useState<string | null>(null);
-  const [previewEven, setPreviewEven] = useState<string | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
 
   const resizeImage = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -101,7 +99,7 @@ const Upload = () => {
 
     try {
       const resizedImage = await resizeImage(file);
-      setPreviewOdd(resizedImage);
+      setPreview(resizedImage);
     } catch (error) {
       console.error('Error resizing image:', error);
       toast({
@@ -113,86 +111,45 @@ const Upload = () => {
   };
 
   const handleProcess = async () => {
-    const scheduleType = localStorage.getItem("scheduleType") || "weekly";
-    
-    if (scheduleType === "oddeven") {
-      if (!previewOdd || !previewEven) {
-        toast({
-          title: "Saknas bilder",
-          description: "Ladda upp både udda och jämna veckor",
-          variant: "destructive",
-        });
-        return;
-      }
-    } else {
-      if (!previewOdd) {
-        toast({
-          title: "Ingen bild",
-          description: "Ladda upp en bild först",
-          variant: "destructive",
-        });
-        return;
-      }
+    if (!preview) {
+      toast({
+        title: "Ingen bild",
+        description: "Ladda upp en bild först",
+        variant: "destructive",
+      });
+      return;
     }
 
     setUploading(true);
     
     try {
       const scheduleId = Date.now().toString();
-      let savedOddSchedule: any = null;
-      let savedEvenSchedule: any = null;
-      let savedWeeklySchedule: any = null;
       
-      if (scheduleType === "oddeven") {
-        // Process both odd and even schedules
-        const { data: oddData, error: oddError } = await supabase.functions.invoke('analyze-schedule', {
-          body: { imageBase64: previewOdd }
-        });
+      // Process single schedule
+      const { data, error } = await supabase.functions.invoke('analyze-schedule', {
+        body: { imageBase64: preview }
+      });
 
-        if (oddError) throw new Error(oddError.message || 'Kunde inte ansluta till servern');
-        if (oddData?.error) throw new Error(oddData.message || 'Kunde inte analysera udda veckan');
-
-        const { data: evenData, error: evenError } = await supabase.functions.invoke('analyze-schedule', {
-          body: { imageBase64: previewEven }
-        });
-
-        if (evenError) throw new Error(evenError.message || 'Kunde inte ansluta till servern');
-        if (evenData?.error) throw new Error(evenData.message || 'Kunde inte analysera jämna veckan');
-        
-        savedOddSchedule = oddData.schedule;
-        savedEvenSchedule = evenData.schedule;
-        
-        localStorage.setItem(`scheduleOdd_${scheduleId}`, JSON.stringify(savedOddSchedule));
-        localStorage.setItem(`scheduleEven_${scheduleId}`, JSON.stringify(savedEvenSchedule));
-        localStorage.setItem("activeScheduleId", scheduleId);
-        localStorage.setItem("scheduleType", "oddeven");
-      } else {
-        // Process single schedule
-        const { data, error } = await supabase.functions.invoke('analyze-schedule', {
-          body: { imageBase64: previewOdd }
-        });
-
-        if (error) {
-          console.error('Error:', error);
-          throw new Error(error.message || 'Kunde inte ansluta till servern');
-        }
-
-        if (data?.error) {
-          throw new Error(data.message || 'Kunde inte analysera schemat');
-        }
-        
-        savedWeeklySchedule = data.schedule;
-        
-        localStorage.setItem(`schedule_${scheduleId}`, JSON.stringify(savedWeeklySchedule));
-        localStorage.setItem("activeScheduleId", scheduleId);
-        localStorage.setItem("scheduleType", "weekly");
+      if (error) {
+        console.error('Error:', error);
+        throw new Error(error.message || 'Kunde inte ansluta till servern');
       }
+
+      if (data?.error) {
+        throw new Error(data.message || 'Kunde inte analysera schemat');
+      }
+      
+      const savedSchedule = data.schedule;
+      
+      localStorage.setItem(`schedule_${scheduleId}`, JSON.stringify(savedSchedule));
+      localStorage.setItem("activeScheduleId", scheduleId);
+      localStorage.setItem("scheduleType", "weekly");
       
       const savedSchedules = JSON.parse(localStorage.getItem("savedSchedules") || "[]");
       savedSchedules.push({
         id: scheduleId,
         name: `Schema ${savedSchedules.length + 1}`,
-        type: scheduleType,
+        type: "weekly",
         createdAt: new Date().toISOString(),
       });
       localStorage.setItem("savedSchedules", JSON.stringify(savedSchedules));
@@ -202,22 +159,12 @@ const Upload = () => {
         description: "Ditt schema har analyserats med AI",
       });
 
-      // Schedule notifications if permission is granted - use saved data directly
+      // Schedule notifications if permission is granted
       const hasPermission = await notificationService.requestPermissions();
       if (hasPermission) {
-        let scheduleData;
-        
-        if (scheduleType === "oddeven") {
-          // Use odd week schedule for notifications by default
-          // The notification service will handle week parity internally
-          scheduleData = savedOddSchedule;
-        } else {
-          scheduleData = savedWeeklySchedule;
-        }
-        
         // Initialize all classes as enabled
         const allEnabledClasses: Record<string, boolean> = {};
-        Object.values(scheduleData).forEach((dayClasses: any) => {
+        Object.values(savedSchedule).forEach((dayClasses: any) => {
           if (Array.isArray(dayClasses)) {
             dayClasses.forEach((classItem: any) => {
               if (classItem && classItem.id) {
@@ -236,33 +183,26 @@ const Upload = () => {
         };
         
         // Save enabled classes/days to per-schedule keys only
-        if (scheduleType === "oddeven") {
-          localStorage.setItem(`enabledClassesOdd_${scheduleId}`, JSON.stringify(allEnabledClasses));
-          localStorage.setItem(`enabledClassesEven_${scheduleId}`, JSON.stringify(allEnabledClasses));
-        } else {
-          localStorage.setItem(`enabledClasses_${scheduleId}`, JSON.stringify(allEnabledClasses));
-        }
+        localStorage.setItem(`enabledClasses_${scheduleId}`, JSON.stringify(allEnabledClasses));
         localStorage.setItem(`enabledDays_${scheduleId}`, JSON.stringify(allEnabledDays));
         
         const notificationMinutes = parseInt(localStorage.getItem("globalNotificationMinutes") || "5");
         
         await notificationService.scheduleNotifications(
-          scheduleData,
+          savedSchedule,
           allEnabledClasses,
           allEnabledDays,
           notificationMinutes,
-          scheduleType
+          "weekly"
         );
       }
       
       navigate("/schedule");
     } catch (error) {
       console.error('Error analyzing schedule:', error);
-      const errorMessage = error instanceof Error ? error.message : "Kunde inte analysera schemat. Försök igen och se till att hela schemat syns tydligt i bilden.";
       
-      // Clear preview images so user can upload new ones
-      setPreviewOdd(null);
-      setPreviewEven(null);
+      // Clear preview image so user can upload new ones
+      setPreview(null);
       
       // Reset file inputs
       const fileInputs = document.querySelectorAll('input[type="file"]');
@@ -311,204 +251,61 @@ const Upload = () => {
                 <li>Undvik reflektioner, skuggor och blockerade delar</li>
               </ul>
               
-              {localStorage.getItem("scheduleType") === "oddeven" ? (
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                  <div className="p-3 bg-card rounded-xl border border-border">
-                    <p className="text-xs font-medium text-foreground mb-2 text-center">Exempel på udda vecka:</p>
-                    <img 
-                      src={exampleSchedule} 
-                      alt="Exempel på ett tydligt schema för udda vecka" 
-                      className="w-full rounded-lg border border-border"
-                    />
-                  </div>
-                  <div className="p-3 bg-card rounded-xl border border-border">
-                    <p className="text-xs font-medium text-foreground mb-2 text-center">Exempel på jämn vecka:</p>
-                    <img 
-                      src={exampleScheduleEven} 
-                      alt="Exempel på ett tydligt schema för jämn vecka" 
-                      className="w-full rounded-lg border border-border"
-                    />
-                  </div>
-                </div>
-              ) : (
-                <div className="mt-4 p-3 bg-card rounded-xl border border-border">
-                  <p className="text-xs font-medium text-foreground mb-2">Exempel på ett bra schema:</p>
-                  <img 
-                    src={exampleSchedule} 
-                    alt="Exempel på ett tydligt schema" 
-                    className="w-full rounded-lg border border-border"
-                  />
-                  <p className="text-xs text-muted-foreground mt-2 text-center">
-                    ↑ Så här ska schemat se ut för bästa resultat
-                  </p>
-                </div>
-              )}
+              <div className="mt-4 p-3 bg-card rounded-xl border border-border">
+                <p className="text-xs font-medium text-foreground mb-2">Exempel på ett bra schema:</p>
+                <img 
+                  src={exampleSchedule} 
+                  alt="Exempel på ett tydligt schema" 
+                  className="w-full rounded-lg border border-border"
+                />
+                <p className="text-xs text-muted-foreground mt-2 text-center">
+                  ↑ Så här ska schemat se ut för bästa resultat
+                </p>
+              </div>
             </div>
           </div>
 
           <div className="pt-4 space-y-4">
-            {localStorage.getItem("scheduleType") === "oddeven" ? (
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <h3 className="text-xs font-semibold mb-2 text-foreground text-center">Udda vecka</h3>
-                  <label
-                    htmlFor="file-upload-odd"
-                    className="block w-full p-4 border-2 border-dashed border-border rounded-2xl bg-card transition-colors cursor-pointer active:bg-accent"
-                  >
-                    <div className="flex flex-col items-center gap-2">
-                      {previewOdd ? (
-                        <>
-                          <Camera className="w-8 h-8 text-primary" />
-                          <img src={previewOdd} alt="Preview Odd" className="w-full rounded-lg" />
-                          <span className="text-[10px] text-muted-foreground text-center">
-                            Klicka för att byta
-                          </span>
-                        </>
-                      ) : (
-                        <>
-                          <UploadIcon className="w-8 h-8 text-muted-foreground" />
-                          <div className="text-center">
-                            <p className="text-foreground font-medium text-xs">
-                              Ladda upp
-                            </p>
-                            <p className="text-[10px] text-muted-foreground mt-0.5">
-                              Klicka här
-                            </p>
-                          </div>
-                        </>
-                      )}
+            <label
+              htmlFor="file-upload"
+              className="block w-full p-8 border-2 border-dashed border-border rounded-2xl bg-card transition-colors cursor-pointer active:bg-accent"
+            >
+              <div className="flex flex-col items-center gap-3">
+                {preview ? (
+                  <>
+                    <Camera className="w-12 h-12 text-primary" />
+                    <img src={preview} alt="Preview" className="w-full rounded-lg" />
+                    <span className="text-sm text-muted-foreground">
+                      Klicka för att byta bild
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <UploadIcon className="w-12 h-12 text-muted-foreground" />
+                    <div className="text-center">
+                      <p className="text-foreground font-medium">
+                        Ladda upp en bild
+                      </p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Klicka eller dra en fil hit
+                      </p>
                     </div>
-                    <input
-                      id="file-upload-odd"
-                      type="file"
-                      className="hidden"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                    />
-                  </label>
-                </div>
-
-                <div>
-                  <h3 className="text-xs font-semibold mb-2 text-foreground text-center">Jämn vecka</h3>
-                  <label
-                    htmlFor="file-upload-even"
-                    className="block w-full p-4 border-2 border-dashed border-border rounded-2xl bg-card transition-colors cursor-pointer active:bg-accent"
-                  >
-                    <div className="flex flex-col items-center gap-2">
-                      {previewEven ? (
-                        <>
-                          <Camera className="w-8 h-8 text-primary" />
-                          <img src={previewEven} alt="Preview Even" className="w-full rounded-lg" />
-                          <span className="text-[10px] text-muted-foreground text-center">
-                            Klicka för att byta
-                          </span>
-                        </>
-                      ) : (
-                        <>
-                          <UploadIcon className="w-8 h-8 text-muted-foreground" />
-                          <div className="text-center">
-                            <p className="text-foreground font-medium text-xs">
-                              Ladda upp
-                            </p>
-                            <p className="text-[10px] text-muted-foreground mt-0.5">
-                              Klicka här
-                            </p>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                    <input
-                      id="file-upload-even"
-                      type="file"
-                      className="hidden"
-                      accept="image/*"
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (!file) return;
-
-                        // Check file size (max 5MB)
-                        if (file.size > 5 * 1024 * 1024) {
-                          toast({
-                            title: "Bilden är för stor",
-                            description: "Vänligen välj en bild mindre än 5MB",
-                            variant: "destructive",
-                          });
-                          return;
-                        }
-
-                        // Check file type
-                        if (!file.type.startsWith('image/')) {
-                          toast({
-                            title: "Fel filtyp",
-                            description: "Vänligen ladda upp en bild",
-                            variant: "destructive",
-                          });
-                          return;
-                        }
-
-                        try {
-                          const resizedImage = await resizeImage(file);
-                          setPreviewEven(resizedImage);
-                        } catch (error) {
-                          console.error('Error resizing image:', error);
-                          toast({
-                            title: "Kunde inte behandla bilden",
-                            description: "Försök med en annan bild",
-                            variant: "destructive",
-                          });
-                        }
-                      }}
-                    />
-                  </label>
-                </div>
+                  </>
+                )}
               </div>
-            ) : (
-              <label
-                htmlFor="file-upload"
-                className="block w-full p-8 border-2 border-dashed border-border rounded-2xl bg-card transition-colors cursor-pointer active:bg-accent"
-              >
-                <div className="flex flex-col items-center gap-3">
-                  {previewOdd ? (
-                    <>
-                      <Camera className="w-12 h-12 text-primary" />
-                      <img src={previewOdd} alt="Preview" className="w-full rounded-lg" />
-                      <span className="text-sm text-muted-foreground">
-                        Klicka för att byta bild
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <UploadIcon className="w-12 h-12 text-muted-foreground" />
-                      <div className="text-center">
-                        <p className="text-foreground font-medium">
-                          Ladda upp en bild
-                        </p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Klicka eller dra en fil hit
-                        </p>
-                      </div>
-                    </>
-                  )}
-                </div>
-                <input
-                  id="file-upload"
-                  type="file"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                />
-              </label>
-            )}
+              <input
+                id="file-upload"
+                type="file"
+                className="hidden"
+                accept="image/*"
+                onChange={handleFileChange}
+              />
+            </label>
           </div>
 
           <Button
             onClick={handleProcess}
-            disabled={
-              uploading || 
-              (localStorage.getItem("scheduleType") === "odd-even" 
-                ? (!previewOdd || !previewEven) 
-                : !previewOdd)
-            }
+            disabled={uploading || !preview}
             className="w-full py-6 text-lg rounded-xl"
             size="lg"
           >

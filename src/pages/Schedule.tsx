@@ -40,9 +40,6 @@ const Schedule = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [schedule, setSchedule] = useState<WeekSchedule | null>(null);
-  const [scheduleOdd, setScheduleOdd] = useState<WeekSchedule | null>(null);
-  const [scheduleEven, setScheduleEven] = useState<WeekSchedule | null>(null);
-  const [weekType, setWeekType] = useState<'odd' | 'even'>('odd');
   const [viewMode, setViewMode] = useState<'week' | 'day'>('week');
   const [selectedDay, setSelectedDay] = useState("monday");
   const [notificationMinutes, setNotificationMinutes] = useState(5);
@@ -55,11 +52,9 @@ const Schedule = () => {
     friday: true,
   });
   const [enabledClasses, setEnabledClasses] = useState<Record<string, boolean>>({});
-  const [enabledClassesOdd, setEnabledClassesOdd] = useState<Record<string, boolean>>({});
-  const [enabledClassesEven, setEnabledClassesEven] = useState<Record<string, boolean>>({});
   const [hasNotificationPermission, setHasNotificationPermission] = useState(false);
   const [checkingPermissions, setCheckingPermissions] = useState(true);
-  const [scheduleType, setScheduleType] = useState<string>("weekly");
+  const [currentScheduleId, setCurrentScheduleId] = useState<string | null>(null);
   const [isAddClassOpen, setIsAddClassOpen] = useState(false);
   const [newClass, setNewClass] = useState({
     name: "",
@@ -83,9 +78,8 @@ const Schedule = () => {
       schedule: WeekSchedule,
       enabledClasses: Record<string, boolean>,
       enabledDays: Record<string, boolean>,
-      notificationMinutes: number,
-      scheduleType: string
-    ) => notificationService.scheduleNotifications(schedule, enabledClasses, enabledDays, notificationMinutes, scheduleType), 700),
+      notificationMinutes: number
+    ) => notificationService.scheduleNotifications(schedule, enabledClasses, enabledDays, notificationMinutes, "weekly"), 700),
     []
   );
 
@@ -172,103 +166,37 @@ const Schedule = () => {
 
   useEffect(() => {
     const initializeSchedule = async () => {
-      const type = localStorage.getItem("scheduleType") || "weekly";
-      console.log('Schedule page initializing with type:', type);
-      setScheduleType(type);
-
-      // Helper function to get current week number and determine if odd/even
-      const getCurrentWeekType = (): 'odd' | 'even' => {
-        const now = new Date();
-        const startOfYear = new Date(now.getFullYear(), 0, 1);
-        const pastDaysOfYear = (now.getTime() - startOfYear.getTime()) / 86400000;
-        const weekNumber = Math.ceil((pastDaysOfYear + startOfYear.getDay() + 1) / 7);
-        return weekNumber % 2 === 0 ? 'even' : 'odd';
-      };
-
       const viewingId = localStorage.getItem("currentlyViewingScheduleId");
       
-      if (type === "oddeven") {
-        if (!viewingId) {
-          navigate("/");
-          return;
-        }
-        
-        const savedOdd = localStorage.getItem(`scheduleOdd_${viewingId}`);
-        const savedEven = localStorage.getItem(`scheduleEven_${viewingId}`);
-        
-        console.log('Checking for oddeven schedules, odd:', !!savedOdd, 'even:', !!savedEven);
-        
-        if (!savedOdd || !savedEven) {
-          navigate("/");
-          return;
-        }
-        
-        const parsedOdd = sortSchedule(JSON.parse(savedOdd));
-        const parsedEven = sortSchedule(JSON.parse(savedEven));
-        setScheduleOdd(parsedOdd);
-        setScheduleEven(parsedEven);
-        
-        // Automatically set to current week
-        const currentWeek = getCurrentWeekType();
-        setWeekType(currentWeek);
-        localStorage.setItem("currentWeekType", currentWeek);
-        setSchedule(currentWeek === 'odd' ? parsedOdd : parsedEven);
-        
-        // Initialize classes for odd schedule
-        const allClassesOdd: Record<string, boolean> = {};
-        Object.values(parsedOdd).forEach((dayClasses: Class[]) => {
-          dayClasses.forEach((classItem) => {
-            allClassesOdd[classItem.id] = true;
-          });
-        });
-        
-        // Initialize classes for even schedule
-        const allClassesEven: Record<string, boolean> = {};
-        Object.values(parsedEven).forEach((dayClasses: Class[]) => {
-          dayClasses.forEach((classItem) => {
-            allClassesEven[classItem.id] = true;
-          });
-        });
-        
-        // Load saved enabled state from per-schedule keys or use all classes enabled as default
-        const savedEnabledOdd = localStorage.getItem(`enabledClassesOdd_${viewingId}`);
-        const savedEnabledEven = localStorage.getItem(`enabledClassesEven_${viewingId}`);
-        
-        const finalEnabledOdd = savedEnabledOdd ? JSON.parse(savedEnabledOdd) : allClassesOdd;
-        const finalEnabledEven = savedEnabledEven ? JSON.parse(savedEnabledEven) : allClassesEven;
-        
-        setEnabledClassesOdd(finalEnabledOdd);
-        setEnabledClassesEven(finalEnabledEven);
-        setEnabledClasses(currentWeek === 'odd' ? finalEnabledOdd : finalEnabledEven);
-      } else {
-        if (!viewingId) {
-          navigate("/");
-          return;
-        }
-        
-        const savedSchedule = localStorage.getItem(`schedule_${viewingId}`);
-        if (!savedSchedule) {
-          navigate("/");
-          return;
-        }
-        
-        const parsedSchedule = sortSchedule(JSON.parse(savedSchedule));
-        setSchedule(parsedSchedule);
-        
-        // Initialize all classes as enabled by default
-        const allClasses: Record<string, boolean> = {};
-        Object.values(parsedSchedule).forEach((dayClasses: Class[]) => {
-          dayClasses.forEach((classItem) => {
-            allClasses[classItem.id] = true;
-          });
-        });
-        
-        // Load saved enabled state from per-schedule key or use all classes enabled as default
-        const savedEnabledClasses = localStorage.getItem(`enabledClasses_${viewingId}`);
-        const finalEnabledClasses = savedEnabledClasses ? JSON.parse(savedEnabledClasses) : allClasses;
-        
-        setEnabledClasses(finalEnabledClasses);
+      if (!viewingId) {
+        navigate("/");
+        return;
       }
+      
+      setCurrentScheduleId(viewingId);
+      
+      const savedSchedule = localStorage.getItem(`schedule_${viewingId}`);
+      if (!savedSchedule) {
+        navigate("/");
+        return;
+      }
+      
+      const parsedSchedule = sortSchedule(JSON.parse(savedSchedule));
+      setSchedule(parsedSchedule);
+      
+      // Initialize all classes as enabled by default
+      const allClasses: Record<string, boolean> = {};
+      Object.values(parsedSchedule).forEach((dayClasses: Class[]) => {
+        dayClasses.forEach((classItem) => {
+          allClasses[classItem.id] = true;
+        });
+      });
+      
+      // Load saved enabled state from per-schedule key or use all classes enabled as default
+      const savedEnabledClasses = localStorage.getItem(`enabledClasses_${viewingId}`);
+      const finalEnabledClasses = savedEnabledClasses ? JSON.parse(savedEnabledClasses) : allClasses;
+      
+      setEnabledClasses(finalEnabledClasses);
 
       const savedMinutes = localStorage.getItem("globalNotificationMinutes");
       if (savedMinutes) {
@@ -277,10 +205,7 @@ const Schedule = () => {
         setNotificationSliderValue(minutes);
       }
 
-      const viewingIdForDays = localStorage.getItem("currentlyViewingScheduleId");
-      const savedEnabledDays = viewingIdForDays 
-        ? localStorage.getItem(`enabledDays_${viewingIdForDays}`)
-        : null;
+      const savedEnabledDays = localStorage.getItem(`enabledDays_${viewingId}`);
       if (savedEnabledDays) {
         setEnabledDays(JSON.parse(savedEnabledDays));
       } else {
@@ -303,18 +228,6 @@ const Schedule = () => {
     initializeSchedule();
   }, [navigate]);
 
-  const handleWeekToggle = (type: 'odd' | 'even') => {
-    setWeekType(type);
-    localStorage.setItem("currentWeekType", type);
-    if (type === 'odd' && scheduleOdd) {
-      setSchedule(sortSchedule(scheduleOdd));
-      setEnabledClasses(enabledClassesOdd);
-    } else if (type === 'even' && scheduleEven) {
-      setSchedule(sortSchedule(scheduleEven));
-      setEnabledClasses(enabledClassesEven);
-    }
-  };
-
   const handleNotificationChange = (value: number[]) => {
     setNotificationSliderValue(value[0]);
   };
@@ -327,21 +240,13 @@ const Schedule = () => {
     
     // Reschedule notifications with new time when user releases the thumb
     if (schedule && hasNotificationPermission) {
-      const scheduleType = localStorage.getItem("scheduleType") || "weekly";
-      debouncedSchedule(
-        schedule,
-        enabledClasses,
-        enabledDays,
-        rounded,
-        scheduleType
-      );
+      debouncedSchedule(schedule, enabledClasses, enabledDays, rounded);
     }
   };
 
   const handleDayToggle = async (day: string) => {
     const updated = { ...enabledDays, [day]: !enabledDays[day] };
     setEnabledDays(updated);
-    // Use currentlyViewingScheduleId (the schedule we're viewing/editing), NOT activeScheduleId (the schedule for notifications)
     const viewingId = localStorage.getItem("currentlyViewingScheduleId");
     if (viewingId) {
       localStorage.setItem(`enabledDays_${viewingId}`, JSON.stringify(updated));
@@ -349,14 +254,7 @@ const Schedule = () => {
     
     // Reschedule notifications
     if (schedule && hasNotificationPermission) {
-      const scheduleType = localStorage.getItem("scheduleType") || "weekly";
-      debouncedSchedule(
-        schedule,
-        enabledClasses,
-        updated,
-        notificationMinutes,
-        scheduleType
-      );
+      debouncedSchedule(schedule, enabledClasses, updated, notificationMinutes);
     }
   };
 
@@ -370,7 +268,6 @@ const Schedule = () => {
       friday: !allChecked,
     };
     setEnabledDays(updated);
-    // Use currentlyViewingScheduleId (the schedule we're viewing/editing), NOT activeScheduleId (the schedule for notifications)
     const viewingId = localStorage.getItem("currentlyViewingScheduleId");
     if (viewingId) {
       localStorage.setItem(`enabledDays_${viewingId}`, JSON.stringify(updated));
@@ -378,14 +275,7 @@ const Schedule = () => {
     
     // Reschedule notifications
     if (schedule && hasNotificationPermission) {
-      const scheduleType = localStorage.getItem("scheduleType") || "weekly";
-      debouncedSchedule(
-        schedule,
-        enabledClasses,
-        updated,
-        notificationMinutes,
-        scheduleType
-      );
+      debouncedSchedule(schedule, enabledClasses, updated, notificationMinutes);
     }
   };
 
@@ -393,31 +283,14 @@ const Schedule = () => {
     const updated = { ...enabledClasses, [classId]: !enabledClasses[classId] };
     setEnabledClasses(updated);
     
-    // Save to the correct storage based on current week type
-    // Use currentlyViewingScheduleId (the schedule we're viewing/editing), NOT activeScheduleId (the schedule for notifications)
     const viewingId = localStorage.getItem("currentlyViewingScheduleId");
-    if (scheduleType === "oddeven") {
-      if (weekType === 'odd') {
-        setEnabledClassesOdd(updated);
-        if (viewingId) localStorage.setItem(`enabledClassesOdd_${viewingId}`, JSON.stringify(updated));
-      } else {
-        setEnabledClassesEven(updated);
-        if (viewingId) localStorage.setItem(`enabledClassesEven_${viewingId}`, JSON.stringify(updated));
-      }
-    } else {
-      if (viewingId) localStorage.setItem(`enabledClasses_${viewingId}`, JSON.stringify(updated));
+    if (viewingId) {
+      localStorage.setItem(`enabledClasses_${viewingId}`, JSON.stringify(updated));
     }
     
     // Reschedule notifications
     if (schedule && hasNotificationPermission) {
-      const scheduleType = localStorage.getItem("scheduleType") || "weekly";
-      debouncedSchedule(
-        schedule,
-        updated,
-        enabledDays,
-        notificationMinutes,
-        scheduleType
-      );
+      debouncedSchedule(schedule, updated, enabledDays, notificationMinutes);
     }
   };
 
@@ -438,14 +311,7 @@ const Schedule = () => {
       
       // Schedule notifications immediately
       if (schedule) {
-        const scheduleType = localStorage.getItem("scheduleType") || "weekly";
-        debouncedSchedule(
-          schedule,
-          enabledClasses,
-          enabledDays,
-          notificationMinutes,
-          scheduleType
-        );
+        debouncedSchedule(schedule, enabledClasses, enabledDays, notificationMinutes);
       }
     } else {
       toast({
@@ -467,14 +333,10 @@ const Schedule = () => {
       return;
     }
 
-    const currentSchedule = scheduleType === "oddeven" 
-      ? (weekType === 'odd' ? scheduleOdd : scheduleEven)
-      : schedule;
-
-    if (!currentSchedule) return;
+    if (!schedule) return;
 
     // Check if day has reached the limit of 20 classes
-    const dayClasses = currentSchedule[newClass.day as keyof WeekSchedule] || [];
+    const dayClasses = schedule[newClass.day as keyof WeekSchedule] || [];
     if (dayClasses.length >= 20) {
       toast({
         title: "Daggränsen nådd",
@@ -517,48 +379,24 @@ const Schedule = () => {
     });
 
     const updatedSchedule = {
-      ...currentSchedule,
+      ...schedule,
       [newClass.day]: updatedDayClasses
     };
 
-    // Update the appropriate schedule - only save to per-schedule keys
-    // Use currentlyViewingScheduleId (the schedule we're viewing/editing), NOT activeScheduleId (the schedule for notifications)
+    // Save to per-schedule key
     const viewingId = localStorage.getItem("currentlyViewingScheduleId");
-    if (scheduleType === "oddeven") {
-      if (weekType === 'odd') {
-        setScheduleOdd(updatedSchedule);
-        if (viewingId) {
-          localStorage.setItem(`scheduleOdd_${viewingId}`, JSON.stringify(updatedSchedule));
-        }
-      } else {
-        setScheduleEven(updatedSchedule);
-        if (viewingId) {
-          localStorage.setItem(`scheduleEven_${viewingId}`, JSON.stringify(updatedSchedule));
-        }
-      }
-    } else {
-      if (viewingId) {
-        localStorage.setItem(`schedule_${viewingId}`, JSON.stringify(updatedSchedule));
-      }
+    if (viewingId) {
+      localStorage.setItem(`schedule_${viewingId}`, JSON.stringify(updatedSchedule));
     }
 
     setSchedule(updatedSchedule);
 
-    // Enable the new class for notifications by default - only save to per-schedule keys
+    // Enable the new class for notifications by default
     const updatedEnabledClasses = { ...enabledClasses, [newClassItem.id]: true };
     setEnabledClasses(updatedEnabledClasses);
     
-    // viewingId was set above, reuse it
-    if (scheduleType === "oddeven") {
-      if (weekType === 'odd') {
-        setEnabledClassesOdd(updatedEnabledClasses);
-        if (viewingId) localStorage.setItem(`enabledClassesOdd_${viewingId}`, JSON.stringify(updatedEnabledClasses));
-      } else {
-        setEnabledClassesEven(updatedEnabledClasses);
-        if (viewingId) localStorage.setItem(`enabledClassesEven_${viewingId}`, JSON.stringify(updatedEnabledClasses));
-      }
-    } else {
-      if (viewingId) localStorage.setItem(`enabledClasses_${viewingId}`, JSON.stringify(updatedEnabledClasses));
+    if (viewingId) {
+      localStorage.setItem(`enabledClasses_${viewingId}`, JSON.stringify(updatedEnabledClasses));
     }
 
     // Reset form and close dialog
@@ -579,12 +417,8 @@ const Schedule = () => {
   };
 
   const getClassCountForDay = (dayKey: string): number => {
-    const currentSchedule = scheduleType === "oddeven" 
-      ? (weekType === 'odd' ? scheduleOdd : scheduleEven)
-      : schedule;
-    
-    if (!currentSchedule) return 0;
-    return (currentSchedule[dayKey as keyof WeekSchedule] || []).length;
+    if (!schedule) return 0;
+    return (schedule[dayKey as keyof WeekSchedule] || []).length;
   };
 
   const isDayFull = (dayKey: string): boolean => {
@@ -654,19 +488,6 @@ const Schedule = () => {
     return Math.max(duration * 1.2, 60);
   };
 
-  const getGridRow = (time: string) => {
-    const [hour, minute] = time.split(":").map(Number);
-    const startHour = 8;
-    return ((hour - startHour) * 4 + Math.floor(minute / 15)) + 2;
-  };
-
-  const getRowSpan = (start: string, end: string) => {
-    const [startHour, startMin] = start.split(":").map(Number);
-    const [endHour, endMin] = end.split(":").map(Number);
-    const duration = (endHour * 60 + endMin) - (startHour * 60 + startMin);
-    return Math.ceil(duration / 15);
-  };
-
   if (!schedule) return null;
 
   const currentDayClasses = sortClassesByTime(schedule[selectedDay as keyof WeekSchedule] || []);
@@ -714,35 +535,6 @@ const Schedule = () => {
         <div className="mb-4">
           <h1 className="text-2xl font-bold text-foreground">Mitt Schema</h1>
         </div>
-
-        {scheduleType === "oddeven" && (
-          <div className="mb-4 flex gap-2">
-            <Button
-              variant={weekType === 'odd' ? 'default' : 'outline'}
-              onClick={() => handleWeekToggle('odd')}
-              className="flex-1"
-            >
-              Udda
-              {weekType === 'odd' && (
-                <span className="ml-2 px-1.5 py-0.5 text-xs bg-background/20 rounded">
-                  Aktiv
-                </span>
-              )}
-            </Button>
-            <Button
-              variant={weekType === 'even' ? 'default' : 'outline'}
-              onClick={() => handleWeekToggle('even')}
-              className="flex-1"
-            >
-              Jämna
-              {weekType === 'even' && (
-                <span className="ml-2 px-1.5 py-0.5 text-xs bg-background/20 rounded">
-                  Aktiv
-                </span>
-              )}
-            </Button>
-          </div>
-        )}
 
         <div className="mb-4 p-4 rounded-2xl bg-card border border-border">
           <div className="flex items-center justify-between mb-3">

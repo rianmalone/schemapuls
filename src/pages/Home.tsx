@@ -4,7 +4,8 @@ import { Plus, Check, Trash2, Edit2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
-
+import { notificationService } from "@/services/notificationService";
+import { useToast } from "@/hooks/use-toast";
 interface SavedSchedule {
   id: string;
   name: string;
@@ -14,6 +15,7 @@ interface SavedSchedule {
 
 const Home = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [schedules, setSchedules] = useState<SavedSchedule[]>([]);
   const [activeScheduleId, setActiveScheduleId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -138,7 +140,8 @@ const Home = () => {
     
     console.log('Selected schedule:', selectedSchedule);
 
-    // Load this schedule's data from localStorage - only set metadata, not global keys
+    // Load this schedule's data from localStorage - only set metadata, NOT activeScheduleId
+    // activeScheduleId should ONLY be set by handleSetActive (the Aktiv button)
     if (selectedSchedule.type === "oddeven") {
       const scheduleOdd = localStorage.getItem(`scheduleOdd_${id}`);
       const scheduleEven = localStorage.getItem(`scheduleEven_${id}`);
@@ -146,10 +149,10 @@ const Home = () => {
       console.log('Loading oddeven schedule, odd:', !!scheduleOdd, 'even:', !!scheduleEven);
       
       if (scheduleOdd && scheduleEven) {
-        // Only set metadata keys, NOT global data keys
+        // Set viewing ID and schedule type, but NOT activeScheduleId
         localStorage.setItem("scheduleType", "oddeven");
-        localStorage.setItem("activeScheduleId", id);
-        console.log('Set oddeven metadata, navigating to /schedule');
+        localStorage.setItem("currentlyViewingScheduleId", id);
+        console.log('Set oddeven viewing metadata, navigating to /schedule');
         navigate("/schedule");
       } else {
         console.log('Missing oddeven schedule data for id:', id);
@@ -160,10 +163,10 @@ const Home = () => {
       console.log('Loading weekly schedule, exists:', !!schedule);
       
       if (schedule) {
-        // Only set metadata keys, NOT global data keys
+        // Set viewing ID and schedule type, but NOT activeScheduleId
         localStorage.setItem("scheduleType", "weekly");
-        localStorage.setItem("activeScheduleId", id);
-        console.log('Set weekly metadata, navigating to /schedule');
+        localStorage.setItem("currentlyViewingScheduleId", id);
+        console.log('Set weekly viewing metadata, navigating to /schedule');
         navigate("/schedule");
       } else {
         console.log('Missing weekly schedule data for id:', id);
@@ -171,10 +174,121 @@ const Home = () => {
     }
   };
 
-  const handleSetActive = (id: string, e: React.MouseEvent) => {
+  const handleSetActive = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    console.log('[Home] 🔄 ACTIVATING SCHEDULE:', id);
+    
+    const selectedSchedule = schedules.find(s => s.id === id);
+    if (!selectedSchedule) {
+      console.log('[Home] ❌ Schedule not found');
+      return;
+    }
+
+    // Request permission BEFORE setting as active
+    const hasPermission = await notificationService.requestPermissions();
+    console.log('[Home] Permission result:', hasPermission);
+    if (!hasPermission) {
+      console.log('[Home] ❌ No permission, aborting');
+      toast({
+        title: "Behörighet krävs",
+        description: "Du behöver ge behörighet för notiser för att aktivera schemat",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Cancel ALL existing notifications before scheduling new ones
+    console.log('[Home] 🚫 CANCELLING all existing notifications');
+    await notificationService.cancelAllNotifications();
+
+    // Now set as active
     setActiveScheduleId(id);
     localStorage.setItem("activeScheduleId", id);
+
+    // Load schedule data
+    let scheduleData: Record<string, any> = {};
+    
+    if (selectedSchedule.type === "oddeven") {
+      // Calculate week number locally (ISO-8601)
+      const now = new Date();
+      const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+      const dayNum = d.getUTCDay() || 7;
+      d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+      const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+      const weekNumber = Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+      const activeWeekType = weekNumber % 2 === 0 ? 'even' : 'odd';
+      
+      const key = activeWeekType === 'odd' ? `scheduleOdd_${id}` : `scheduleEven_${id}`;
+      const data = localStorage.getItem(key);
+      scheduleData = data ? JSON.parse(data) : {};
+      console.log('[Home] Loaded oddeven schedule, week:', weekNumber, 'type:', activeWeekType);
+    } else {
+      const data = localStorage.getItem(`schedule_${id}`);
+      scheduleData = data ? JSON.parse(data) : {};
+      console.log('[Home] Loaded weekly schedule');
+    }
+
+    // Build enabled classes from schedule data (default all enabled)
+    let enabledClasses: Record<string, boolean> = {};
+    Object.values(scheduleData).forEach((dayClasses: any) => {
+      if (Array.isArray(dayClasses)) {
+        dayClasses.forEach((classItem: any) => {
+          if (classItem && classItem.id) {
+            enabledClasses[classItem.id] = true;
+          }
+        });
+      }
+    });
+
+    // Try to load saved enabled classes from per-schedule key only (NO global fallback)
+    const perScheduleKey = selectedSchedule.type === "oddeven"
+      ? `enabledClasses_${id}`  // Use generic key for oddeven too
+      : `enabledClasses_${id}`;
+    const savedEnabled = localStorage.getItem(perScheduleKey);
+    if (savedEnabled) {
+      try {
+        const saved = JSON.parse(savedEnabled);
+        // Validate that saved IDs match current schedule
+        const savedIds = new Set(Object.keys(saved));
+        const currentIds = new Set(Object.keys(enabledClasses));
+        if ([...currentIds].every(id => savedIds.has(id))) {
+          enabledClasses = saved;
+          console.log('[Home] Using saved enabled classes');
+        } else {
+          console.log('[Home] Saved enabled classes mismatch, using defaults');
+        }
+      } catch (err) {
+        console.log('[Home] Error parsing saved enabled classes, using defaults');
+      }
+    }
+
+    // Load enabled days from per-schedule key only (NO global fallback)
+    const enabledDaysStr = localStorage.getItem(`enabledDays_${id}`);
+    const enabledDays = enabledDaysStr 
+      ? JSON.parse(enabledDaysStr) 
+      : { monday: true, tuesday: true, wednesday: true, thursday: true, friday: true };
+
+    // Get notification minutes
+    const notificationMinutes = parseInt(localStorage.getItem("notificationMinutes") || "5", 10);
+
+    console.log('[Home] Scheduling notifications - minutes:', notificationMinutes);
+    console.log('[Home] Enabled classes:', Object.keys(enabledClasses).length);
+    console.log('[Home] Enabled days:', enabledDays);
+
+    await notificationService.scheduleNotifications(
+      scheduleData as any,
+      enabledClasses,
+      enabledDays,
+      notificationMinutes,
+      selectedSchedule.type
+    );
+
+    toast({
+      title: "Schema aktiverat",
+      description: `Påminnelser aktiverade för ${selectedSchedule.name}`,
+    });
+    
+    console.log('[Home] ✅ Schedule activated:', selectedSchedule.name);
   };
 
   const handleDeleteSchedule = (id: string, e: React.MouseEvent) => {

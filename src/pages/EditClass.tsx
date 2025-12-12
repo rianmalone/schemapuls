@@ -23,7 +23,8 @@ const EditClass = () => {
   const [classData, setClassData] = useState<Class | null>(null);
 
   useEffect(() => {
-    const activeScheduleId = localStorage.getItem("activeScheduleId");
+    // Use currentlyViewingScheduleId (the schedule we're viewing/editing), NOT activeScheduleId (the schedule for notifications)
+    const viewingScheduleId = localStorage.getItem("currentlyViewingScheduleId");
     const scheduleType = localStorage.getItem("scheduleType") || "weekly";
     const currentWeekType = localStorage.getItem("currentWeekType") as 'odd' | 'even' | null;
     
@@ -31,12 +32,12 @@ const EditClass = () => {
     
     if (scheduleType === "oddeven") {
       const weekType = currentWeekType || 'odd';
-      if (activeScheduleId) {
-        scheduleData = localStorage.getItem(weekType === 'odd' ? `scheduleOdd_${activeScheduleId}` : `scheduleEven_${activeScheduleId}`);
+      if (viewingScheduleId) {
+        scheduleData = localStorage.getItem(weekType === 'odd' ? `scheduleOdd_${viewingScheduleId}` : `scheduleEven_${viewingScheduleId}`);
       }
     } else {
-      if (activeScheduleId) {
-        scheduleData = localStorage.getItem(`schedule_${activeScheduleId}`);
+      if (viewingScheduleId) {
+        scheduleData = localStorage.getItem(`schedule_${viewingScheduleId}`);
       }
     }
     
@@ -82,19 +83,20 @@ const EditClass = () => {
     }
 
     const scheduleType = localStorage.getItem("scheduleType") || "weekly";
-    const activeScheduleId = localStorage.getItem("activeScheduleId");
+    // Use currentlyViewingScheduleId (the schedule we're viewing/editing), NOT activeScheduleId (the schedule for notifications)
+    const viewingScheduleId = localStorage.getItem("currentlyViewingScheduleId");
     const currentWeekType = localStorage.getItem("currentWeekType") as 'odd' | 'even' | null;
     
     // Determine which storage key to use
     let storageKey: string | null = null;
     if (scheduleType === "oddeven") {
       const weekType = currentWeekType || 'odd';
-      if (activeScheduleId) {
-        storageKey = weekType === 'odd' ? `scheduleOdd_${activeScheduleId}` : `scheduleEven_${activeScheduleId}`;
+      if (viewingScheduleId) {
+        storageKey = weekType === 'odd' ? `scheduleOdd_${viewingScheduleId}` : `scheduleEven_${viewingScheduleId}`;
       }
     } else {
-      if (activeScheduleId) {
-        storageKey = `schedule_${activeScheduleId}`;
+      if (viewingScheduleId) {
+        storageKey = `schedule_${viewingScheduleId}`;
       }
     }
     
@@ -137,19 +139,20 @@ const EditClass = () => {
     if (!classData) return;
 
     const scheduleType = localStorage.getItem("scheduleType") || "weekly";
-    const activeScheduleId = localStorage.getItem("activeScheduleId");
+    // Use currentlyViewingScheduleId (the schedule we're viewing/editing), NOT activeScheduleId (the schedule for notifications)
+    const viewingScheduleId = localStorage.getItem("currentlyViewingScheduleId");
     const currentWeekType = localStorage.getItem("currentWeekType") as 'odd' | 'even' | null;
     
     // Determine which storage key to use
     let storageKey: string | null = null;
     if (scheduleType === "oddeven") {
       const weekType = currentWeekType || 'odd';
-      if (activeScheduleId) {
-        storageKey = weekType === 'odd' ? `scheduleOdd_${activeScheduleId}` : `scheduleEven_${activeScheduleId}`;
+      if (viewingScheduleId) {
+        storageKey = weekType === 'odd' ? `scheduleOdd_${viewingScheduleId}` : `scheduleEven_${viewingScheduleId}`;
       }
     } else {
-      if (activeScheduleId) {
-        storageKey = `schedule_${activeScheduleId}`;
+      if (viewingScheduleId) {
+        storageKey = `schedule_${viewingScheduleId}`;
       }
     }
     

@@ -185,7 +185,7 @@ const Schedule = () => {
         return weekNumber % 2 === 0 ? 'even' : 'odd';
       };
 
-      const viewingId = localStorage.getItem("activeScheduleId");
+      const viewingId = localStorage.getItem("currentlyViewingScheduleId");
       
       if (type === "oddeven") {
         if (!viewingId) {
@@ -277,7 +277,7 @@ const Schedule = () => {
         setNotificationSliderValue(minutes);
       }
 
-      const viewingIdForDays = localStorage.getItem("activeScheduleId");
+      const viewingIdForDays = localStorage.getItem("currentlyViewingScheduleId");
       const savedEnabledDays = viewingIdForDays 
         ? localStorage.getItem(`enabledDays_${viewingIdForDays}`)
         : null;
@@ -341,9 +341,10 @@ const Schedule = () => {
   const handleDayToggle = async (day: string) => {
     const updated = { ...enabledDays, [day]: !enabledDays[day] };
     setEnabledDays(updated);
-    const activeId = localStorage.getItem("activeScheduleId");
-    if (activeId) {
-      localStorage.setItem(`enabledDays_${activeId}`, JSON.stringify(updated));
+    // Use currentlyViewingScheduleId (the schedule we're viewing/editing), NOT activeScheduleId (the schedule for notifications)
+    const viewingId = localStorage.getItem("currentlyViewingScheduleId");
+    if (viewingId) {
+      localStorage.setItem(`enabledDays_${viewingId}`, JSON.stringify(updated));
     }
     
     // Reschedule notifications
@@ -369,9 +370,10 @@ const Schedule = () => {
       friday: !allChecked,
     };
     setEnabledDays(updated);
-    const activeId = localStorage.getItem("activeScheduleId");
-    if (activeId) {
-      localStorage.setItem(`enabledDays_${activeId}`, JSON.stringify(updated));
+    // Use currentlyViewingScheduleId (the schedule we're viewing/editing), NOT activeScheduleId (the schedule for notifications)
+    const viewingId = localStorage.getItem("currentlyViewingScheduleId");
+    if (viewingId) {
+      localStorage.setItem(`enabledDays_${viewingId}`, JSON.stringify(updated));
     }
     
     // Reschedule notifications
@@ -392,17 +394,18 @@ const Schedule = () => {
     setEnabledClasses(updated);
     
     // Save to the correct storage based on current week type
-    const activeId = localStorage.getItem("activeScheduleId");
+    // Use currentlyViewingScheduleId (the schedule we're viewing/editing), NOT activeScheduleId (the schedule for notifications)
+    const viewingId = localStorage.getItem("currentlyViewingScheduleId");
     if (scheduleType === "oddeven") {
       if (weekType === 'odd') {
         setEnabledClassesOdd(updated);
-        if (activeId) localStorage.setItem(`enabledClassesOdd_${activeId}`, JSON.stringify(updated));
+        if (viewingId) localStorage.setItem(`enabledClassesOdd_${viewingId}`, JSON.stringify(updated));
       } else {
         setEnabledClassesEven(updated);
-        if (activeId) localStorage.setItem(`enabledClassesEven_${activeId}`, JSON.stringify(updated));
+        if (viewingId) localStorage.setItem(`enabledClassesEven_${viewingId}`, JSON.stringify(updated));
       }
     } else {
-      if (activeId) localStorage.setItem(`enabledClasses_${activeId}`, JSON.stringify(updated));
+      if (viewingId) localStorage.setItem(`enabledClasses_${viewingId}`, JSON.stringify(updated));
     }
     
     // Reschedule notifications
@@ -519,22 +522,23 @@ const Schedule = () => {
     };
 
     // Update the appropriate schedule - only save to per-schedule keys
-    const activeScheduleId = localStorage.getItem("activeScheduleId");
+    // Use currentlyViewingScheduleId (the schedule we're viewing/editing), NOT activeScheduleId (the schedule for notifications)
+    const viewingId = localStorage.getItem("currentlyViewingScheduleId");
     if (scheduleType === "oddeven") {
       if (weekType === 'odd') {
         setScheduleOdd(updatedSchedule);
-        if (activeScheduleId) {
-          localStorage.setItem(`scheduleOdd_${activeScheduleId}`, JSON.stringify(updatedSchedule));
+        if (viewingId) {
+          localStorage.setItem(`scheduleOdd_${viewingId}`, JSON.stringify(updatedSchedule));
         }
       } else {
         setScheduleEven(updatedSchedule);
-        if (activeScheduleId) {
-          localStorage.setItem(`scheduleEven_${activeScheduleId}`, JSON.stringify(updatedSchedule));
+        if (viewingId) {
+          localStorage.setItem(`scheduleEven_${viewingId}`, JSON.stringify(updatedSchedule));
         }
       }
     } else {
-      if (activeScheduleId) {
-        localStorage.setItem(`schedule_${activeScheduleId}`, JSON.stringify(updatedSchedule));
+      if (viewingId) {
+        localStorage.setItem(`schedule_${viewingId}`, JSON.stringify(updatedSchedule));
       }
     }
 
@@ -544,16 +548,17 @@ const Schedule = () => {
     const updatedEnabledClasses = { ...enabledClasses, [newClassItem.id]: true };
     setEnabledClasses(updatedEnabledClasses);
     
+    // viewingId was set above, reuse it
     if (scheduleType === "oddeven") {
       if (weekType === 'odd') {
         setEnabledClassesOdd(updatedEnabledClasses);
-        if (activeScheduleId) localStorage.setItem(`enabledClassesOdd_${activeScheduleId}`, JSON.stringify(updatedEnabledClasses));
+        if (viewingId) localStorage.setItem(`enabledClassesOdd_${viewingId}`, JSON.stringify(updatedEnabledClasses));
       } else {
         setEnabledClassesEven(updatedEnabledClasses);
-        if (activeScheduleId) localStorage.setItem(`enabledClassesEven_${activeScheduleId}`, JSON.stringify(updatedEnabledClasses));
+        if (viewingId) localStorage.setItem(`enabledClassesEven_${viewingId}`, JSON.stringify(updatedEnabledClasses));
       }
     } else {
-      if (activeScheduleId) localStorage.setItem(`enabledClasses_${activeScheduleId}`, JSON.stringify(updatedEnabledClasses));
+      if (viewingId) localStorage.setItem(`enabledClasses_${viewingId}`, JSON.stringify(updatedEnabledClasses));
     }
 
     // Reset form and close dialog

@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Trash2, Clock } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -23,23 +22,16 @@ const EditClass = () => {
   const [classData, setClassData] = useState<Class | null>(null);
 
   useEffect(() => {
-    // Use currentlyViewingScheduleId (the schedule we're viewing/editing), NOT activeScheduleId (the schedule for notifications)
     const viewingScheduleId = localStorage.getItem("currentlyViewingScheduleId");
-    const scheduleType = localStorage.getItem("scheduleType") || "weekly";
-    const currentWeekType = localStorage.getItem("currentWeekType") as 'odd' | 'even' | null;
     
-    let scheduleData: string | null = null;
-    
-    if (scheduleType === "oddeven") {
-      const weekType = currentWeekType || 'odd';
-      if (viewingScheduleId) {
-        scheduleData = localStorage.getItem(weekType === 'odd' ? `scheduleOdd_${viewingScheduleId}` : `scheduleEven_${viewingScheduleId}`);
-      }
-    } else {
-      if (viewingScheduleId) {
-        scheduleData = localStorage.getItem(`schedule_${viewingScheduleId}`);
-      }
+    if (!viewingScheduleId) {
+      console.error('[EditClass] currentlyViewingScheduleId is missing!');
+      navigate("/");
+      return;
     }
+    
+    const storageKey = `schedule_${viewingScheduleId}`;
+    const scheduleData = localStorage.getItem(storageKey);
     
     if (scheduleData) {
       const schedule = JSON.parse(scheduleData);
@@ -52,7 +44,7 @@ const EditClass = () => {
         }
       }
     }
-  }, [id]);
+  }, [id, navigate]);
 
   const handleSave = () => {
     if (!classData) return;
@@ -82,25 +74,9 @@ const EditClass = () => {
       return;
     }
 
-    const scheduleType = localStorage.getItem("scheduleType") || "weekly";
-    // Use currentlyViewingScheduleId (the schedule we're viewing/editing), NOT activeScheduleId (the schedule for notifications)
     const viewingScheduleId = localStorage.getItem("currentlyViewingScheduleId");
-    const currentWeekType = localStorage.getItem("currentWeekType") as 'odd' | 'even' | null;
     
-    // Determine which storage key to use
-    let storageKey: string | null = null;
-    if (scheduleType === "oddeven") {
-      const weekType = currentWeekType || 'odd';
-      if (viewingScheduleId) {
-        storageKey = weekType === 'odd' ? `scheduleOdd_${viewingScheduleId}` : `scheduleEven_${viewingScheduleId}`;
-      }
-    } else {
-      if (viewingScheduleId) {
-        storageKey = `schedule_${viewingScheduleId}`;
-      }
-    }
-    
-    if (!storageKey) {
+    if (!viewingScheduleId) {
       toast({
         title: "Fel",
         description: "Kunde inte hitta schemat",
@@ -109,7 +85,9 @@ const EditClass = () => {
       return;
     }
     
+    const storageKey = `schedule_${viewingScheduleId}`;
     const scheduleData = localStorage.getItem(storageKey);
+    
     if (scheduleData) {
       const schedule = JSON.parse(scheduleData);
       
@@ -138,25 +116,9 @@ const EditClass = () => {
   const handleDelete = () => {
     if (!classData) return;
 
-    const scheduleType = localStorage.getItem("scheduleType") || "weekly";
-    // Use currentlyViewingScheduleId (the schedule we're viewing/editing), NOT activeScheduleId (the schedule for notifications)
     const viewingScheduleId = localStorage.getItem("currentlyViewingScheduleId");
-    const currentWeekType = localStorage.getItem("currentWeekType") as 'odd' | 'even' | null;
     
-    // Determine which storage key to use
-    let storageKey: string | null = null;
-    if (scheduleType === "oddeven") {
-      const weekType = currentWeekType || 'odd';
-      if (viewingScheduleId) {
-        storageKey = weekType === 'odd' ? `scheduleOdd_${viewingScheduleId}` : `scheduleEven_${viewingScheduleId}`;
-      }
-    } else {
-      if (viewingScheduleId) {
-        storageKey = `schedule_${viewingScheduleId}`;
-      }
-    }
-    
-    if (!storageKey) {
+    if (!viewingScheduleId) {
       toast({
         title: "Fel",
         description: "Kunde inte hitta schemat",
@@ -165,7 +127,9 @@ const EditClass = () => {
       return;
     }
     
+    const storageKey = `schedule_${viewingScheduleId}`;
     const scheduleData = localStorage.getItem(storageKey);
+    
     if (scheduleData) {
       const schedule = JSON.parse(scheduleData);
       

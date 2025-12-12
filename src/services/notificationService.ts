@@ -92,11 +92,6 @@ export class NotificationService {
     }
 
     try {
-      // Normalize scheduleType to handle both "oddeven" and "odd-even"
-      if (scheduleType === 'oddeven') {
-        scheduleType = 'odd-even';
-      }
-      
       const hasPermission = await this.checkPermissions();
       if (!hasPermission) {
         console.log('[Notifications] No notification permission');
@@ -121,7 +116,7 @@ export class NotificationService {
       console.log('[Notifications] ===== SCHEDULING START =====');
       console.log('[Notifications] Current time:', now.toISOString());
       console.log('[Notifications] Schedule window:', this.scheduleWindowDays, 'days');
-      console.log('[Notifications] Schedule type (normalized):', scheduleType);
+      console.log('[Notifications] Schedule type:', scheduleType);
       console.log('[Notifications] Notification minutes before class:', notificationMinutes);
       console.log('[Notifications] Total pending before scheduling:', pendingMap.size);
 
@@ -145,19 +140,6 @@ export class NotificationService {
         
         if (!dayKey || !enabledDays[dayKey]) {
           continue; // Skip disabled days
-        }
-
-        // For odd-even schedules, check week parity
-        if (scheduleType === 'odd-even') {
-          const targetWeekNumber = this.getWeekNumber(targetDate);
-          const isTargetOddWeek = targetWeekNumber % 2 === 1;
-          const currentWeekNumber = this.getWeekNumber(now);
-          const isCurrentOddWeek = currentWeekNumber % 2 === 1;
-          
-          // Skip if this date doesn't match the active schedule's week parity
-          if (isTargetOddWeek !== isCurrentOddWeek) {
-            continue;
-          }
         }
 
         const classes = schedule[dayKey as keyof WeekSchedule];
@@ -296,7 +278,7 @@ export class NotificationService {
     }
   }
 
-  private getWeekNumber(date: Date): number {
+  getWeekNumber(date: Date): number {
     const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
     const dayNum = d.getUTCDay() || 7;
     d.setUTCDate(d.getUTCDate() + 4 - dayNum);

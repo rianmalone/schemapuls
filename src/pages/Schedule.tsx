@@ -79,7 +79,7 @@ const Schedule = () => {
       enabledClasses: Record<string, boolean>,
       enabledDays: Record<string, boolean>,
       notificationMinutes: number
-    ) => notificationService.scheduleNotifications(schedule, enabledClasses, enabledDays, notificationMinutes, "weekly"), 700),
+    ) => notificationService.scheduleNotifications(schedule, enabledClasses, enabledDays, notificationMinutes, "weekly"), 500),
     []
   );
 
@@ -414,6 +414,15 @@ const Schedule = () => {
       title: "Lektion tillagd",
       description: `${newClass.name} har lagts till i schemat`,
     });
+
+    // Reschedule notifications if viewing the active schedule
+    const activeScheduleId = localStorage.getItem("activeScheduleId");
+    if (hasNotificationPermission && viewingId === activeScheduleId) {
+      const freshEnabledDays = localStorage.getItem(`enabledDays_${viewingId}`)
+        ? JSON.parse(localStorage.getItem(`enabledDays_${viewingId}`) || "{}")
+        : enabledDays;
+      debouncedSchedule(updatedSchedule, updatedEnabledClasses, freshEnabledDays, notificationMinutes);
+    }
   };
 
   const getClassCountForDay = (dayKey: string): number => {

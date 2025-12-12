@@ -23,7 +23,23 @@ const EditClass = () => {
   const [classData, setClassData] = useState<Class | null>(null);
 
   useEffect(() => {
-    const scheduleData = localStorage.getItem("schedule");
+    const activeScheduleId = localStorage.getItem("activeScheduleId");
+    const scheduleType = localStorage.getItem("scheduleType") || "weekly";
+    const currentWeekType = localStorage.getItem("currentWeekType") as 'odd' | 'even' | null;
+    
+    let scheduleData: string | null = null;
+    
+    if (scheduleType === "oddeven") {
+      const weekType = currentWeekType || 'odd';
+      if (activeScheduleId) {
+        scheduleData = localStorage.getItem(weekType === 'odd' ? `scheduleOdd_${activeScheduleId}` : `scheduleEven_${activeScheduleId}`);
+      }
+    } else {
+      if (activeScheduleId) {
+        scheduleData = localStorage.getItem(`schedule_${activeScheduleId}`);
+      }
+    }
+    
     if (scheduleData) {
       const schedule = JSON.parse(scheduleData);
       // Find class in all days
@@ -65,7 +81,33 @@ const EditClass = () => {
       return;
     }
 
-    const scheduleData = localStorage.getItem("schedule");
+    const scheduleType = localStorage.getItem("scheduleType") || "weekly";
+    const activeScheduleId = localStorage.getItem("activeScheduleId");
+    const currentWeekType = localStorage.getItem("currentWeekType") as 'odd' | 'even' | null;
+    
+    // Determine which storage key to use
+    let storageKey: string | null = null;
+    if (scheduleType === "oddeven") {
+      const weekType = currentWeekType || 'odd';
+      if (activeScheduleId) {
+        storageKey = weekType === 'odd' ? `scheduleOdd_${activeScheduleId}` : `scheduleEven_${activeScheduleId}`;
+      }
+    } else {
+      if (activeScheduleId) {
+        storageKey = `schedule_${activeScheduleId}`;
+      }
+    }
+    
+    if (!storageKey) {
+      toast({
+        title: "Fel",
+        description: "Kunde inte hitta schemat",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const scheduleData = localStorage.getItem(storageKey);
     if (scheduleData) {
       const schedule = JSON.parse(scheduleData);
       
@@ -79,26 +121,8 @@ const EditClass = () => {
         }
       }
       
-      localStorage.setItem("schedule", JSON.stringify(schedule));
-
-      const scheduleType = localStorage.getItem("scheduleType") || "weekly";
-      const activeScheduleId = localStorage.getItem("activeScheduleId");
-      const currentWeekType = localStorage.getItem("currentWeekType") as 'odd' | 'even' | null;
-
-      if (activeScheduleId) {
-        if (scheduleType === "weekly") {
-          localStorage.setItem(`schedule_${activeScheduleId}`, JSON.stringify(schedule));
-        } else if (scheduleType === "oddeven") {
-          const weekType = currentWeekType || 'odd';
-          if (weekType === 'odd') {
-            localStorage.setItem("scheduleOdd", JSON.stringify(schedule));
-            localStorage.setItem(`scheduleOdd_${activeScheduleId}`, JSON.stringify(schedule));
-          } else {
-            localStorage.setItem("scheduleEven", JSON.stringify(schedule));
-            localStorage.setItem(`scheduleEven_${activeScheduleId}`, JSON.stringify(schedule));
-          }
-        }
-      }
+      // Save only to per-schedule key
+      localStorage.setItem(storageKey, JSON.stringify(schedule));
       
       toast({
         title: "Sparat!",
@@ -112,7 +136,33 @@ const EditClass = () => {
   const handleDelete = () => {
     if (!classData) return;
 
-    const scheduleData = localStorage.getItem("schedule");
+    const scheduleType = localStorage.getItem("scheduleType") || "weekly";
+    const activeScheduleId = localStorage.getItem("activeScheduleId");
+    const currentWeekType = localStorage.getItem("currentWeekType") as 'odd' | 'even' | null;
+    
+    // Determine which storage key to use
+    let storageKey: string | null = null;
+    if (scheduleType === "oddeven") {
+      const weekType = currentWeekType || 'odd';
+      if (activeScheduleId) {
+        storageKey = weekType === 'odd' ? `scheduleOdd_${activeScheduleId}` : `scheduleEven_${activeScheduleId}`;
+      }
+    } else {
+      if (activeScheduleId) {
+        storageKey = `schedule_${activeScheduleId}`;
+      }
+    }
+    
+    if (!storageKey) {
+      toast({
+        title: "Fel",
+        description: "Kunde inte hitta schemat",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const scheduleData = localStorage.getItem(storageKey);
     if (scheduleData) {
       const schedule = JSON.parse(scheduleData);
       
@@ -120,26 +170,8 @@ const EditClass = () => {
         schedule[dayKey] = schedule[dayKey].filter((c: Class) => c.id !== id);
       }
       
-      localStorage.setItem("schedule", JSON.stringify(schedule));
-
-      const scheduleType = localStorage.getItem("scheduleType") || "weekly";
-      const activeScheduleId = localStorage.getItem("activeScheduleId");
-      const currentWeekType = localStorage.getItem("currentWeekType") as 'odd' | 'even' | null;
-
-      if (activeScheduleId) {
-        if (scheduleType === "weekly") {
-          localStorage.setItem(`schedule_${activeScheduleId}`, JSON.stringify(schedule));
-        } else if (scheduleType === "oddeven") {
-          const weekType = currentWeekType || 'odd';
-          if (weekType === 'odd') {
-            localStorage.setItem("scheduleOdd", JSON.stringify(schedule));
-            localStorage.setItem(`scheduleOdd_${activeScheduleId}`, JSON.stringify(schedule));
-          } else {
-            localStorage.setItem("scheduleEven", JSON.stringify(schedule));
-            localStorage.setItem(`scheduleEven_${activeScheduleId}`, JSON.stringify(schedule));
-          }
-        }
-      }
+      // Save only to per-schedule key
+      localStorage.setItem(storageKey, JSON.stringify(schedule));
       
       toast({
         title: "Raderad",

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Plus, Check, Trash2, Edit2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
 import { notificationService } from "@/services/notificationService";
@@ -22,6 +22,8 @@ const Home = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
+  const deleteTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Update time every second
   useEffect(() => {
@@ -219,6 +221,27 @@ const Home = () => {
 
   const handleDeleteSchedule = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    
+    // If not confirming this one, start confirmation
+    if (confirmingDeleteId !== id) {
+      // Clear any existing timeout
+      if (deleteTimeoutRef.current) {
+        clearTimeout(deleteTimeoutRef.current);
+      }
+      setConfirmingDeleteId(id);
+      // Auto-reset after 3 seconds
+      deleteTimeoutRef.current = setTimeout(() => {
+        setConfirmingDeleteId(null);
+      }, 3000);
+      return;
+    }
+    
+    // Confirmed - delete the schedule
+    if (deleteTimeoutRef.current) {
+      clearTimeout(deleteTimeoutRef.current);
+    }
+    setConfirmingDeleteId(null);
+    
     const updated = schedules.filter(s => s.id !== id);
     setSchedules(updated);
     localStorage.setItem("savedSchedules", JSON.stringify(updated));
@@ -353,7 +376,11 @@ const Home = () => {
                       onClick={(e) => handleDeleteSchedule(schedule.id, e)}
                       className="p-2 rounded-lg transition-colors active:bg-destructive/10"
                     >
-                      <Trash2 className="w-4 h-4 text-destructive" />
+                      {confirmingDeleteId === schedule.id ? (
+                        <Check className="w-4 h-4 text-destructive" />
+                      ) : (
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      )}
                     </button>
                   </div>
                 </div>

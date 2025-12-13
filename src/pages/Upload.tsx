@@ -43,25 +43,10 @@ const Upload = () => {
           canvas.height = height;
           ctx.drawImage(img, 0, 0, width, height);
 
-          // Convert to JPEG with higher quality for better AI analysis
-          let quality = 0.92; // Start with 92% for better text recognition
-          let resizedDataUrl = canvas.toDataURL('image/jpeg', quality);
+          // Convert to PNG for full quality (no compression artifacts)
+          const resizedDataUrl = canvas.toDataURL('image/png');
           
-          // Check size - Edge functions accept up to ~2MB
-          // Base64 is ~33% larger than binary, so keep under 2MB to be safe
-          const sizeInBytes = (resizedDataUrl.length * 3) / 4;
-          const sizeInMB = sizeInBytes / (1024 * 1024);
-          
-          console.log(`Image size: ${sizeInMB.toFixed(2)}MB at quality ${quality}`);
-          
-          // If too large, reduce quality but not below 60% to maintain text readability
-          while (sizeInMB > 2 && quality > 0.6) {
-            quality -= 0.1;
-            resizedDataUrl = canvas.toDataURL('image/jpeg', quality);
-            const newSize = (resizedDataUrl.length * 3) / 4 / (1024 * 1024);
-            console.log(`Reduced quality to ${quality.toFixed(2)}, new size: ${newSize.toFixed(2)}MB`);
-            if (newSize <= 2) break;
-          }
+          console.log(`Image converted to PNG, dimensions: ${width}x${height}`);
           
           resolve(resizedDataUrl);
         };

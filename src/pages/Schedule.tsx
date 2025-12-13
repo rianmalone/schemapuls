@@ -818,25 +818,25 @@ const Schedule = () => {
                   placeholder="t.ex. BRR2"
                 />
               </div>
-              <div className="flex items-start gap-3">
-                <div className="space-y-2 w-[45%]">
+              <div className="flex items-start gap-[85px]">
+                <div className="space-y-2">
                   <Label htmlFor="start" className="text-sm">Starttid</Label>
                   <Input
                     id="start"
                     type="time"
                     value={newClass.start}
                     onChange={(e) => setNewClass({ ...newClass, start: e.target.value })}
-                    className="text-sm"
+                    className="text-sm w-[100px]"
                   />
                 </div>
-                <div className="space-y-2 w-[45%]">
+                <div className="space-y-2">
                   <Label htmlFor="end" className="text-sm">Sluttid</Label>
                   <Input
                     id="end"
                     type="time"
                     value={newClass.end}
                     onChange={(e) => setNewClass({ ...newClass, end: e.target.value })}
-                    className="text-sm"
+                    className="text-sm w-[100px]"
                   />
                 </div>
               </div>

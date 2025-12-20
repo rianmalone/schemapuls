@@ -55,6 +55,7 @@ const Schedule = () => {
   const [hasNotificationPermission, setHasNotificationPermission] = useState(false);
   const [checkingPermissions, setCheckingPermissions] = useState(true);
   const [currentScheduleId, setCurrentScheduleId] = useState<string | null>(null);
+  const [scheduleName, setScheduleName] = useState<string>("Mitt Schema");
   const [isAddClassOpen, setIsAddClassOpen] = useState(false);
   const [newClass, setNewClass] = useState({
     name: "",
@@ -174,6 +175,16 @@ const Schedule = () => {
       }
       
       setCurrentScheduleId(viewingId);
+      
+      // Get schedule name from savedSchedules
+      const savedSchedules = localStorage.getItem("savedSchedules");
+      if (savedSchedules) {
+        const schedules = JSON.parse(savedSchedules);
+        const currentSchedule = schedules.find((s: { id: string; name: string }) => s.id === viewingId);
+        if (currentSchedule?.name) {
+          setScheduleName(currentSchedule.name);
+        }
+      }
       
       const savedSchedule = localStorage.getItem(`schedule_${viewingId}`);
       if (!savedSchedule) {
@@ -542,7 +553,7 @@ const Schedule = () => {
         )}
 
         <div className="mb-4">
-          <h1 className="text-2xl font-bold text-foreground">Mitt Schema</h1>
+          <h1 className="text-2xl font-bold text-foreground">{scheduleName}</h1>
         </div>
 
         <div className="mb-4 p-4 rounded-2xl bg-card border border-border">

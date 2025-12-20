@@ -128,6 +128,7 @@ const Upload = () => {
       
       localStorage.setItem(`schedule_${scheduleId}`, JSON.stringify(savedSchedule));
       localStorage.setItem("activeScheduleId", scheduleId);
+      localStorage.setItem("currentlyViewingScheduleId", scheduleId);
       localStorage.setItem("scheduleType", "weekly");
       
       const savedSchedules = JSON.parse(localStorage.getItem("savedSchedules") || "[]");

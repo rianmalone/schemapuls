@@ -26,7 +26,7 @@ export function Toaster() {
 
 function ToastProgressBar({ duration }: { duration: number }) {
   return (
-    <div className="absolute inset-x-0 bottom-0 z-10 h-1 bg-transparent overflow-hidden rounded-b-md pointer-events-none">
+    <div className="absolute -left-6 -right-8 bottom-0 z-10 h-1 bg-transparent overflow-hidden rounded-b-md pointer-events-none">
       <div 
         className="h-full w-full bg-primary origin-right animate-shrink-width"
         style={{ 

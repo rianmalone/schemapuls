@@ -33,6 +33,8 @@ function generateNotificationId(classId: string, targetDateIso: string, classSta
 export class NotificationService {
   private static instance: NotificationService;
   private scheduleWindowDays = 7; // Only schedule next N days
+  private readonly IMMEDIATE_NOTIF_PREFIX = 'immediateNotif_';
+  private readonly IMMEDIATE_NOTIF_COOLDOWN_MINUTES = 30; // Don't send duplicate immediate notifs within 30 minutes
 
   private constructor() {}
 
@@ -174,9 +176,18 @@ export class NotificationService {
             notificationTitle = `${classItem.name} om ${notificationMinutes} minuter`;
           } else if (lessonStartTime > now) {
             // Case 2: Reminder time passed but lesson hasn't started - immediate notification
+            // Check if we already sent an immediate notification for this class recently
+            if (this.hasRecentImmediateNotification(classItem.id, targetDateIso)) {
+              console.log(`[Notifications] Skipping immediate notification for ${classItem.name} on ${targetDateIso} - already sent recently`);
+              return; // Skip scheduling duplicate immediate notification
+            }
+            
             notificationTime = new Date(now.getTime() + 3000); // 3 seconds from now
             const minutesUntilStart = Math.ceil((lessonStartTime.getTime() - now.getTime()) / 60000);
             notificationTitle = `${classItem.name} börjar om ${minutesUntilStart} ${minutesUntilStart === 1 ? 'minut' : 'minuter'}`;
+            
+            // Mark that we're sending an immediate notification
+            this.markImmediateNotificationSent(classItem.id, targetDateIso);
           } else {
             // Case 3: Lesson already started - skip
             return;
@@ -285,6 +296,37 @@ export class NotificationService {
     const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
     const weekNo = Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
     return weekNo;
+  }
+
+  /**
+   * Check if we already sent an immediate notification for this class on this date recently
+   */
+  private hasRecentImmediateNotification(classId: string, targetDateIso: string): boolean {
+    const key = `${this.IMMEDIATE_NOTIF_PREFIX}${classId}_${targetDateIso}`;
+    const sentTimestampStr = localStorage.getItem(key);
+    
+    if (!sentTimestampStr) {
+      return false;
+    }
+
+    try {
+      const sentTimestamp = parseInt(sentTimestampStr, 10);
+      const now = Date.now();
+      const minutesSinceSent = (now - sentTimestamp) / (1000 * 60);
+      
+      return minutesSinceSent < this.IMMEDIATE_NOTIF_COOLDOWN_MINUTES;
+    } catch (error) {
+      console.error('[Notifications] Error checking recent immediate notification:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Mark that we sent an immediate notification for this class on this date
+   */
+  private markImmediateNotificationSent(classId: string, targetDateIso: string): void {
+    const key = `${this.IMMEDIATE_NOTIF_PREFIX}${classId}_${targetDateIso}`;
+    localStorage.setItem(key, Date.now().toString());
   }
 }
 

@@ -37,9 +37,18 @@ const App = () => {
         }
       });
 
+      // Set up periodic Sunday reschedule check (backup if app stays open)
+      // Check every 30 minutes when app is in foreground
+      const sundayCheckInterval = setInterval(() => {
+        autoRescheduleService.checkAndRescheduleOnSunday().catch(err => {
+          console.error('[App] Error during Sunday reschedule check:', err);
+        });
+      }, 30 * 60 * 1000); // 30 minutes
+
       // Cleanup
       return () => {
         listener.then(l => l.remove());
+        clearInterval(sundayCheckInterval);
       };
     }
   }, []);

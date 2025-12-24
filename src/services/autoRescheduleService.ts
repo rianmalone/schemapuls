@@ -15,6 +15,7 @@ interface WeekSchedule {
  */
 export class AutoRescheduleService {
   private static instance: AutoRescheduleService;
+  private readonly SUNDAY_RESCHEDULE_KEY = 'lastSundayReschedule';
 
   private constructor() {}
 
@@ -23,6 +24,39 @@ export class AutoRescheduleService {
       AutoRescheduleService.instance = new AutoRescheduleService();
     }
     return AutoRescheduleService.instance;
+  }
+
+
+  /**
+   * Check if we should reschedule on Sunday (backup reschedule)
+   * Returns true if it's Sunday and we haven't rescheduled in the last 6 hours
+   */
+  private shouldRescheduleOnSunday(): boolean {
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+    
+    // Only check on Sunday
+    if (dayOfWeek !== 0) {
+      return false;
+    }
+
+    const lastRescheduleStr = localStorage.getItem(this.SUNDAY_RESCHEDULE_KEY);
+    
+    if (!lastRescheduleStr) {
+      // Never rescheduled on a Sunday - do it
+      return true;
+    }
+
+    try {
+      const lastReschedule = new Date(lastRescheduleStr);
+      const hoursSinceLastReschedule = (now.getTime() - lastReschedule.getTime()) / (1000 * 60 * 60);
+      
+      // Reschedule if we haven't rescheduled in the last 6 hours (allows for multiple checks throughout Sunday)
+      return hoursSinceLastReschedule >= 6;
+    } catch (error) {
+      console.error('[AutoReschedule] Error checking Sunday reschedule time:', error);
+      return false;
+    }
   }
 
   /**
@@ -103,6 +137,24 @@ export class AutoRescheduleService {
       console.log('[AutoReschedule] ✅ Auto-reschedule complete');
     } catch (error) {
       console.error('[AutoReschedule] Error during auto-reschedule:', error);
+    }
+  }
+
+  /**
+   * Check if we should reschedule on Sunday and do it (backup reschedule)
+   * Called periodically when app is in foreground
+   */
+  async checkAndRescheduleOnSunday(): Promise<void> {
+    if (!Capacitor.isNativePlatform()) {
+      return;
+    }
+
+    if (this.shouldRescheduleOnSunday()) {
+      console.log('[AutoReschedule] Sunday detected - performing backup reschedule');
+      await this.rescheduleActiveSchedule();
+      
+      // Mark that we rescheduled on Sunday
+      localStorage.setItem(this.SUNDAY_RESCHEDULE_KEY, new Date().toISOString());
     }
   }
 }

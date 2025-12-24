@@ -5,7 +5,7 @@ export function Toaster() {
   const { toasts } = useToast();
 
   return (
-    <ToastProvider>
+    <ToastProvider duration={4000}>
       {toasts.map(function ({ id, title, description, action, ...props }) {
         return (
           <Toast key={id} {...props}>
@@ -26,9 +26,9 @@ export function Toaster() {
 
 function ToastProgressBar({ duration }: { duration: number }) {
   return (
-    <div className="absolute bottom-0 left-0 right-0 h-1 bg-transparent overflow-hidden rounded-b-md -mx-6 -mb-7">
+    <div className="absolute inset-x-0 bottom-0 z-10 h-1 bg-transparent overflow-hidden rounded-b-md pointer-events-none">
       <div 
-        className="h-full bg-primary origin-right animate-shrink-width"
+        className="h-full w-full bg-primary origin-right animate-shrink-width"
         style={{ 
           animationDuration: `${duration}ms`,
           animationTimingFunction: 'linear',

@@ -104,19 +104,20 @@ const Upload = () => {
     }
   };
 
-  const handleTakePhoto = async () => {
+  const handleImageClick = async () => {
     if (!Capacitor.isNativePlatform()) {
-      // On web, trigger file input instead
+      // On web, trigger file input
       document.getElementById('file-upload')?.click();
       return;
     }
 
+    // On native, use Camera plugin with Prompt to show native iOS picker
     try {
       const image = await CameraPlugin.getPhoto({
         quality: 90,
         allowEditing: false,
         resultType: CameraResultType.DataUrl,
-        source: CameraSource.Camera,
+        source: CameraSource.Prompt, // This shows the native iOS action sheet
       });
 
       if (image.dataUrl) {
@@ -133,56 +134,14 @@ const Upload = () => {
         }
       }
     } catch (error: any) {
-      console.error('Error taking photo:', error);
+      console.error('Error getting image:', error);
       // Handle user cancellation gracefully
-      if (error.message?.includes('cancel') || error.message?.includes('User cancelled')) {
+      if (error.message?.includes('cancel') || error.message?.includes('User cancelled') || error.message?.includes('User canceled')) {
         return; // User cancelled, don't show error
       }
       toast({
-        title: "Kunde inte öppna kameran",
-        description: error.message || "Kontrollera att appen har behörighet att använda kameran",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleSelectFromGallery = async () => {
-    if (!Capacitor.isNativePlatform()) {
-      // On web, trigger file input instead
-      document.getElementById('file-upload')?.click();
-      return;
-    }
-
-    try {
-      const image = await CameraPlugin.getPhoto({
-        quality: 90,
-        allowEditing: false,
-        resultType: CameraResultType.DataUrl,
-        source: CameraSource.Photos,
-      });
-
-      if (image.dataUrl) {
-        try {
-          const resizedImage = await resizeImage(image.dataUrl);
-          setPreview(resizedImage);
-        } catch (error) {
-          console.error('Error resizing image:', error);
-          toast({
-            title: "Kunde inte behandla bilden",
-            description: "Försök igen",
-            variant: "destructive",
-          });
-        }
-      }
-    } catch (error: any) {
-      console.error('Error selecting from gallery:', error);
-      // Handle user cancellation gracefully
-      if (error.message?.includes('cancel') || error.message?.includes('User cancelled')) {
-        return; // User cancelled, don't show error
-      }
-      toast({
-        title: "Kunde inte öppna galleriet",
-        description: error.message || "Kontrollera att appen har behörighet att komma åt bilder",
+        title: "Kunde inte öppna bildväljaren",
+        description: error.message || "Kontrollera att appen har behörighet att använda kameran och bilder",
         variant: "destructive",
       });
     }
@@ -345,83 +304,47 @@ const Upload = () => {
           </div>
 
           <div className="pt-4 space-y-4">
-            {Capacitor.isNativePlatform() ? (
-              // Native platform: Use camera buttons
-              <div className="space-y-3">
-                <div className="flex gap-3">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleTakePhoto}
-                    className="flex-1 py-6"
-                    size="lg"
-                  >
-                    <Camera className="w-5 h-5 mr-2" />
-                    Ta foto
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleSelectFromGallery}
-                    className="flex-1 py-6"
-                    size="lg"
-                  >
-                    <UploadIcon className="w-5 h-5 mr-2" />
-                    Välj från galleri
-                  </Button>
-                </div>
-                {preview && (
-                  <div className="p-4 border-2 border-border rounded-2xl bg-card">
+            <label
+              htmlFor="file-upload"
+              onClick={(e) => {
+                if (Capacitor.isNativePlatform()) {
+                  e.preventDefault();
+                  handleImageClick();
+                }
+              }}
+              className="block w-full p-8 border-2 border-dashed border-border rounded-2xl bg-card transition-colors cursor-pointer active:bg-accent"
+            >
+              <div className="flex flex-col items-center gap-3">
+                {preview ? (
+                  <>
+                    <Camera className="w-12 h-12 text-primary" />
                     <img src={preview} alt="Preview" className="w-full rounded-lg" />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      onClick={() => setPreview(null)}
-                      className="w-full mt-3"
-                    >
-                      Ta bort bild
-                    </Button>
-                  </div>
+                    <span className="text-sm text-muted-foreground">
+                      Klicka för att byta bild
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <UploadIcon className="w-12 h-12 text-muted-foreground" />
+                    <div className="text-center">
+                      <p className="text-foreground font-medium">
+                        Ladda upp en bild
+                      </p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Klicka eller dra en fil hit
+                      </p>
+                    </div>
+                  </>
                 )}
               </div>
-            ) : (
-              // Web platform: Use file input
-              <label
-                htmlFor="file-upload"
-                className="block w-full p-8 border-2 border-dashed border-border rounded-2xl bg-card transition-colors cursor-pointer active:bg-accent"
-              >
-                <div className="flex flex-col items-center gap-3">
-                  {preview ? (
-                    <>
-                      <Camera className="w-12 h-12 text-primary" />
-                      <img src={preview} alt="Preview" className="w-full rounded-lg" />
-                      <span className="text-sm text-muted-foreground">
-                        Klicka för att byta bild
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <UploadIcon className="w-12 h-12 text-muted-foreground" />
-                      <div className="text-center">
-                        <p className="text-foreground font-medium">
-                          Ladda upp en bild
-                        </p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Klicka eller dra en fil hit
-                        </p>
-                      </div>
-                    </>
-                  )}
-                </div>
-                <input
-                  id="file-upload"
-                  type="file"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                />
-              </label>
-            )}
+              <input
+                id="file-upload"
+                type="file"
+                className="hidden"
+                accept="image/*"
+                onChange={handleFileChange}
+              />
+            </label>
           </div>
 
           <Button

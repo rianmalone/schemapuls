@@ -10,7 +10,7 @@ The app needs camera and photo library permissions to work. You need to add thes
 
 ### Required Permissions:
 
-Add these three keys to your Info.plist:
+Add these TWO keys to your Info.plist:
 
 1. **NSCameraUsageDescription**
    - Key: `NSCameraUsageDescription`
@@ -22,10 +22,9 @@ Add these three keys to your Info.plist:
    - Type: String
    - Value: `"We need access to your photo library to select schedule images"`
 
-3. **NSPhotoLibraryAddUsageDescription** (for iOS 11+)
-   - Key: `NSPhotoLibraryAddUsageDescription`
-   - Type: String
-   - Value: `"We need access to save images to your photo library"`
+**Note:** We do NOT need `NSPhotoLibraryAddUsageDescription` since the app only reads/selects images, it doesn't save them.
+
+**Files App Access:** The Files app access (for uploading from Files) works through iOS system dialogs and doesn't require additional permissions - the file input handles this automatically.
 
 ## Alternative: Edit Info.plist as XML
 
@@ -36,8 +35,6 @@ If you prefer editing the XML directly, add these entries inside the `<dict>` ta
 <string>We need access to your camera to take photos of your schedule</string>
 <key>NSPhotoLibraryUsageDescription</key>
 <string>We need access to your photo library to select schedule images</string>
-<key>NSPhotoLibraryAddUsageDescription</key>
-<string>We need access to save images to your photo library</string>
 ```
 
 After adding these, rebuild your app and the permissions should work correctly.

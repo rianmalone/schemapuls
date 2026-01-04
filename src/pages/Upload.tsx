@@ -107,12 +107,26 @@ const Upload = () => {
   const handleImageClick = async () => {
     if (!Capacitor.isNativePlatform()) {
       // On web, trigger file input
-      document.getElementById('file-upload')?.click();
+      const fileInput = document.getElementById('file-upload');
+      if (fileInput) {
+        fileInput.click();
+      }
       return;
     }
 
     // On native, use Camera plugin with Prompt to show native iOS picker
+    // Defensive error handling for iPad, permissions, cancellations, etc.
     try {
+      // Check if CameraPlugin is available
+      if (!CameraPlugin || typeof CameraPlugin.getPhoto !== 'function') {
+        console.warn('Camera plugin not available, falling back to file input');
+        const fileInput = document.getElementById('file-upload');
+        if (fileInput) {
+          fileInput.click();
+        }
+        return;
+      }
+
       const image = await CameraPlugin.getPhoto({
         quality: 90,
         allowEditing: false,
@@ -120,28 +134,128 @@ const Upload = () => {
         source: CameraSource.Prompt, // This shows the native iOS action sheet
       });
 
-      if (image.dataUrl) {
-        try {
-          const resizedImage = await resizeImage(image.dataUrl);
+      // Defensive checks: image might be null/undefined, dataUrl might be missing
+      if (!image) {
+        console.log('No image returned (user may have cancelled)');
+        return; // Silent return for cancellation
+      }
+
+      if (!image.dataUrl || typeof image.dataUrl !== 'string' || image.dataUrl.trim() === '') {
+        console.warn('Image returned but dataUrl is missing or empty');
+        toast({
+          title: "Kunde inte ladda bilden",
+          description: "Bilden kunde inte laddas. Försök igen.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Process the image
+      try {
+        const resizedImage = await resizeImage(image.dataUrl);
+        if (resizedImage && typeof resizedImage === 'string' && resizedImage.trim() !== '') {
           setPreview(resizedImage);
-        } catch (error) {
-          console.error('Error resizing image:', error);
+        } else {
+          console.warn('Resized image is invalid');
           toast({
             title: "Kunde inte behandla bilden",
-            description: "Försök igen",
+            description: "Bilden kunde inte behandlas. Försök med en annan bild.",
             variant: "destructive",
           });
         }
+      } catch (resizeError) {
+        console.error('Error resizing image:', resizeError);
+        toast({
+          title: "Kunde inte behandla bilden",
+          description: "Bilden kunde inte behandlas. Försök med en annan bild.",
+          variant: "destructive",
+        });
       }
     } catch (error: any) {
+      // Comprehensive error handling for all failure modes
       console.error('Error getting image:', error);
-      // Handle user cancellation gracefully
-      if (error.message?.includes('cancel') || error.message?.includes('User cancelled') || error.message?.includes('User canceled')) {
-        return; // User cancelled, don't show error
+
+      // Extract error message safely
+      const errorMessage = error?.message || error?.toString() || '';
+      const errorCode = error?.code || '';
+      const errorString = String(errorMessage).toLowerCase();
+
+      // Handle user cancellation - silent return, no error shown
+      if (
+        errorString.includes('cancel') ||
+        errorString.includes('cancelled') ||
+        errorString.includes('canceled') ||
+        errorString.includes('user cancelled') ||
+        errorString.includes('user canceled') ||
+        errorCode === 'USER_CANCELLED' ||
+        errorCode === 'USER_CANCELED'
+      ) {
+        console.log('User cancelled image selection');
+        return; // Silent return - user cancelled, don't show error
       }
+
+      // Handle permission denied errors
+      if (
+        errorString.includes('permission') ||
+        errorString.includes('not authorized') ||
+        errorString.includes('access denied') ||
+        errorCode === 'PERMISSION_DENIED' ||
+        errorCode === 'NOT_AUTHORIZED'
+      ) {
+        toast({
+          title: "Behörighet saknas",
+          description: "Appen behöver behörighet för kameran och bilder. Gå till Inställningar för att ge behörighet.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Handle camera not available (e.g., iPad without camera)
+      if (
+        errorString.includes('camera not available') ||
+        errorString.includes('no camera') ||
+        errorString.includes('camera unavailable') ||
+        errorCode === 'CAMERA_UNAVAILABLE'
+      ) {
+        // Fall back to photo library only
+        try {
+          const image = await CameraPlugin.getPhoto({
+            quality: 90,
+            allowEditing: false,
+            resultType: CameraResultType.DataUrl,
+            source: CameraSource.Photos, // Fallback to photos only
+          });
+
+          if (image?.dataUrl) {
+            try {
+              const resizedImage = await resizeImage(image.dataUrl);
+              if (resizedImage) {
+                setPreview(resizedImage);
+              }
+            } catch (resizeError) {
+              console.error('Error resizing fallback image:', resizeError);
+              toast({
+                title: "Kunde inte behandla bilden",
+                description: "Försök igen",
+                variant: "destructive",
+              });
+            }
+          }
+        } catch (fallbackError) {
+          console.error('Fallback to photos also failed:', fallbackError);
+          toast({
+            title: "Kunde inte öppna bildväljaren",
+            description: "Kameran är inte tillgänglig. Försök välja en bild från galleriet.",
+            variant: "destructive",
+          });
+        }
+        return;
+      }
+
+      // Generic error handling - show user-friendly message
       toast({
         title: "Kunde inte öppna bildväljaren",
-        description: error.message || "Kontrollera att appen har behörighet att använda kameran och bilder",
+        description: "Ett oväntat fel uppstod. Försök igen eller välj en bild från filer.",
         variant: "destructive",
       });
     }

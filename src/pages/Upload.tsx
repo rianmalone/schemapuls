@@ -6,6 +6,8 @@ import { useToast } from "@/hooks/use-toast";
 import { notificationService } from "@/services/notificationService";
 import exampleSchedule from "@/assets/example-schedule.png";
 import { supabase } from "@/integrations/supabase/client";
+import { Capacitor } from "@capacitor/core";
+import { Camera as CameraPlugin, CameraResultType, CameraSource } from "@capacitor/camera";
 
 const Upload = () => {
   const navigate = useNavigate();
@@ -13,48 +15,55 @@ const Upload = () => {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
 
-  const resizeImage = (file: File): Promise<string> => {
+  const resizeImage = (file: File | string): Promise<string> => {
     return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          if (!ctx) {
-            reject(new Error('Could not get canvas context'));
-            return;
-          }
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Could not get canvas context'));
+          return;
+        }
 
-          // Resize to max 2048px on longest side for better AI analysis while maintaining aspect ratio
-          const maxDimension = 2048;
-          let width = img.width;
-          let height = img.height;
+        // Resize to max 2048px on longest side for better AI analysis while maintaining aspect ratio
+        const maxDimension = 2048;
+        let width = img.width;
+        let height = img.height;
 
-          if (width > height && width > maxDimension) {
-            height = (height * maxDimension) / width;
-            width = maxDimension;
-          } else if (height > maxDimension) {
-            width = (width * maxDimension) / height;
-            height = maxDimension;
-          }
+        if (width > height && width > maxDimension) {
+          height = (height * maxDimension) / width;
+          width = maxDimension;
+        } else if (height > maxDimension) {
+          width = (width * maxDimension) / height;
+          height = maxDimension;
+        }
 
-          canvas.width = width;
-          canvas.height = height;
-          ctx.drawImage(img, 0, 0, width, height);
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
 
-          // Convert to PNG for full quality (no compression artifacts)
-          const resizedDataUrl = canvas.toDataURL('image/png');
-          
-          console.log(`Image converted to PNG, dimensions: ${width}x${height}`);
-          
-          resolve(resizedDataUrl);
-        };
-        img.onerror = () => reject(new Error('Failed to load image'));
-        img.src = e.target?.result as string;
+        // Convert to PNG for full quality (no compression artifacts)
+        const resizedDataUrl = canvas.toDataURL('image/png');
+        
+        console.log(`Image converted to PNG, dimensions: ${width}x${height}`);
+        
+        resolve(resizedDataUrl);
       };
-      reader.onerror = () => reject(new Error('Failed to read file'));
-      reader.readAsDataURL(file);
+      img.onerror = () => reject(new Error('Failed to load image'));
+      
+      if (typeof file === 'string') {
+        // Already a data URL
+        img.src = file;
+      } else {
+        // File object - need to read it first
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          img.src = e.target?.result as string;
+        };
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsDataURL(file);
+      }
     });
   };
 
@@ -90,6 +99,90 @@ const Upload = () => {
       toast({
         title: "Kunde inte behandla bilden",
         description: "Försök med en annan bild",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleTakePhoto = async () => {
+    if (!Capacitor.isNativePlatform()) {
+      // On web, trigger file input instead
+      document.getElementById('file-upload')?.click();
+      return;
+    }
+
+    try {
+      const image = await CameraPlugin.getPhoto({
+        quality: 90,
+        allowEditing: false,
+        resultType: CameraResultType.DataUrl,
+        source: CameraSource.Camera,
+      });
+
+      if (image.dataUrl) {
+        try {
+          const resizedImage = await resizeImage(image.dataUrl);
+          setPreview(resizedImage);
+        } catch (error) {
+          console.error('Error resizing image:', error);
+          toast({
+            title: "Kunde inte behandla bilden",
+            description: "Försök igen",
+            variant: "destructive",
+          });
+        }
+      }
+    } catch (error: any) {
+      console.error('Error taking photo:', error);
+      // Handle user cancellation gracefully
+      if (error.message?.includes('cancel') || error.message?.includes('User cancelled')) {
+        return; // User cancelled, don't show error
+      }
+      toast({
+        title: "Kunde inte öppna kameran",
+        description: error.message || "Kontrollera att appen har behörighet att använda kameran",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSelectFromGallery = async () => {
+    if (!Capacitor.isNativePlatform()) {
+      // On web, trigger file input instead
+      document.getElementById('file-upload')?.click();
+      return;
+    }
+
+    try {
+      const image = await CameraPlugin.getPhoto({
+        quality: 90,
+        allowEditing: false,
+        resultType: CameraResultType.DataUrl,
+        source: CameraSource.Photos,
+      });
+
+      if (image.dataUrl) {
+        try {
+          const resizedImage = await resizeImage(image.dataUrl);
+          setPreview(resizedImage);
+        } catch (error) {
+          console.error('Error resizing image:', error);
+          toast({
+            title: "Kunde inte behandla bilden",
+            description: "Försök igen",
+            variant: "destructive",
+          });
+        }
+      }
+    } catch (error: any) {
+      console.error('Error selecting from gallery:', error);
+      // Handle user cancellation gracefully
+      if (error.message?.includes('cancel') || error.message?.includes('User cancelled')) {
+        return; // User cancelled, don't show error
+      }
+      toast({
+        title: "Kunde inte öppna galleriet",
+        description: error.message || "Kontrollera att appen har behörighet att komma åt bilder",
         variant: "destructive",
       });
     }
@@ -252,41 +345,83 @@ const Upload = () => {
           </div>
 
           <div className="pt-4 space-y-4">
-            <label
-              htmlFor="file-upload"
-              className="block w-full p-8 border-2 border-dashed border-border rounded-2xl bg-card transition-colors cursor-pointer active:bg-accent"
-            >
-              <div className="flex flex-col items-center gap-3">
-                {preview ? (
-                  <>
-                    <Camera className="w-12 h-12 text-primary" />
+            {Capacitor.isNativePlatform() ? (
+              // Native platform: Use camera buttons
+              <div className="space-y-3">
+                <div className="flex gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleTakePhoto}
+                    className="flex-1 py-6"
+                    size="lg"
+                  >
+                    <Camera className="w-5 h-5 mr-2" />
+                    Ta foto
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleSelectFromGallery}
+                    className="flex-1 py-6"
+                    size="lg"
+                  >
+                    <UploadIcon className="w-5 h-5 mr-2" />
+                    Välj från galleri
+                  </Button>
+                </div>
+                {preview && (
+                  <div className="p-4 border-2 border-border rounded-2xl bg-card">
                     <img src={preview} alt="Preview" className="w-full rounded-lg" />
-                    <span className="text-sm text-muted-foreground">
-                      Klicka för att byta bild
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <UploadIcon className="w-12 h-12 text-muted-foreground" />
-                    <div className="text-center">
-                      <p className="text-foreground font-medium">
-                        Ladda upp en bild
-                      </p>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Klicka eller dra en fil hit
-                      </p>
-                    </div>
-                  </>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setPreview(null)}
+                      className="w-full mt-3"
+                    >
+                      Ta bort bild
+                    </Button>
+                  </div>
                 )}
               </div>
-              <input
-                id="file-upload"
-                type="file"
-                className="hidden"
-                accept="image/*"
-                onChange={handleFileChange}
-              />
-            </label>
+            ) : (
+              // Web platform: Use file input
+              <label
+                htmlFor="file-upload"
+                className="block w-full p-8 border-2 border-dashed border-border rounded-2xl bg-card transition-colors cursor-pointer active:bg-accent"
+              >
+                <div className="flex flex-col items-center gap-3">
+                  {preview ? (
+                    <>
+                      <Camera className="w-12 h-12 text-primary" />
+                      <img src={preview} alt="Preview" className="w-full rounded-lg" />
+                      <span className="text-sm text-muted-foreground">
+                        Klicka för att byta bild
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <UploadIcon className="w-12 h-12 text-muted-foreground" />
+                      <div className="text-center">
+                        <p className="text-foreground font-medium">
+                          Ladda upp en bild
+                        </p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Klicka eller dra en fil hit
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </div>
+                <input
+                  id="file-upload"
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                />
+              </label>
+            )}
           </div>
 
           <Button

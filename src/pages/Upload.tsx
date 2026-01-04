@@ -114,10 +114,10 @@ const Upload = () => {
       return;
     }
 
-    // On native, use Camera plugin with Prompt to show native iOS picker
+    // On native, show modern iOS action sheet with Camera and Photo Library options
     // Defensive error handling for iPad, permissions, cancellations, etc.
     try {
-      // Check if CameraPlugin is available
+      // Check if plugins are available
       if (!CameraPlugin || typeof CameraPlugin.getPhoto !== 'function') {
         console.warn('Camera plugin not available, falling back to file input');
         const fileInput = document.getElementById('file-upload');
@@ -127,11 +127,15 @@ const Upload = () => {
         return;
       }
 
+      // Use native iOS action sheet via CameraSource.Prompt
+      // This automatically shows the modern iOS style action sheet with Camera and Photo Library
+      // No need for ActionSheet plugin - CameraSource.Prompt handles it natively
+
       const image = await CameraPlugin.getPhoto({
         quality: 90,
         allowEditing: false,
         resultType: CameraResultType.DataUrl,
-        source: CameraSource.Prompt, // This shows the native iOS action sheet
+        source: CameraSource.Prompt, // Native iOS action sheet (modern style on iOS 13+)
       });
 
       // Defensive checks: image might be null/undefined, dataUrl might be missing

@@ -9,6 +9,7 @@ import { App as CapacitorApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { autoRescheduleService } from "./services/autoRescheduleService";
+import { notificationService } from "./services/notificationService";
 import Home from "./pages/Home";
 import Upload from "./pages/Upload";
 import Schedule from "./pages/Schedule";
@@ -22,6 +23,11 @@ const App = () => {
     if (!Capacitor.isNativePlatform()) return;
 
     console.log('[App] Setting up auto-reschedule on app open');
+    
+    // Create Android notification channel (if on Android)
+    notificationService.createAndroidChannel().catch(err => {
+      console.error('[App] Error creating Android notification channel:', err);
+    });
     
     // Reschedule immediately when app loads
     autoRescheduleService.rescheduleActiveSchedule().catch(err => {

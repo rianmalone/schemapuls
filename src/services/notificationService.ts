@@ -35,6 +35,8 @@ export class NotificationService {
   private scheduleWindowDays = 7; // Only schedule next N days
   private readonly IMMEDIATE_NOTIF_PREFIX = 'immediateNotif_';
   private readonly IMMEDIATE_NOTIF_COOLDOWN_MINUTES = 30; // Don't send duplicate immediate notifs within 30 minutes
+  private readonly ANDROID_CHANNEL_ID = 'schemapuls_reminders';
+  private channelCreated = false; // Track if channel has been created
 
   private constructor() {}
 
@@ -47,6 +49,41 @@ export class NotificationService {
 
   setScheduleWindowDays(days: number): void {
     this.scheduleWindowDays = Math.max(1, Math.min(days, 14)); // 1-14 days
+  }
+
+  /**
+   * Create a custom Android notification channel with HIGH importance
+   * This should be called once during app initialization (Android only)
+   */
+  async createAndroidChannel(): Promise<void> {
+    if (!Capacitor.isNativePlatform()) {
+      return;
+    }
+
+    // Only create channel on Android
+    if (Capacitor.getPlatform() !== 'android') {
+      return;
+    }
+
+    // Avoid creating channel multiple times
+    if (this.channelCreated) {
+      return;
+    }
+
+    try {
+      await LocalNotifications.createChannel({
+        id: this.ANDROID_CHANNEL_ID,
+        name: 'SchemaPuls Påminnelser',
+        description: 'Påminnelser för dina lektioner',
+        importance: 4, // HIGH importance (4 = NotificationManager.IMPORTANCE_HIGH)
+        sound: 'default',
+        vibration: true,
+      });
+      this.channelCreated = true;
+      console.log('[Notifications] ✅ Android notification channel created:', this.ANDROID_CHANNEL_ID);
+    } catch (error) {
+      console.error('[Notifications] Error creating Android channel:', error);
+    }
   }
 
   async requestPermissions(): Promise<boolean> {
@@ -94,6 +131,9 @@ export class NotificationService {
     }
 
     try {
+      // Ensure Android channel is created before scheduling
+      await this.createAndroidChannel();
+
       const hasPermission = await this.checkPermissions();
       if (!hasPermission) {
         console.log('[Notifications] No notification permission');
@@ -197,7 +237,7 @@ export class NotificationService {
           const notificationId = generateNotificationId(classItem.id, targetDateIso, classItem.start);
           toScheduleIds.add(notificationId);
           
-          notifications.push({
+          const notification: any = {
             id: notificationId,
             title: notificationTitle,
             body: `${classItem.room ? `Sal: ${classItem.room} • ` : ''}Börjar ${classItem.start}`,
@@ -210,7 +250,14 @@ export class NotificationService {
               classId: classItem.id,
               targetDate: targetDateIso,
             },
-          });
+          };
+
+          // Add Android channel ID if on Android
+          if (Capacitor.getPlatform() === 'android') {
+            notification.channelId = this.ANDROID_CHANNEL_ID;
+          }
+
+          notifications.push(notification);
         });
       }
 

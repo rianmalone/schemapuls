@@ -7,6 +7,7 @@ import { ThemeProvider } from "next-themes";
 import { useEffect } from "react";
 import { App as CapacitorApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
+import { LocalNotifications } from '@capacitor/local-notifications';
 import { autoRescheduleService } from "./services/autoRescheduleService";
 import Home from "./pages/Home";
 import Upload from "./pages/Upload";
@@ -18,39 +19,45 @@ const queryClient = new QueryClient();
 
 const App = () => {
   useEffect(() => {
-    // Reschedule notifications every time the app opens or comes to foreground
-    if (Capacitor.isNativePlatform()) {
-      console.log('[App] Setting up auto-reschedule on app open');
-      
-      // Reschedule immediately when app loads
-      autoRescheduleService.rescheduleActiveSchedule().catch(err => {
-        console.error('[App] Error during initial auto-reschedule:', err);
-      });
+    if (!Capacitor.isNativePlatform()) return;
 
-      // Listen for app state changes (when app comes to foreground)
-      const listener = CapacitorApp.addListener('appStateChange', ({ isActive }) => {
-        if (isActive) {
-          console.log('[App] App came to foreground, rescheduling notifications');
-          autoRescheduleService.rescheduleActiveSchedule().catch(err => {
-            console.error('[App] Error during auto-reschedule:', err);
-          });
-        }
-      });
+    console.log('[App] Setting up auto-reschedule on app open');
+    
+    // Reschedule immediately when app loads
+    autoRescheduleService.rescheduleActiveSchedule().catch(err => {
+      console.error('[App] Error during initial auto-reschedule:', err);
+    });
 
-      // Set up periodic Sunday reschedule check (backup if app stays open)
-      // Check every 30 minutes when app is in foreground
-      const sundayCheckInterval = setInterval(() => {
-        autoRescheduleService.checkAndRescheduleOnSunday().catch(err => {
-          console.error('[App] Error during Sunday reschedule check:', err);
+    const appStateListener = CapacitorApp.addListener('appStateChange', ({ isActive }) => {
+      if (isActive) {
+        console.log('[App] App came to foreground, rescheduling notifications');
+        autoRescheduleService.rescheduleActiveSchedule().catch(err => {
+          console.error('[App] Error during auto-reschedule:', err);
         });
-      }, 30 * 60 * 1000); // 30 minutes
+      }
+    });
 
-      // Cleanup
-      return () => {
-        listener.then(l => l.remove());
-        clearInterval(sundayCheckInterval);
-      };
-    }
+    const notificationListener =
+      LocalNotifications.addListener('localNotificationReceived', (notification) => {
+        console.log('Notification received in foreground:', notification);
+
+        // Optional: trigger state refresh / reschedule logic if needed
+        // autoRescheduleService.handleNotification(notification);
+      });
+
+    // Set up periodic Sunday reschedule check (backup if app stays open)
+    // Check every 30 minutes when app is in foreground
+    const sundayCheckInterval = setInterval(() => {
+      autoRescheduleService.checkAndRescheduleOnSunday().catch(err => {
+        console.error('[App] Error during Sunday reschedule check:', err);
+      });
+    }, 30 * 60 * 1000); // 30 minutes
+
+    return () => {
+      appStateListener.then(l => l.remove());
+      notificationListener.then(l => l.remove());
+      clearInterval(sundayCheckInterval);
+    };
   }, []);
 
   return (

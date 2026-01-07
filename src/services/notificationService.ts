@@ -237,6 +237,7 @@ export class NotificationService {
           const notificationId = generateNotificationId(classItem.id, targetDateIso, classItem.start);
           toScheduleIds.add(notificationId);
           
+          // Build notification object - ALWAYS include channelId on Android
           const notification: any = {
             id: notificationId,
             title: notificationTitle,
@@ -244,7 +245,6 @@ export class NotificationService {
             schedule: {
               at: notificationTime,
             },
-            sound: 'default',
             actionTypeId: '',
             extra: {
               classId: classItem.id,
@@ -252,9 +252,14 @@ export class NotificationService {
             },
           };
 
-          // Add Android channel ID if on Android
+          // CRITICAL: Always include channelId on Android (required for HIGH importance channel)
           if (Capacitor.getPlatform() === 'android') {
             notification.channelId = this.ANDROID_CHANNEL_ID;
+            // Set sound to undefined for Android (channel handles sound)
+            notification.sound = undefined;
+          } else {
+            // iOS can use sound
+            notification.sound = 'default';
           }
 
           notifications.push(notification);
@@ -287,8 +292,19 @@ export class NotificationService {
         // Enhanced logging: show each notification being scheduled
         console.log('[Notifications] Scheduling', notificationsToSchedule.length, 'notifications:');
         notificationsToSchedule.forEach((n, idx) => {
-          console.log(`[Notifications]   ${idx + 1}. ID:${n.id} | ${n.schedule.at.toISOString()} | ${n.title}`);
+          const channelInfo = n.channelId ? ` | Channel: ${n.channelId}` : '';
+          console.log(`[Notifications]   ${idx + 1}. ID:${n.id} | ${n.schedule.at.toISOString()} | ${n.title}${channelInfo}`);
         });
+        
+        // Verify channelId is present on Android
+        if (Capacitor.getPlatform() === 'android') {
+          const missingChannelId = notificationsToSchedule.filter((n: any) => !n.channelId);
+          if (missingChannelId.length > 0) {
+            console.error('[Notifications] ⚠️ WARNING: Some notifications missing channelId!', missingChannelId.length);
+          } else {
+            console.log('[Notifications] ✅ All notifications have channelId:', this.ANDROID_CHANNEL_ID);
+          }
+        }
         
         await LocalNotifications.schedule({ notifications: notificationsToSchedule });
         console.log('[Notifications] ✅ Successfully scheduled', notificationsToSchedule.length, 'notifications');

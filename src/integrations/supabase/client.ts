@@ -21,6 +21,22 @@ if (typeof window !== 'undefined') {
   }
 }
 
+// DEBUG: basic connectivity test
+if (typeof window !== 'undefined' && SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY) {
+  fetch(`${SUPABASE_URL}/rest/v1/`, {
+    method: 'GET',
+    headers: {
+      apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+    },
+  })
+    .then(res => {
+      console.log('[DEBUG] Supabase REST reachable:', res.status);
+    })
+    .catch(err => {
+      console.error('[DEBUG] Supabase REST FAILED:', err);
+    });
+}
+
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 

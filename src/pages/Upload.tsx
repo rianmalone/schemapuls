@@ -104,6 +104,36 @@ const Upload = () => {
     }
   };
 
+  // Convert image URI to data URL (for Android - avoids large base64 in memory)
+  const uriToDataUrl = async (uri: string): Promise<string> => {
+    try {
+      console.log('[Upload] Converting URI to data URL:', uri);
+      const response = await fetch(uri);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
+      }
+      
+      const blob = await response.blob();
+      console.log('[Upload] Image blob size:', blob.size, 'bytes');
+      
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const dataUrl = reader.result as string;
+          console.log('[Upload] ✅ URI converted to data URL, length:', dataUrl.length);
+          resolve(dataUrl);
+        };
+        reader.onerror = () => {
+          reject(new Error('Failed to read image blob'));
+        };
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error('[Upload] Error converting URI to data URL:', error);
+      throw error;
+    }
+  };
+
   const handleImageClick = async () => {
     if (!Capacitor.isNativePlatform()) {
       // On web, trigger file input
@@ -114,12 +144,14 @@ const Upload = () => {
       return;
     }
 
-    // On native, show modern iOS action sheet with Camera and Photo Library options
-    // Defensive error handling for iPad, permissions, cancellations, etc.
+    // On native, use Uri on Android to avoid large base64 payloads, DataUrl on iOS
+    const isAndroid = Capacitor.getPlatform() === 'android';
+    const resultType = isAndroid ? CameraResultType.Uri : CameraResultType.DataUrl;
+
     try {
       // Check if plugins are available
       if (!CameraPlugin || typeof CameraPlugin.getPhoto !== 'function') {
-        console.warn('Camera plugin not available, falling back to file input');
+        console.warn('[Upload] Camera plugin not available, falling back to file input');
         const fileInput = document.getElementById('file-upload');
         if (fileInput) {
           fileInput.click();
@@ -127,25 +159,53 @@ const Upload = () => {
         return;
       }
 
-      // Use native iOS action sheet via CameraSource.Prompt
-      // This automatically shows the modern iOS style action sheet with Camera and Photo Library
-      // No need for ActionSheet plugin - CameraSource.Prompt handles it natively
+      console.log('[Upload] Opening camera/photo picker, resultType:', resultType, 'platform:', Capacitor.getPlatform());
 
       const image = await CameraPlugin.getPhoto({
         quality: 90,
         allowEditing: false,
-        resultType: CameraResultType.DataUrl,
-        source: CameraSource.Prompt, // Native iOS action sheet (modern style on iOS 13+)
+        resultType: resultType,
+        source: CameraSource.Prompt,
       });
 
-      // Defensive checks: image might be null/undefined, dataUrl might be missing
+      // Defensive checks: image might be null/undefined
       if (!image) {
-        console.log('No image returned (user may have cancelled)');
+        console.log('[Upload] No image returned (user may have cancelled)');
         return; // Silent return for cancellation
       }
 
-      if (!image.dataUrl || typeof image.dataUrl !== 'string' || image.dataUrl.trim() === '') {
-        console.warn('Image returned but dataUrl is missing or empty');
+      let imageDataUrl: string;
+
+      if (isAndroid && image.webPath) {
+        // Android: Convert URI to data URL via blob
+        console.log('[Upload] Android: Converting webPath to data URL:', image.webPath);
+        try {
+          imageDataUrl = await uriToDataUrl(image.webPath);
+        } catch (uriError) {
+          console.error('[Upload] Failed to convert URI to data URL:', uriError);
+          toast({
+            title: "Kunde inte ladda bilden",
+            description: "Bilden kunde inte laddas från enheten. Försök igen.",
+            variant: "destructive",
+          });
+          return;
+        }
+      } else if (image.dataUrl) {
+        // iOS: Use dataUrl directly
+        console.log('[Upload] iOS: Using dataUrl directly, length:', image.dataUrl.length);
+        imageDataUrl = image.dataUrl;
+      } else {
+        console.error('[Upload] Image returned but no webPath (Android) or dataUrl (iOS)');
+        toast({
+          title: "Kunde inte ladda bilden",
+          description: "Bilden kunde inte laddas. Försök igen.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!imageDataUrl || typeof imageDataUrl !== 'string' || imageDataUrl.trim() === '') {
+        console.error('[Upload] Image data URL is empty or invalid');
         toast({
           title: "Kunde inte ladda bilden",
           description: "Bilden kunde inte laddas. Försök igen.",
@@ -156,11 +216,13 @@ const Upload = () => {
 
       // Process the image
       try {
-        const resizedImage = await resizeImage(image.dataUrl);
+        console.log('[Upload] Resizing image...');
+        const resizedImage = await resizeImage(imageDataUrl);
         if (resizedImage && typeof resizedImage === 'string' && resizedImage.trim() !== '') {
+          console.log('[Upload] ✅ Image processed successfully');
           setPreview(resizedImage);
         } else {
-          console.warn('Resized image is invalid');
+          console.error('[Upload] Resized image is invalid');
           toast({
             title: "Kunde inte behandla bilden",
             description: "Bilden kunde inte behandlas. Försök med en annan bild.",
@@ -168,7 +230,7 @@ const Upload = () => {
           });
         }
       } catch (resizeError) {
-        console.error('Error resizing image:', resizeError);
+        console.error('[Upload] Error resizing image:', resizeError);
         toast({
           title: "Kunde inte behandla bilden",
           description: "Bilden kunde inte behandlas. Försök med en annan bild.",
@@ -222,22 +284,43 @@ const Upload = () => {
         errorCode === 'CAMERA_UNAVAILABLE'
       ) {
         // Fall back to photo library only
+        const isAndroid = Capacitor.getPlatform() === 'android';
+        const fallbackResultType = isAndroid ? CameraResultType.Uri : CameraResultType.DataUrl;
+        
         try {
+          console.log('[Upload] Camera unavailable, falling back to photos, resultType:', fallbackResultType);
           const image = await CameraPlugin.getPhoto({
             quality: 90,
             allowEditing: false,
-            resultType: CameraResultType.DataUrl,
+            resultType: fallbackResultType,
             source: CameraSource.Photos, // Fallback to photos only
           });
 
-          if (image?.dataUrl) {
+          if (isAndroid && image?.webPath) {
+            // Android: Convert URI
+            try {
+              const imageDataUrl = await uriToDataUrl(image.webPath);
+              const resizedImage = await resizeImage(imageDataUrl);
+              if (resizedImage) {
+                setPreview(resizedImage);
+              }
+            } catch (fallbackError) {
+              console.error('[Upload] Error processing fallback image (Android):', fallbackError);
+              toast({
+                title: "Kunde inte behandla bilden",
+                description: "Försök igen",
+                variant: "destructive",
+              });
+            }
+          } else if (image?.dataUrl) {
+            // iOS: Use dataUrl directly
             try {
               const resizedImage = await resizeImage(image.dataUrl);
               if (resizedImage) {
                 setPreview(resizedImage);
               }
-            } catch (resizeError) {
-              console.error('Error resizing fallback image:', resizeError);
+            } catch (fallbackError) {
+              console.error('[Upload] Error resizing fallback image (iOS):', fallbackError);
               toast({
                 title: "Kunde inte behandla bilden",
                 description: "Försök igen",
@@ -246,7 +329,7 @@ const Upload = () => {
             }
           }
         } catch (fallbackError) {
-          console.error('Fallback to photos also failed:', fallbackError);
+          console.error('[Upload] Fallback to photos also failed:', fallbackError);
           toast({
             title: "Kunde inte öppna bildväljaren",
             description: "Kameran är inte tillgänglig. Försök välja en bild från galleriet.",
@@ -280,26 +363,57 @@ const Upload = () => {
     try {
       const scheduleId = Date.now().toString();
       
+      console.log('[Upload] ===== STARTING SCHEMA ANALYSIS =====');
+      console.log('[Upload] Preview image length:', preview.length, 'characters');
+      console.log('[Upload] Preview image size (approx):', Math.round((preview.length * 3) / 4 / 1024), 'KB');
+      
       // Process single schedule
-      const { data, error } = await supabase.functions.invoke('analyze-schedule', {
-        body: { imageBase64: preview }
-      });
+      let data, error;
+      try {
+        console.log('[Upload] Calling analyze-schedule function...');
+        const result = await supabase.functions.invoke('analyze-schedule', {
+          body: { imageBase64: preview }
+        });
+        data = result.data;
+        error = result.error;
+        console.log('[Upload] Function call completed, error:', error ? 'YES' : 'NO', 'data:', data ? 'YES' : 'NO');
+      } catch (invokeError) {
+        console.error('[Upload] 🚨 CRITICAL: Failed to invoke analyze-schedule function:', invokeError);
+        throw new Error(`Kunde inte ansluta till servern: ${invokeError instanceof Error ? invokeError.message : String(invokeError)}`);
+      }
 
       if (error) {
-        console.error('Error:', error);
+        console.error('[Upload] 🚨 Function returned error:', error);
+        console.error('[Upload] Error details:', JSON.stringify(error, null, 2));
         throw new Error(error.message || 'Kunde inte ansluta till servern');
       }
 
+      if (!data) {
+        console.error('[Upload] 🚨 Function returned no data');
+        throw new Error('Ingen data returnerades från servern');
+      }
+
       if (data?.error) {
+        console.error('[Upload] 🚨 Analysis error in response:', data.error);
+        console.error('[Upload] Error message:', data.message);
         throw new Error(data.message || 'Kunde inte analysera schemat');
+      }
+
+      console.log('[Upload] ✅ Analysis succeeded, schedule data received');
+      
+      if (!data.schedule) {
+        console.error('[Upload] 🚨 No schedule in response data:', data);
+        throw new Error('Inget schema returnerades från analysen');
       }
       
       const savedSchedule = data.schedule;
+      console.log('[Upload] Schedule data:', Object.keys(savedSchedule).length, 'days');
       
       localStorage.setItem(`schedule_${scheduleId}`, JSON.stringify(savedSchedule));
       localStorage.setItem("activeScheduleId", scheduleId);
       localStorage.setItem("currentlyViewingScheduleId", scheduleId);
       localStorage.setItem("scheduleType", "weekly");
+      console.log('[Upload] ✅ Schedule saved to localStorage');
       
       const savedSchedules = JSON.parse(localStorage.getItem("savedSchedules") || "[]");
       savedSchedules.push({
@@ -353,9 +467,13 @@ const Upload = () => {
         );
       }
       
+      console.log('[Upload] ===== SCHEMA ANALYSIS COMPLETE =====');
       navigate("/schedule");
     } catch (error) {
-      console.error('Error analyzing schedule:', error);
+      console.error('[Upload] ===== SCHEMA ANALYSIS FAILED =====');
+      console.error('[Upload] Error type:', error instanceof Error ? error.constructor.name : typeof error);
+      console.error('[Upload] Error message:', error instanceof Error ? error.message : String(error));
+      console.error('[Upload] Full error:', error);
       
       // Clear preview image so user can upload new ones
       setPreview(null);
@@ -368,9 +486,10 @@ const Upload = () => {
         }
       });
       
+      const errorMessage = error instanceof Error ? error.message : String(error);
       toast({
         title: "Kunde inte analysera bilden",
-        description: "Försök igen med en tydligare bild av schemat. Se till att hela schemat syns och är läsbart.",
+        description: errorMessage || "Försök igen med en tydligare bild av schemat. Se till att hela schemat syns och är läsbart.",
         variant: "destructive",
       });
     } finally {

@@ -374,7 +374,7 @@ const Upload = () => {
       console.log('[Upload] Platform:', Capacitor.getPlatform());
       console.log('[Upload] VITE_SUPABASE_URL:', import.meta.env.VITE_SUPABASE_URL ? 'DEFINED' : 'UNDEFINED', import.meta.env.VITE_SUPABASE_URL);
       console.log('[Upload] VITE_SUPABASE_ANON_KEY:', import.meta.env.VITE_SUPABASE_ANON_KEY ? 'DEFINED' : 'UNDEFINED', import.meta.env.VITE_SUPABASE_ANON_KEY ? `${import.meta.env.VITE_SUPABASE_ANON_KEY.substring(0, 20)}...` : 'N/A');
-      console.log('[Upload] VITE_SUPABASE_PUBLISHABLE_KEY:', import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ? 'DEFINED (NOT USED FOR EDGE FUNCTIONS)' : 'UNDEFINED');
+      console.log('[Upload] VITE_SUPABASE_PUBLISHABLE_KEY:', import.meta.env.VITE_SUPABASE_ANON_KEY ? 'DEFINED (NOT USED FOR EDGE FUNCTIONS)' : 'UNDEFINED');
       console.log('[Upload] All VITE_ env vars:', Object.keys(import.meta.env).filter(k => k.startsWith('VITE_')));
       
       // DIAGNOSTICS: Check Supabase client configuration

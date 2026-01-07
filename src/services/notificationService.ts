@@ -253,13 +253,20 @@ export class NotificationService {
           };
 
           // CRITICAL: Always include channelId on Android (required for HIGH importance channel)
-          if (Capacitor.getPlatform() === 'android') {
+          // Use isNativePlatform check first, then platform-specific check
+          const platform = Capacitor.getPlatform();
+          if (Capacitor.isNativePlatform() && platform === 'android') {
             notification.channelId = this.ANDROID_CHANNEL_ID;
             // Set sound to undefined for Android (channel handles sound)
             notification.sound = undefined;
           } else {
             // iOS can use sound
             notification.sound = 'default';
+          }
+          
+          // Defensive check: Log if Android but channelId missing (should never happen)
+          if (platform === 'android' && !notification.channelId) {
+            console.error('[Notifications] 🚨 CRITICAL: Android notification created without channelId!', notification);
           }
 
           notifications.push(notification);
@@ -296,11 +303,14 @@ export class NotificationService {
           console.log(`[Notifications]   ${idx + 1}. ID:${n.id} | ${n.schedule.at.toISOString()} | ${n.title}${channelInfo}`);
         });
         
-        // Verify channelId is present on Android
+        // HARD ASSERTION: Verify channelId is present on Android (throws if missing)
         if (Capacitor.getPlatform() === 'android') {
           const missingChannelId = notificationsToSchedule.filter((n: any) => !n.channelId);
           if (missingChannelId.length > 0) {
-            console.error('[Notifications] ⚠️ WARNING: Some notifications missing channelId!', missingChannelId.length);
+            console.error('[Notifications] 🚨 CRITICAL: ANDROID NOTIFICATION WITHOUT CHANNEL ID!', missingChannelId);
+            console.error('[Notifications] Missing channelId notifications:', JSON.stringify(missingChannelId, null, 2));
+            // Throw error to prevent scheduling without channelId
+            throw new Error(`Cannot schedule ${missingChannelId.length} Android notification(s) without channelId. This will cause default channel fallback.`);
           } else {
             console.log('[Notifications] ✅ All notifications have channelId:', this.ANDROID_CHANNEL_ID);
           }

@@ -5,6 +5,22 @@ import type { Database } from './types';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
+// Log environment variable status (helpful for debugging Android builds)
+if (typeof window !== 'undefined') {
+  console.log('[Supabase] Environment check:', {
+    url: SUPABASE_URL ? 'DEFINED' : 'UNDEFINED',
+    key: SUPABASE_PUBLISHABLE_KEY ? 'DEFINED' : 'UNDEFINED',
+    platform: (window as any).Capacitor?.getPlatform?.() || 'web'
+  });
+  
+  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+    console.error('[Supabase] 🚨 CRITICAL: Missing environment variables!');
+    console.error('[Supabase] VITE_SUPABASE_URL:', SUPABASE_URL);
+    console.error('[Supabase] VITE_SUPABASE_PUBLISHABLE_KEY:', SUPABASE_PUBLISHABLE_KEY ? 'SET (hidden)' : 'MISSING');
+    console.error('[Supabase] All VITE_ env vars:', Object.keys(import.meta.env).filter(k => k.startsWith('VITE_')));
+  }
+}
+
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 

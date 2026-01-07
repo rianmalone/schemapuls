@@ -349,6 +349,8 @@ const Upload = () => {
   };
 
   const handleProcess = async () => {
+    const DEBUG_MINIMAL_PAYLOAD = true;
+    
     if (!preview) {
       toast({
         title: "Ingen bild",
@@ -367,19 +369,169 @@ const Upload = () => {
       console.log('[Upload] Preview image length:', preview.length, 'characters');
       console.log('[Upload] Preview image size (approx):', Math.round((preview.length * 3) / 4 / 1024), 'KB');
       
-      // Process single schedule
+      // DIAGNOSTICS: Check environment variables
+      console.log('[Upload] ===== ENVIRONMENT DIAGNOSTICS =====');
+      console.log('[Upload] Platform:', Capacitor.getPlatform());
+      console.log('[Upload] VITE_SUPABASE_URL:', import.meta.env.VITE_SUPABASE_URL ? 'DEFINED' : 'UNDEFINED', import.meta.env.VITE_SUPABASE_URL);
+      console.log('[Upload] VITE_SUPABASE_ANON_KEY:', import.meta.env.VITE_SUPABASE_ANON_KEY ? 'DEFINED' : 'UNDEFINED', import.meta.env.VITE_SUPABASE_ANON_KEY ? `${import.meta.env.VITE_SUPABASE_ANON_KEY.substring(0, 20)}...` : 'N/A');
+      console.log('[Upload] VITE_SUPABASE_PUBLISHABLE_KEY:', import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ? 'DEFINED (NOT USED FOR EDGE FUNCTIONS)' : 'UNDEFINED');
+      console.log('[Upload] All VITE_ env vars:', Object.keys(import.meta.env).filter(k => k.startsWith('VITE_')));
+      
+      // DIAGNOSTICS: Check Supabase client configuration
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const edgeFunctionUrl = supabaseUrl ? `${supabaseUrl}/functions/v1/analyze-schedule` : 'UNDEFINED';
+      console.log('[Upload] Edge Function URL:', edgeFunctionUrl);
+      
+      // Try to access supabase client internals (if available)
+      try {
+        // @ts-ignore - accessing internal property for diagnostics
+        const clientUrl = supabase?.supabaseUrl || (supabase as any)?._supabaseUrl || 'NOT ACCESSIBLE';
+        console.log('[Upload] Supabase client internal URL:', clientUrl);
+      } catch (e) {
+        console.log('[Upload] Could not access Supabase client URL:', e);
+      }
+      
+      // Test endpoint reachability (simple GET ping)
+      const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      if (edgeFunctionUrl && edgeFunctionUrl !== 'UNDEFINED' && anonKey) {
+        try {
+          console.log('[Upload] ===== TESTING ENDPOINT REACHABILITY =====');
+          console.log('[Upload] Test URL:', edgeFunctionUrl);
+          console.log('[Upload] Test method: GET');
+          console.log('[Upload] Test headers:', {
+            'apikey': 'SET (using ANON_KEY)',
+            'Authorization': 'SET (using ANON_KEY)'
+          });
+          
+          const testResponse = await fetch(edgeFunctionUrl, {
+            method: 'GET',
+            headers: {
+              'apikey': anonKey,
+              'Authorization': `Bearer ${anonKey}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          console.log('[Upload] Test response status:', testResponse.status);
+          console.log('[Upload] Test response OK:', testResponse.ok);
+          console.log('[Upload] Test response headers:');
+          testResponse.headers.forEach((value, key) => {
+            console.log(`[Upload]   ${key}: ${value}`);
+          });
+          
+          // Check for CORS header
+          const corsHeader = testResponse.headers.get('Access-Control-Allow-Origin');
+          console.log('[Upload] CORS header (Access-Control-Allow-Origin):', corsHeader || 'MISSING');
+          
+          if (!corsHeader) {
+            console.error('[Upload] 🚨 WARNING: CORS header missing in response!');
+          }
+        } catch (reachError) {
+          console.error('[Upload] 🚨 Endpoint NOT reachable:', reachError);
+          console.error('[Upload] Reachability error type:', reachError instanceof Error ? reachError.constructor.name : typeof reachError);
+          console.error('[Upload] Reachability error message:', reachError instanceof Error ? reachError.message : String(reachError));
+          console.error('[Upload] Reachability error stack:', reachError instanceof Error ? reachError.stack : 'N/A');
+        }
+      } else {
+        console.error('[Upload] 🚨 Cannot test reachability - missing URL or ANON key');
+        console.error('[Upload]   URL:', edgeFunctionUrl);
+        console.error('[Upload]   ANON Key:', anonKey ? 'SET' : 'MISSING');
+      }
+      
+      // Process single schedule - USING EXPLICIT FETCH WITH AUTHORIZATION HEADERS
       let data, error;
       try {
-        console.log('[Upload] Calling analyze-schedule function...');
-        const result = await supabase.functions.invoke('analyze-schedule', {
-          body: { imageBase64: preview }
+        console.log('[Upload] ===== CALLING EDGE FUNCTION (EXPLICIT FETCH) =====');
+        console.log('[Upload] Function name: analyze-schedule');
+        console.log('[Upload] Using explicit fetch() with ANON_KEY (required for Android)');
+        
+        if (!edgeFunctionUrl || edgeFunctionUrl === 'UNDEFINED' || !anonKey) {
+          throw new Error(`Missing Supabase URL or ANON key. URL: ${edgeFunctionUrl ? 'OK' : 'MISSING'}, ANON Key: ${anonKey ? 'OK' : 'MISSING'}`);
+        }
+        
+        const testImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+        const payload = { imageBase64: DEBUG_MINIMAL_PAYLOAD ? testImage : preview };
+        const payloadSize = JSON.stringify(payload).length;
+        console.log('[Upload] Payload size:', payloadSize, 'bytes');
+        console.log('[Upload] Payload size (KB):', Math.round(payloadSize / 1024), 'KB');
+        
+        const headers = {
+          'apikey': anonKey,
+          'Authorization': `Bearer ${anonKey}`,
+          'Content-Type': 'application/json'
+        };
+        
+        console.log('[Upload] Request headers:', {
+          'apikey': 'SET (using ANON_KEY)',
+          'Authorization': 'SET (using ANON_KEY)',
+          'Content-Type': 'application/json'
         });
-        data = result.data;
-        error = result.error;
-        console.log('[Upload] Function call completed, error:', error ? 'YES' : 'NO', 'data:', data ? 'YES' : 'NO');
-      } catch (invokeError) {
-        console.error('[Upload] 🚨 CRITICAL: Failed to invoke analyze-schedule function:', invokeError);
-        throw new Error(`Kunde inte ansluta till servern: ${invokeError instanceof Error ? invokeError.message : String(invokeError)}`);
+        console.log('[Upload] Request URL:', edgeFunctionUrl);
+        console.log('[Upload] Request method: POST');
+        
+        const startTime = Date.now();
+        const response = await fetch(edgeFunctionUrl, {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify(payload)
+        });
+        const duration = Date.now() - startTime;
+        
+        console.log('[Upload] ===== EDGE FUNCTION RESPONSE =====');
+        console.log('[Upload] Response time:', duration, 'ms');
+        console.log('[Upload] Response status:', response.status);
+        console.log('[Upload] Response OK:', response.ok);
+        console.log('[Upload] Response headers:');
+        response.headers.forEach((value, key) => {
+          console.log(`[Upload]   ${key}: ${value}`);
+        });
+        
+        // Check CORS header
+        const corsHeader = response.headers.get('Access-Control-Allow-Origin');
+        console.log('[Upload] CORS header (Access-Control-Allow-Origin):', corsHeader || 'MISSING');
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('[Upload] 🚨 Response not OK');
+          console.error('[Upload] Status:', response.status, response.statusText);
+          console.error('[Upload] Error body:', errorText);
+          
+          let errorData;
+          try {
+            errorData = JSON.parse(errorText);
+          } catch {
+            errorData = { message: errorText };
+          }
+          
+          error = {
+            message: errorData.message || `HTTP ${response.status}: ${response.statusText}`,
+            status: response.status
+          };
+          data = null;
+        } else {
+          const responseText = await response.text();
+          console.log('[Upload] Response body length:', responseText.length, 'characters');
+          
+          try {
+            data = JSON.parse(responseText);
+            console.log('[Upload] Response parsed successfully');
+            console.log('[Upload] Response data keys:', Object.keys(data));
+            error = null;
+          } catch (parseError) {
+            console.error('[Upload] 🚨 Failed to parse response JSON:', parseError);
+            error = {
+              message: 'Invalid JSON response from server',
+              details: parseError instanceof Error ? parseError.message : String(parseError)
+            };
+            data = null;
+          }
+        }
+      } catch (fetchError) {
+        console.error('[Upload] 🚨 CRITICAL: Failed to fetch Edge Function:', fetchError);
+        console.error('[Upload] Fetch error type:', fetchError instanceof Error ? fetchError.constructor.name : typeof fetchError);
+        console.error('[Upload] Fetch error message:', fetchError instanceof Error ? fetchError.message : String(fetchError));
+        console.error('[Upload] Fetch error stack:', fetchError instanceof Error ? fetchError.stack : 'N/A');
+        throw new Error(`Kunde inte ansluta till servern: ${fetchError instanceof Error ? fetchError.message : String(fetchError)}`);
       }
 
       if (error) {

@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Trash2, Clock } from "lucide-react";
+import { ArrowLeft, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -197,30 +197,24 @@ const EditClass = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="start">Starttid</Label>
-                <div className="relative">
-                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                  <Input
-                    id="start"
-                    type="time"
-                    value={classData.start}
-                    onChange={(e) => setClassData({ ...classData, start: e.target.value })}
-                    className="rounded-xl w-full pl-10"
-                  />
-                </div>
+                <Input
+                  id="start"
+                  type="time"
+                  value={classData.start}
+                  onChange={(e) => setClassData({ ...classData, start: e.target.value })}
+                  className="rounded-xl w-full"
+                />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="end">Sluttid</Label>
-                <div className="relative">
-                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                  <Input
-                    id="end"
-                    type="time"
-                    value={classData.end}
-                    onChange={(e) => setClassData({ ...classData, end: e.target.value })}
-                    className="rounded-xl w-full pl-10"
-                  />
-                </div>
+                <Input
+                  id="end"
+                  type="time"
+                  value={classData.end}
+                  onChange={(e) => setClassData({ ...classData, end: e.target.value })}
+                  className="rounded-xl w-full"
+                />
               </div>
             </div>
           </div>

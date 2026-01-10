@@ -284,7 +284,7 @@ const Home = () => {
       <div className="max-w-md mx-auto p-6 pt-12">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
-            <h1 className="text-4xl font-bold text-foreground mb-1">SchemaPuls</h1>
+            <h1 className="text-4xl font-bold text-foreground mb-1">SchemaPul</h1>
             <p className="text-sm font-medium text-foreground/80 mb-2">
               {(() => {
                 const { weekNumber, dayName, date } = getCurrentWeekAndDay();

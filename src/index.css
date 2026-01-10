@@ -127,4 +127,14 @@ All colors MUST be HSL.
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* Hide native time input picker icon */
+  input[type="time"]::-webkit-calendar-picker-indicator {
+    display: none;
+    -webkit-appearance: none;
+  }
+
+  input[type="time"]::-webkit-inner-spin-button {
+    display: none;
+  }
 }

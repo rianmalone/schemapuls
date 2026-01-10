@@ -516,34 +516,34 @@ const Schedule = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 overscroll-none pb-20">
       <div className="max-w-4xl mx-auto p-4 pt-8 pb-6 overscroll-none">
-        <div className="flex items-center justify-between mb-6">
-          <Button variant="ghost" onClick={() => navigate("/")} size="sm">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Hem
+        <div className="flex items-center justify-between mb-6 gap-2">
+          <Button variant="ghost" onClick={() => navigate("/")} size="sm" className="text-[clamp(0.7rem,3vw,0.875rem)] px-2 shrink-0">
+            <ArrowLeft className="w-4 h-4 mr-1 shrink-0" />
+            <span className="hidden xs:inline">Hem</span>
           </Button>
           <DarkModeToggle />
           <Button
             variant="outline"
             size="sm"
             onClick={handleReplaceSchedule}
-            className="rounded-xl"
+            className="rounded-xl text-[clamp(0.7rem,3vw,0.875rem)] px-2 shrink-0"
           >
-            <Upload className="w-4 h-4 mr-2" />
-            Uppdatera
+            <Upload className="w-4 h-4 mr-1 shrink-0" />
+            <span className="hidden xs:inline">Uppdatera</span>
           </Button>
         </div>
 
         {/* Notification Permission Banner */}
         {!checkingPermissions && !hasNotificationPermission && (
-          <div className="mb-4 p-4 bg-secondary/50 rounded-lg border border-border">
-            <div className="flex items-start gap-3">
-              <BellOff className="h-5 w-5 text-muted-foreground mt-0.5" />
-              <div className="flex-1">
-                <h3 className="font-semibold text-sm mb-1">Aktivera påminnelser</h3>
-                <p className="text-xs text-muted-foreground mb-3">
+          <div className="mb-4 p-3 sm:p-4 bg-secondary/50 rounded-lg border border-border">
+            <div className="flex items-start gap-2 sm:gap-3">
+              <BellOff className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground mt-0.5 shrink-0" />
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-[clamp(0.75rem,3vw,0.875rem)] mb-1">Aktivera påminnelser</h3>
+                <p className="text-[clamp(0.65rem,2.5vw,0.75rem)] text-muted-foreground mb-3">
                   För att få påminnelser innan dina lektioner behöver du aktivera notiser
                 </p>
-                <Button size="sm" onClick={handleRequestPermissions} className="gap-2">
+                <Button size="sm" onClick={handleRequestPermissions} className="gap-2 text-[clamp(0.7rem,3vw,0.875rem)]">
                   <Bell className="h-4 w-4" />
                   Aktivera notiser
                 </Button>
@@ -553,13 +553,13 @@ const Schedule = () => {
         )}
 
         <div className="mb-4">
-          <h1 className="text-2xl font-bold text-foreground">{scheduleName}</h1>
+          <h1 className="text-[clamp(1.25rem,5vw,1.5rem)] font-bold text-foreground">{scheduleName}</h1>
         </div>
 
-        <div className="mb-4 p-4 rounded-2xl bg-card border border-border">
-          <div className="flex items-center justify-between mb-3">
-            <label className="text-sm font-medium">Påminnelse innan alla lektioner</label>
-            <span className="text-sm font-semibold text-primary">
+        <div className="mb-4 p-3 sm:p-4 rounded-2xl bg-card border border-border">
+          <div className="flex items-center justify-between mb-3 gap-2">
+            <label className="text-[clamp(0.75rem,3vw,0.875rem)] font-medium">Påminnelse innan alla lektioner</label>
+            <span className="text-[clamp(0.75rem,3vw,0.875rem)] font-semibold text-primary shrink-0">
               {Math.round(notificationSliderValue)} min
             </span>
           </div>
@@ -572,7 +572,7 @@ const Schedule = () => {
             step={0.1}
             className="w-full [&_[role=slider]]:transition-all [&_[role=slider]]:duration-300 [&_[role=slider]]:ease-out"
           />
-          <div className="flex justify-between text-xs text-muted-foreground mt-2">
+          <div className="flex justify-between text-[clamp(0.6rem,2.5vw,0.75rem)] text-muted-foreground mt-2">
             <span>1 min</span>
             <span>15 min</span>
           </div>
@@ -594,7 +594,7 @@ const Schedule = () => {
           <div className="relative flex items-center">
             <button
               onClick={() => setViewMode('week')}
-              className={`flex-1 px-2 py-1.5 rounded-full font-medium transition-colors duration-200 text-xs relative z-10 ${
+              className={`flex-1 px-1 sm:px-2 py-1.5 rounded-full font-medium transition-colors duration-200 text-[clamp(0.6rem,2.5vw,0.75rem)] relative z-10 ${
                 viewMode === 'week'
                   ? "text-primary-foreground"
                   : "text-muted-foreground"
@@ -609,7 +609,7 @@ const Schedule = () => {
                   setViewMode('day');
                   setSelectedDay(day.key);
                 }}
-                className={`flex-1 px-2 py-1.5 rounded-full font-medium transition-colors duration-200 text-xs relative z-10 ${
+                className={`flex-1 px-1 sm:px-2 py-1.5 rounded-full font-medium transition-colors duration-200 text-[clamp(0.6rem,2.5vw,0.75rem)] relative z-10 ${
                   viewMode === 'day' && selectedDay === day.key
                     ? "text-primary-foreground"
                     : "text-muted-foreground"
@@ -621,13 +621,13 @@ const Schedule = () => {
           </div>
         </div>
 
-        <div className="mb-4 p-4 rounded-2xl bg-card border border-border">
-          <h3 className="text-sm font-medium mb-3">Aktivera påminnelser för:</h3>
+        <div className="mb-4 p-3 sm:p-4 rounded-2xl bg-card border border-border">
+          <h3 className="text-[clamp(0.75rem,3vw,0.875rem)] font-medium mb-3">Aktivera påminnelser för:</h3>
           <div className="flex items-center justify-between gap-1">
             <label className="flex items-center gap-1 cursor-pointer active:scale-95 transition-transform">
               <div 
                 onClick={() => toggleAllDays()}
-                className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all ${
+                className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all shrink-0 ${
                   allDaysChecked 
                     ? 'bg-background border-border' 
                     : 'border-muted-foreground/30'
@@ -637,13 +637,13 @@ const Schedule = () => {
                   <div className="w-2 h-2 rounded-full bg-primary" />
                 )}
               </div>
-              <span className="text-xs font-medium">Vecka</span>
+              <span className="text-[clamp(0.6rem,2.5vw,0.75rem)] font-medium">Vecka</span>
             </label>
             {days.map((day) => (
               <label key={day.key} className="flex items-center gap-1 cursor-pointer active:scale-95 transition-transform">
                 <div 
                   onClick={() => handleDayToggle(day.key)}
-                  className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all ${
+                  className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all shrink-0 ${
                     enabledDays[day.key]
                       ? 'bg-background border-border' 
                       : 'border-muted-foreground/30'
@@ -653,7 +653,7 @@ const Schedule = () => {
                     <div className="w-2 h-2 rounded-full bg-primary" />
                   )}
                 </div>
-                <span className="text-xs">{day.label}</span>
+                <span className="text-[clamp(0.6rem,2.5vw,0.75rem)]">{day.label}</span>
               </label>
             ))}
           </div>

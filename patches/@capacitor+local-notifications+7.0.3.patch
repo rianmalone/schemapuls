@@ -1,0 +1,1078 @@
+diff --git a/node_modules/@capacitor/local-notifications/android/build/.transforms/c6c07887b55b85045ecfbb039bb9556e/results.bin b/node_modules/@capacitor/local-notifications/android/build/.transforms/c6c07887b55b85045ecfbb039bb9556e/results.bin
+new file mode 100644
+index 0000000..0d259dd
+--- /dev/null
++++ b/node_modules/@capacitor/local-notifications/android/build/.transforms/c6c07887b55b85045ecfbb039bb9556e/results.bin
+@@ -0,0 +1 @@
++o/classes
+diff --git a/node_modules/@capacitor/local-notifications/android/build/.transforms/c6c07887b55b85045ecfbb039bb9556e/transformed/classes/classes_dex/classes.dex b/node_modules/@capacitor/local-notifications/android/build/.transforms/c6c07887b55b85045ecfbb039bb9556e/transformed/classes/classes_dex/classes.dex
+new file mode 100644
+index 0000000..8b5263f
+Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/.transforms/c6c07887b55b85045ecfbb039bb9556e/transformed/classes/classes_dex/classes.dex differ
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml b/node_modules/@capacitor/local-notifications/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml
+new file mode 100644
+index 0000000..5823a44
+--- /dev/null
++++ b/node_modules/@capacitor/local-notifications/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml
+@@ -0,0 +1,26 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.capacitorjs.plugins.localnotifications" >
++
++    <uses-sdk android:minSdkVersion="23" />
++
++    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
++    <uses-permission android:name="android.permission.WAKE_LOCK" />
++    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
++
++    <application>
++        <receiver android:name="com.capacitorjs.plugins.localnotifications.TimedNotificationPublisher" />
++        <receiver android:name="com.capacitorjs.plugins.localnotifications.NotificationDismissReceiver" />
++        <receiver
++            android:name="com.capacitorjs.plugins.localnotifications.LocalNotificationRestoreReceiver"
++            android:directBootAware="true"
++            android:exported="false" >
++            <intent-filter>
++                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
++                <action android:name="android.intent.action.BOOT_COMPLETED" />
++                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
++            </intent-filter>
++        </receiver>
++    </application>
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json b/node_modules/@capacitor/local-notifications/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json
+new file mode 100644
+index 0000000..c91f6ae
+--- /dev/null
++++ b/node_modules/@capacitor/local-notifications/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/output-metadata.json
+@@ -0,0 +1,18 @@
++{
++  "version": 3,
++  "artifactType": {
++    "type": "AAPT_FRIENDLY_MERGED_MANIFESTS",
++    "kind": "Directory"
++  },
++  "applicationId": "com.capacitorjs.plugins.localnotifications",
++  "variantName": "debug",
++  "elements": [
++    {
++      "type": "SINGLE",
++      "filters": [],
++      "attributes": [],
++      "outputFile": "AndroidManifest.xml"
++    }
++  ],
++  "elementType": "File"
++}
+\ No newline at end of file
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/aar_main_jar/debug/syncDebugLibJars/classes.jar b/node_modules/@capacitor/local-notifications/android/build/intermediates/aar_main_jar/debug/syncDebugLibJars/classes.jar
+new file mode 100644
+index 0000000..b5da001
+Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/aar_main_jar/debug/syncDebugLibJars/classes.jar differ
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties b/node_modules/@capacitor/local-notifications/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties
+new file mode 100644
+index 0000000..1211b1e
+--- /dev/null
++++ b/node_modules/@capacitor/local-notifications/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties
+@@ -0,0 +1,6 @@
++aarFormatVersion=1.0
++aarMetadataVersion=1.0
++minCompileSdk=1
++minCompileSdkExtension=0
++minAndroidGradlePluginVersion=1.0.0
++coreLibraryDesugaringEnabled=false
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json b/node_modules/@capacitor/local-notifications/android/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json
+new file mode 100644
+index 0000000..9e26dfe
+--- /dev/null
++++ b/node_modules/@capacitor/local-notifications/android/build/intermediates/annotation_processor_list/debug/javaPreCompileDebug/annotationProcessors.json
+@@ -0,0 +1 @@
++{}
+\ No newline at end of file
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/annotations_typedef_file/debug/extractDebugAnnotations/typedefs.txt b/node_modules/@capacitor/local-notifications/android/build/intermediates/annotations_typedef_file/debug/extractDebugAnnotations/typedefs.txt
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar b/node_modules/@capacitor/local-notifications/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar
+new file mode 100644
+index 0000000..7cad93f
+Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar differ
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar b/node_modules/@capacitor/local-notifications/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar
+new file mode 100644
+index 0000000..784adee
+Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar differ
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt b/node_modules/@capacitor/local-notifications/android/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt
+new file mode 100644
+index 0000000..5c576c8
+--- /dev/null
++++ b/node_modules/@capacitor/local-notifications/android/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt
+@@ -0,0 +1 @@
++int drawable ic_transparent 0x0
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_transparent.xml.flat b/node_modules/@capacitor/local-notifications/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_transparent.xml.flat
+new file mode 100644
+index 0000000..56d7519
+Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_transparent.xml.flat differ
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/incremental/debug-mergeJavaRes/merge-state b/node_modules/@capacitor/local-notifications/android/build/intermediates/incremental/debug-mergeJavaRes/merge-state
+new file mode 100644
+index 0000000..1c983fc
+Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/incremental/debug-mergeJavaRes/merge-state differ
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties b/node_modules/@capacitor/local-notifications/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+new file mode 100644
+index 0000000..51f63a5
+--- /dev/null
++++ b/node_modules/@capacitor/local-notifications/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+@@ -0,0 +1,2 @@
++#Sat Jan 10 23:02:51 CET 2026
++com.capacitorjs.plugins.localnotifications.capacitor-local-notifications-main-6\:/drawable/ic_transparent.xml=C\:\\Users\\ryanj\\Documents\\schemapuls\\node_modules\\@capacitor\\local-notifications\\android\\build\\intermediates\\packaged_res\\debug\\packageDebugResources\\drawable\\ic_transparent.xml
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml b/node_modules/@capacitor/local-notifications/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+new file mode 100644
+index 0000000..9c4dbd8
+--- /dev/null
++++ b/node_modules/@capacitor/local-notifications/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main" generated-set="main$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\res"><file name="ic_transparent" path="C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\res\drawable\ic_transparent.xml" qualifiers="" type="drawable"/></source></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\debug\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug" generated-set="debug$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\debug\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\build\generated\res\resValues\debug"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated" generated-set="generated$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\build\generated\res\resValues\debug"/></dataSet><mergedItems/></merger>
+\ No newline at end of file
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml b/node_modules/@capacitor/local-notifications/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+new file mode 100644
+index 0000000..513b631
+--- /dev/null
++++ b/node_modules/@capacitor/local-notifications/android/build/intermediates/incremental/mergeDebugJniLibFolders/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\jniLibs"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\debug\jniLibs"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/incremental/mergeDebugShaders/merger.xml b/node_modules/@capacitor/local-notifications/android/build/intermediates/incremental/mergeDebugShaders/merger.xml
+new file mode 100644
+index 0000000..3e00ad5
+--- /dev/null
++++ b/node_modules/@capacitor/local-notifications/android/build/intermediates/incremental/mergeDebugShaders/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\shaders"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\debug\shaders"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/incremental/packageDebugAssets/merger.xml b/node_modules/@capacitor/local-notifications/android/build/intermediates/incremental/packageDebugAssets/merger.xml
+new file mode 100644
+index 0000000..6fba691
+--- /dev/null
++++ b/node_modules/@capacitor/local-notifications/android/build/intermediates/incremental/packageDebugAssets/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\assets"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\debug\assets"/></dataSet><dataSet config="generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\build\intermediates\shader_assets\debug\compileDebugShaders\out"/></dataSet></merger>
+\ No newline at end of file
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/DateMatch.class b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/DateMatch.class
+new file mode 100644
+index 0000000..83bb460
+Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/DateMatch.class differ
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotification.class b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotification.class
+new file mode 100644
+index 0000000..cbf6053
+Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotification.class differ
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationAttachment.class b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationAttachment.class
+new file mode 100644
+index 0000000..142c67b
+Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationAttachment.class differ
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationManager.class b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationManager.class
+new file mode 100644
+index 0000000..c52ba39
+Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationManager.class differ
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationRestoreReceiver.class b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationRestoreReceiver.class
+new file mode 100644
+index 0000000..862b3f7
+Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationRestoreReceiver.class differ
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationSchedule.class b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationSchedule.class
+new file mode 100644
+index 0000000..5b33dfa
+Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationSchedule.class differ
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationsPlugin.class b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationsPlugin.class
+new file mode 100644
+index 0000000..fecf926
+Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationsPlugin.class differ
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/NotificationAction.class b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/NotificationAction.class
+new file mode 100644
+index 0000000..ab8578a
+Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/NotificationAction.class differ
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/NotificationChannelManager.class b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/NotificationChannelManager.class
+new file mode 100644
+index 0000000..c18d160
+Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/NotificationChannelManager.class differ
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/NotificationDismissReceiver.class b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/NotificationDismissReceiver.class
+new file mode 100644
+index 0000000..b24be0e
+Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/NotificationDismissReceiver.class differ
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/NotificationStorage.class b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/NotificationStorage.class
+new file mode 100644
+index 0000000..1729405
+Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/NotificationStorage.class differ
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/TimedNotificationPublisher.class b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/TimedNotificationPublisher.class
+new file mode 100644
+index 0000000..8858076
+Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/TimedNotificationPublisher.class differ
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt b/node_modules/@capacitor/local-notifications/android/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt
+new file mode 100644
+index 0000000..622ff40
+--- /dev/null
++++ b/node_modules/@capacitor/local-notifications/android/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt
+@@ -0,0 +1,3 @@
++R_DEF: Internal format may change without notice
++local
++drawable ic_transparent
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt b/node_modules/@capacitor/local-notifications/android/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt
+new file mode 100644
+index 0000000..830439c
+--- /dev/null
++++ b/node_modules/@capacitor/local-notifications/android/build/intermediates/manifest_merge_blame_file/debug/processDebugManifest/manifest-merger-blame-debug-report.txt
+@@ -0,0 +1,48 @@
++1<?xml version="1.0" encoding="utf-8"?>
++2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++3    package="com.capacitorjs.plugins.localnotifications" >
++4
++5    <uses-sdk android:minSdkVersion="23" />
++6
++7    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
++7-->C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:17:5-80
++7-->C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:17:22-78
++8    <uses-permission android:name="android.permission.WAKE_LOCK" />
++8-->C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:18:5-67
++8-->C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:18:22-65
++9    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
++9-->C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:19:5-76
++9-->C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:19:22-74
++10
++11    <application>
++11-->C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:3:5-16:19
++12        <receiver android:name="com.capacitorjs.plugins.localnotifications.TimedNotificationPublisher" />
++12-->C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:4:9-106
++12-->C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:4:19-103
++13        <receiver android:name="com.capacitorjs.plugins.localnotifications.NotificationDismissReceiver" />
++13-->C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:5:9-107
++13-->C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:5:19-104
++14        <receiver
++14-->C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:6:9-15:20
++15            android:name="com.capacitorjs.plugins.localnotifications.LocalNotificationRestoreReceiver"
++15-->C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:7:13-103
++16            android:directBootAware="true"
++16-->C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:8:13-43
++17            android:exported="false" >
++17-->C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:9:13-37
++18            <intent-filter>
++18-->C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:10:13-14:29
++19                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
++19-->C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:11:17-86
++19-->C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:11:25-83
++20                <action android:name="android.intent.action.BOOT_COMPLETED" />
++20-->C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:12:17-79
++20-->C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:12:25-76
++21                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
++21-->C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:13:17-82
++21-->C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:13:25-79
++22            </intent-filter>
++23        </receiver>
++24    </application>
++25
++26</manifest>
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/merged_java_res/debug/mergeDebugJavaResource/feature-capacitor-local-notifications.jar b/node_modules/@capacitor/local-notifications/android/build/intermediates/merged_java_res/debug/mergeDebugJavaResource/feature-capacitor-local-notifications.jar
+new file mode 100644
+index 0000000..15cb0ec
+Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/merged_java_res/debug/mergeDebugJavaResource/feature-capacitor-local-notifications.jar differ
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml b/node_modules/@capacitor/local-notifications/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml
+new file mode 100644
+index 0000000..5823a44
+--- /dev/null
++++ b/node_modules/@capacitor/local-notifications/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml
+@@ -0,0 +1,26 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.capacitorjs.plugins.localnotifications" >
++
++    <uses-sdk android:minSdkVersion="23" />
++
++    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
++    <uses-permission android:name="android.permission.WAKE_LOCK" />
++    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
++
++    <application>
++        <receiver android:name="com.capacitorjs.plugins.localnotifications.TimedNotificationPublisher" />
++        <receiver android:name="com.capacitorjs.plugins.localnotifications.NotificationDismissReceiver" />
++        <receiver
++            android:name="com.capacitorjs.plugins.localnotifications.LocalNotificationRestoreReceiver"
++            android:directBootAware="true"
++            android:exported="false" >
++            <intent-filter>
++                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
++                <action android:name="android.intent.action.BOOT_COMPLETED" />
++                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
++            </intent-filter>
++        </receiver>
++    </application>
++
++</manifest>
+\ No newline at end of file
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json b/node_modules/@capacitor/local-notifications/android/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json
+new file mode 100644
+index 0000000..0637a08
+--- /dev/null
++++ b/node_modules/@capacitor/local-notifications/android/build/intermediates/navigation_json/debug/extractDeepLinksDebug/navigation.json
+@@ -0,0 +1 @@
++[]
+\ No newline at end of file
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt b/node_modules/@capacitor/local-notifications/android/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt
+new file mode 100644
+index 0000000..08f4ebe
+--- /dev/null
++++ b/node_modules/@capacitor/local-notifications/android/build/intermediates/nested_resources_validation_report/debug/generateDebugResources/nestedResourcesValidationReport.txt
+@@ -0,0 +1 @@
++0 Warning/Error
+\ No newline at end of file
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/packaged_res/debug/packageDebugResources/drawable/ic_transparent.xml b/node_modules/@capacitor/local-notifications/android/build/intermediates/packaged_res/debug/packageDebugResources/drawable/ic_transparent.xml
+new file mode 100644
+index 0000000..fc1779e
+--- /dev/null
++++ b/node_modules/@capacitor/local-notifications/android/build/intermediates/packaged_res/debug/packageDebugResources/drawable/ic_transparent.xml
+@@ -0,0 +1,12 @@
++<?xml version="1.0" encoding="utf-8"?>
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++    android:width="16dp"
++    android:height="16dp"
++    android:viewportHeight="108"
++    android:viewportWidth="108">
++
++    <path
++        android:width="1dp"
++        android:color="@android:color/transparent" />
++
++</vector>
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar b/node_modules/@capacitor/local-notifications/android/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar
+new file mode 100644
+index 0000000..5191d84
+Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar differ
+diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt b/node_modules/@capacitor/local-notifications/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt
+new file mode 100644
+index 0000000..ffc89fa
+--- /dev/null
++++ b/node_modules/@capacitor/local-notifications/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt
+@@ -0,0 +1,2 @@
++com.capacitorjs.plugins.localnotifications
++drawable ic_transparent
+diff --git a/node_modules/@capacitor/local-notifications/android/build/outputs/aar/capacitor-local-notifications-debug.aar b/node_modules/@capacitor/local-notifications/android/build/outputs/aar/capacitor-local-notifications-debug.aar
+new file mode 100644
+index 0000000..c5e6d2e
+Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/outputs/aar/capacitor-local-notifications-debug.aar differ
+diff --git a/node_modules/@capacitor/local-notifications/android/build/outputs/logs/manifest-merger-debug-report.txt b/node_modules/@capacitor/local-notifications/android/build/outputs/logs/manifest-merger-debug-report.txt
+new file mode 100644
+index 0000000..e51be8a
+--- /dev/null
++++ b/node_modules/@capacitor/local-notifications/android/build/outputs/logs/manifest-merger-debug-report.txt
+@@ -0,0 +1,60 @@
++-- Merging decision tree log ---
++manifest
++ADDED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:1:1-20:12
++INJECTED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:1:1-20:12
++	package
++		INJECTED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml
++	xmlns:android
++		ADDED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:1:11-69
++application
++ADDED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:3:5-16:19
++receiver#com.capacitorjs.plugins.localnotifications.TimedNotificationPublisher
++ADDED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:4:9-106
++	android:name
++		ADDED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:4:19-103
++receiver#com.capacitorjs.plugins.localnotifications.NotificationDismissReceiver
++ADDED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:5:9-107
++	android:name
++		ADDED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:5:19-104
++receiver#com.capacitorjs.plugins.localnotifications.LocalNotificationRestoreReceiver
++ADDED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:6:9-15:20
++	android:exported
++		ADDED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:9:13-37
++	android:directBootAware
++		ADDED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:8:13-43
++	android:name
++		ADDED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:7:13-103
++intent-filter#action:name:android.intent.action.BOOT_COMPLETED+action:name:android.intent.action.LOCKED_BOOT_COMPLETED+action:name:android.intent.action.QUICKBOOT_POWERON
++ADDED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:10:13-14:29
++action#android.intent.action.LOCKED_BOOT_COMPLETED
++ADDED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:11:17-86
++	android:name
++		ADDED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:11:25-83
++action#android.intent.action.BOOT_COMPLETED
++ADDED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:12:17-79
++	android:name
++		ADDED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:12:25-76
++action#android.intent.action.QUICKBOOT_POWERON
++ADDED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:13:17-82
++	android:name
++		ADDED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:13:25-79
++uses-permission#android.permission.RECEIVE_BOOT_COMPLETED
++ADDED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:17:5-80
++	android:name
++		ADDED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:17:22-78
++uses-permission#android.permission.WAKE_LOCK
++ADDED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:18:5-67
++	android:name
++		ADDED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:18:22-65
++uses-permission#android.permission.POST_NOTIFICATIONS
++ADDED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:19:5-76
++	android:name
++		ADDED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml:19:22-74
++uses-sdk
++INJECTED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml reason: use-sdk injection requested
++INJECTED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml
++INJECTED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml
++	android:targetSdkVersion
++		INJECTED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml
++	android:minSdkVersion
++		INJECTED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml
+diff --git a/node_modules/@capacitor/local-notifications/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin b/node_modules/@capacitor/local-notifications/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin
+new file mode 100644
+index 0000000..5934d02
+Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin differ
+diff --git a/node_modules/@capacitor/local-notifications/android/src/main/java/com/capacitorjs/plugins/localnotifications/LocalNotificationManager.java b/node_modules/@capacitor/local-notifications/android/src/main/java/com/capacitorjs/plugins/localnotifications/LocalNotificationManager.java
+index 0b826a5..f110ac0 100644
+--- a/node_modules/@capacitor/local-notifications/android/src/main/java/com/capacitorjs/plugins/localnotifications/LocalNotificationManager.java
++++ b/node_modules/@capacitor/local-notifications/android/src/main/java/com/capacitorjs/plugins/localnotifications/LocalNotificationManager.java
+@@ -4,6 +4,7 @@ import android.app.Activity;
+ import android.app.AlarmManager;
+ import android.app.Notification;
+ import android.app.NotificationChannel;
++import android.app.NotificationManager;
+ import android.app.PendingIntent;
+ import android.content.ContentResolver;
+ import android.content.Context;
+@@ -13,11 +14,14 @@ import android.media.AudioAttributes;
+ import android.net.Uri;
+ import android.os.Build;
+ import android.os.Bundle;
++import android.os.PowerManager;
++import android.util.Log;
+ import androidx.annotation.NonNull;
+ import androidx.annotation.Nullable;
+ import androidx.core.app.NotificationCompat;
+ import androidx.core.app.NotificationManagerCompat;
+ import androidx.core.app.RemoteInput;
++import com.capacitorjs.plugins.localnotifications.R;
+ import com.getcapacitor.CapConfig;
+ import com.getcapacitor.JSObject;
+ import com.getcapacitor.Logger;
+@@ -25,6 +29,7 @@ import com.getcapacitor.PluginCall;
+ import com.getcapacitor.PluginConfig;
+ import com.getcapacitor.plugin.util.AssetUtil;
+ import java.text.SimpleDateFormat;
++import java.util.ArrayList;
+ import java.util.Date;
+ import java.util.List;
+ import org.json.JSONArray;
+@@ -32,12 +37,28 @@ import org.json.JSONException;
+ import org.json.JSONObject;
+ 
+ /**
+- * Contains implementations for all notification actions
++ * LocalNotificationManager with fixes for Android heads-up notifications
++ * 
++ * DEBUG CODE LABELED WITH "DEBUG:" prefix - can be removed later
++ * 
++ * Key fixes:
++ * - Channel ID: schemapuls_alerts (HIGH importance)
++ * - Deletes old channel before creating new one (to fix importance upgrade issue)
++ * - Uses PRIORITY_HIGH, DEFAULT_ALL, VISIBILITY_PUBLIC for heads-up
++ * - Proper AlarmManager scheduling with setExactAndAllowWhileIdle
++ * - Unique notification IDs per event
++ * - Prevents duplicate notifications on restore
+  */
+ public class LocalNotificationManager {
+ 
++    private static final String TAG = "LocalNotificationManager";
++    
++    // 🔴 FIX: Changed from "default" to "schemapuls_alerts"
++    public static final String DEFAULT_NOTIFICATION_CHANNEL_ID = "schemapuls_alerts";
++    
+     private static int defaultSoundID = AssetUtil.RESOURCE_ID_ZERO_VALUE;
+     private static int defaultSmallIconID = AssetUtil.RESOURCE_ID_ZERO_VALUE;
++
+     // Action constants
+     public static final String NOTIFICATION_INTENT_KEY = "LocalNotificationId";
+     public static final String NOTIFICATION_OBJ_INTENT_KEY = "LocalNotficationObject";
+@@ -45,7 +66,6 @@ public class LocalNotificationManager {
+     public static final String NOTIFICATION_IS_REMOVABLE_KEY = "LocalNotificationRepeating";
+     public static final String REMOTE_INPUT_KEY = "LocalNotificationRemoteInput";
+ 
+-    public static final String DEFAULT_NOTIFICATION_CHANNEL_ID = "default";
+     private static final String DEFAULT_PRESS_ACTION = "tap";
+ 
+     private Context context;
+@@ -58,10 +78,13 @@ public class LocalNotificationManager {
+         this.activity = activity;
+         this.context = context;
+         this.config = config.getPluginConfiguration("LocalNotifications");
++        
++        // DEBUG: Log channel creation
++        Logger.debug(TAG, "LocalNotificationManager initialized with channel: " + DEFAULT_NOTIFICATION_CHANNEL_ID);
+     }
+ 
+     /**
+-     * Method extecuted when notification is launched by user from the notification bar.
++     * Required by Capacitor - handles notification action performed
+      */
+     public JSObject handleNotificationActionPerformed(Intent data, NotificationStorage notificationStorage) {
+         Logger.debug(Logger.tags("LN"), "LocalNotification received: " + data.getDataString());
+@@ -79,7 +102,9 @@ public class LocalNotificationManager {
+         Bundle results = RemoteInput.getResultsFromIntent(data);
+         if (results != null) {
+             CharSequence input = results.getCharSequence(LocalNotificationManager.REMOTE_INPUT_KEY);
+-            dataJson.put("inputValue", input.toString());
++            if (input != null) {
++                dataJson.put("inputValue", input.toString());
++            }
+         }
+         String menuAction = data.getStringExtra(LocalNotificationManager.ACTION_INTENT_KEY);
+ 
+@@ -98,32 +123,101 @@ public class LocalNotificationManager {
+     }
+ 
+     /**
+-     * Create notification channel
++     * 🔥 FIX: Create notification channel with HIGH importance
++     * Deletes existing channel first to allow importance upgrade
++     * DEBUG: Logs all steps for debugging
+      */
+     public void createNotificationChannel() {
+         // Create the NotificationChannel, but only on API 26+ because
+         // the NotificationChannel class is new and not in the support library
+         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+-            CharSequence name = "Default";
+-            String description = "Default";
+-            int importance = android.app.NotificationManager.IMPORTANCE_DEFAULT;
++            android.app.NotificationManager notificationManager = 
++                context.getSystemService(android.app.NotificationManager.class);
++            
++            // DEBUG: Log existing channels before deletion
++            if (notificationManager.getNotificationChannels().size() > 0) {
++                Logger.debug(TAG, "DEBUG: Existing notification channels before deletion:");
++                for (NotificationChannel existingChannel : notificationManager.getNotificationChannels()) {
++                    Logger.debug(TAG, String.format("  Channel ID: %s, Name: %s, Importance: %d", 
++                        existingChannel.getId(), existingChannel.getName(), existingChannel.getImportance()));
++                }
++            }
++            
++            // 🔴 CRITICAL: Delete existing channel first (once created with low importance, can't upgrade)
++            try {
++                NotificationChannel existingChannel = notificationManager.getNotificationChannel(DEFAULT_NOTIFICATION_CHANNEL_ID);
++                if (existingChannel != null) {
++                    Logger.debug(TAG, String.format("DEBUG: Deleting existing channel '%s' with importance %d", 
++                        DEFAULT_NOTIFICATION_CHANNEL_ID, existingChannel.getImportance()));
++                    notificationManager.deleteNotificationChannel(DEFAULT_NOTIFICATION_CHANNEL_ID);
++                } else {
++                    Logger.debug(TAG, "DEBUG: No existing channel found with ID: " + DEFAULT_NOTIFICATION_CHANNEL_ID);
++                }
++            } catch (Exception e) {
++                Logger.error(TAG, "DEBUG: Error deleting existing channel", e);
++            }
++            
++            // Create new channel with HIGH importance
++            CharSequence name = "SchemaPuls Alerts";
++            String description = "Alerts and reminders for your classes";
++            int importance = android.app.NotificationManager.IMPORTANCE_HIGH;
+             NotificationChannel channel = new NotificationChannel(DEFAULT_NOTIFICATION_CHANNEL_ID, name, importance);
+             channel.setDescription(description);
++            
++            // Enable vibration
++            channel.enableVibration(true);
++            long[] vibrationPattern = {0, 250, 250, 250};
++            channel.setVibrationPattern(vibrationPattern);
++            
++            // Enable lights
++            channel.enableLights(true);
++            channel.setLightColor(Color.BLUE);
++            
++            // Enable badge
++            channel.setShowBadge(true);
++            
++            // Set lockscreen visibility
++            channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
++            
++            // Set default notification sound
+             AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                 .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+-                .setUsage(AudioAttributes.USAGE_ALARM)
++                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                 .build();
+             Uri soundUri = this.getDefaultSoundUrl(context);
+             if (soundUri != null) {
+                 channel.setSound(soundUri, audioAttributes);
++                Logger.debug(TAG, "DEBUG: Channel sound set to: " + soundUri.toString());
++            } else {
++                // Use system default sound
++                channel.setSound(android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_NOTIFICATION), audioAttributes);
++                Logger.debug(TAG, "DEBUG: Channel sound set to system default");
+             }
+-            // Register the channel with the system; you can't change the importance
+-            // or other notification behaviors after this
+-            android.app.NotificationManager notificationManager = context.getSystemService(android.app.NotificationManager.class);
++            
++            // Register the channel with the system
+             notificationManager.createNotificationChannel(channel);
++            
++            // DEBUG: Verify channel was created correctly
++            NotificationChannel createdChannel = notificationManager.getNotificationChannel(DEFAULT_NOTIFICATION_CHANNEL_ID);
++            if (createdChannel != null) {
++                Logger.debug(TAG, String.format("DEBUG: ✅ Channel created successfully - ID: %s, Importance: %d (HIGH=%d), Vibrate: %s, Lights: %s, Badge: %s", 
++                    createdChannel.getId(), 
++                    createdChannel.getImportance(),
++                    android.app.NotificationManager.IMPORTANCE_HIGH,
++                    createdChannel.shouldVibrate(),
++                    createdChannel.shouldShowLights(),
++                    createdChannel.canShowBadge()));
++            } else {
++                Logger.error(TAG, "DEBUG: ❌ Channel creation failed - channel is null", null);
++            }
++        } else {
++            Logger.debug(TAG, "Android version < 8.0, notification channel not needed");
+         }
+     }
+ 
++    /**
++     * Schedule notifications - required by LocalNotificationsPlugin
++     */
+     @Nullable
+     public JSONArray schedule(PluginCall call, List<LocalNotification> localNotifications) {
+         JSONArray ids = new JSONArray();
+@@ -134,16 +228,25 @@ public class LocalNotificationManager {
+             if (call != null) {
+                 call.reject("Notifications not enabled on this device");
+             }
++            Logger.warn(TAG, "Notifications not enabled on device");
+             return null;
+         }
++        
++        Logger.debug(TAG, String.format("DEBUG: Scheduling %d notifications", localNotifications.size()));
++        
+         for (LocalNotification localNotification : localNotifications) {
+             Integer id = localNotification.getId();
+             if (localNotification.getId() == null) {
+                 if (call != null) {
+                     call.reject("LocalNotification missing identifier");
+                 }
++                Logger.error(TAG, "LocalNotification missing identifier", null);
+                 return null;
+             }
++            
++            Logger.debug(TAG, String.format("DEBUG: Processing notification ID: %d, Title: %s, Scheduled: %s", 
++                id, localNotification.getTitle(), localNotification.isScheduled() ? "YES" : "NO"));
++            
+             dismissVisibleNotification(id);
+             cancelTimerForNotification(id);
+             buildNotification(notificationManager, localNotification, call);
+@@ -152,25 +255,35 @@ public class LocalNotificationManager {
+         return ids;
+     }
+ 
+-    // TODO Progressbar support
+-    // TODO System categories (DO_NOT_DISTURB etc.)
+-    // TODO control visibility by flag Notification.VISIBILITY_PRIVATE
+-    // TODO Group notifications (setGroup, setGroupSummary, setNumber)
+-    // TODO use NotificationCompat.MessagingStyle for latest API
+-    // TODO expandable notification NotificationCompat.MessagingStyle
+-    // TODO media style notification support NotificationCompat.MediaStyle
+-    // TODO custom small/large icons
++    /**
++     * Overload for ArrayList (required by LocalNotificationRestoreReceiver)
++     */
++    @Nullable
++    public JSONArray schedule(PluginCall call, ArrayList<LocalNotification> localNotifications) {
++        return schedule(call, (List<LocalNotification>) localNotifications);
++    }
++
++    /**
++     * 🔥 FIX: Build notification with heads-up settings
++     * Uses PRIORITY_HIGH, DEFAULT_ALL, VISIBILITY_PUBLIC for heads-up behavior
++     * Ensures valid smallIcon (never 0)
++     */
+     private void buildNotification(NotificationManagerCompat notificationManager, LocalNotification localNotification, PluginCall call) {
+         String channelId = DEFAULT_NOTIFICATION_CHANNEL_ID;
+         if (localNotification.getChannelId() != null) {
+             channelId = localNotification.getChannelId();
+         }
++        
++        Logger.debug(TAG, String.format("DEBUG: Building notification ID: %d, Channel: %s", 
++            localNotification.getId(), channelId));
++        
+         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this.context, channelId)
+             .setContentTitle(localNotification.getTitle())
+             .setContentText(localNotification.getBody())
+             .setAutoCancel(localNotification.isAutoCancel())
+             .setOngoing(localNotification.isOngoing())
+-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
++            // 🔴 FIX: PRIORITY_HIGH for heads-up notifications
++            .setPriority(NotificationCompat.PRIORITY_HIGH)
+             .setGroupSummary(localNotification.isGroupSummary());
+ 
+         if (localNotification.getLargeBody() != null) {
+@@ -200,6 +313,7 @@ public class LocalNotificationManager {
+             mBuilder.setSound(soundUri);
+             mBuilder.setDefaults(Notification.DEFAULT_VIBRATE | Notification.DEFAULT_LIGHTS);
+         } else {
++            // 🔴 FIX: DEFAULT_ALL for sound, vibration, lights
+             mBuilder.setDefaults(Notification.DEFAULT_ALL);
+         }
+ 
+@@ -211,10 +325,19 @@ public class LocalNotificationManager {
+             }
+         }
+ 
+-        mBuilder.setVisibility(NotificationCompat.VISIBILITY_PRIVATE);
++        // 🔴 FIX: VISIBILITY_PUBLIC for lock screen visibility
++        mBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+         mBuilder.setOnlyAlertOnce(true);
+ 
+-        mBuilder.setSmallIcon(localNotification.getSmallIcon(context, getDefaultSmallIcon(context)));
++        // 🔴 FIX: Ensure smallIcon is valid (never 0)
++        int smallIconId = localNotification.getSmallIcon(context, getDefaultSmallIcon(context));
++        if (smallIconId == 0 || smallIconId == AssetUtil.RESOURCE_ID_ZERO_VALUE) {
++            Logger.warn(TAG, String.format("DEBUG: Invalid smallIcon (%d), using fallback", smallIconId));
++            smallIconId = android.R.drawable.ic_dialog_info;
++        }
++        mBuilder.setSmallIcon(smallIconId);
++        Logger.debug(TAG, String.format("DEBUG: Notification smallIcon ID: %d", smallIconId));
++        
+         mBuilder.setLargeIcon(localNotification.getLargeIcon(context));
+ 
+         String iconColor = localNotification.getIconColor(config.getString("iconColor"));
+@@ -225,6 +348,7 @@ public class LocalNotificationManager {
+                 if (call != null) {
+                     call.reject("Invalid color provided. Must be a hex string (ex: #ff0000");
+                 }
++                Logger.error(TAG, "Invalid color: " + iconColor, ex);
+                 return;
+             }
+         }
+@@ -232,18 +356,25 @@ public class LocalNotificationManager {
+         createActionIntents(localNotification, mBuilder);
+         // notificationId is a unique int for each localNotification that you must define
+         Notification buildNotification = mBuilder.build();
++        
+         if (localNotification.isScheduled()) {
++            Logger.debug(TAG, String.format("DEBUG: Scheduling notification ID: %d with AlarmManager", localNotification.getId()));
+             triggerScheduledNotification(buildNotification, localNotification);
+         } else {
++            Logger.debug(TAG, String.format("DEBUG: Posting immediate notification ID: %d", localNotification.getId()));
+             try {
+                 JSObject notificationJson = new JSObject(localNotification.getSource());
+                 LocalNotificationsPlugin.fireReceived(notificationJson);
+-            } catch (JSONException e) {}
++            } catch (JSONException e) {
++                Logger.error(TAG, "Error firing received event", e);
++            }
+             notificationManager.notify(localNotification.getId(), buildNotification);
++            Logger.debug(TAG, String.format("DEBUG: ✅ Notification posted - ID: %d, Channel: %s, Priority: HIGH", 
++                localNotification.getId(), channelId));
+         }
+     }
+ 
+-    // Create intents for open/dissmis actions
++    // Create intents for open/dismiss actions
+     private void createActionIntents(LocalNotification localNotification, NotificationCompat.Builder mBuilder) {
+         // Open intent
+         Intent intent = buildIntent(localNotification, DEFAULT_PRESS_ACTION);
+@@ -316,8 +447,10 @@ public class LocalNotificationManager {
+     }
+ 
+     /**
+-     * Build a notification trigger, such as triggering each N seconds, or
+-     * on a certain date "shape" (such as every first of the month)
++     * 🔥 FIX: Build a notification trigger with AlarmManager
++     * Uses setExactAndAllowWhileIdle for reliable scheduling
++     * Handles exact alarm permissions for Android 12+
++     * DEBUG: Logs scheduling details
+      */
+     // TODO support different AlarmManager.RTC modes depending on priority
+     private void triggerScheduledNotification(Notification notification, LocalNotification request) {
+@@ -336,14 +469,24 @@ public class LocalNotificationManager {
+         Date at = schedule.getAt();
+         if (at != null) {
+             if (at.getTime() < new Date().getTime()) {
+-                Logger.error(Logger.tags("LN"), "Scheduled time must be *after* current time", null);
++                Logger.error(Logger.tags("LN"), 
++                    String.format("Scheduled time must be *after* current time. Scheduled: %s, Now: %s", 
++                        at.toString(), new Date().toString()), null);
+                 return;
+             }
++            
++            // DEBUG: Log scheduling details
++            SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
++            Logger.debug(TAG, String.format("DEBUG: Scheduling notification ID: %d for %s (in %d ms)", 
++                request.getId(), sdf.format(at), (at.getTime() - new Date().getTime())));
++            
+             if (schedule.isRepeating()) {
+                 long interval = at.getTime() - new Date().getTime();
+                 alarmManager.setRepeating(AlarmManager.RTC, at.getTime(), interval, pendingIntent);
++                Logger.debug(TAG, String.format("DEBUG: ✅ Repeating alarm scheduled - ID: %d, Interval: %d ms", 
++                    request.getId(), interval));
+             } else {
+-                setExactIfPossible(alarmManager, schedule, at.getTime(), pendingIntent);
++                setExactIfPossible(alarmManager, schedule, at.getTime(), pendingIntent, request.getId());
+             }
+             return;
+         }
+@@ -355,6 +498,8 @@ public class LocalNotificationManager {
+             if (everyInterval != null) {
+                 long startTime = new Date().getTime() + everyInterval;
+                 alarmManager.setRepeating(AlarmManager.RTC, startTime, everyInterval, pendingIntent);
++                Logger.debug(TAG, String.format("DEBUG: ✅ Repeating interval alarm scheduled - ID: %d, Interval: %d ms", 
++                    request.getId(), everyInterval));
+             }
+             return;
+         }
+@@ -365,37 +510,63 @@ public class LocalNotificationManager {
+             long trigger = on.nextTrigger(new Date());
+             notificationIntent.putExtra(TimedNotificationPublisher.CRON_KEY, on.toMatchString());
+             pendingIntent = PendingIntent.getBroadcast(context, request.getId(), notificationIntent, flags);
+-            setExactIfPossible(alarmManager, schedule, trigger, pendingIntent);
++            setExactIfPossible(alarmManager, schedule, trigger, pendingIntent, request.getId());
+             SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+             Logger.debug(Logger.tags("LN"), "notification " + request.getId() + " will next fire at " + sdf.format(new Date(trigger)));
+         }
+     }
+ 
++    /**
++     * 🔥 FIX: Use setExactAndAllowWhileIdle for reliable exact scheduling
++     * Handles exact alarm permission checks for Android 12+
++     * DEBUG: Logs battery optimization warnings
++     */
+     private void setExactIfPossible(
+         AlarmManager alarmManager,
+         LocalNotificationSchedule schedule,
+         long trigger,
+-        PendingIntent pendingIntent
++        PendingIntent pendingIntent,
++        int notificationId
+     ) {
++        // Check for battery optimization issues (Samsung/OEM specific)
++        PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
++        if (powerManager != null && !powerManager.isIgnoringBatteryOptimizations(context.getPackageName())) {
++            Logger.warn(TAG, String.format(
++                "DEBUG: ⚠️ Battery optimization may prevent exact alarms. Notification ID: %d. " +
++                "User should disable battery optimization for this app in Settings > Apps > SchemaPuls > Battery > Unrestricted",
++                notificationId));
++        }
++        
+         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
+             Logger.warn(
+                 "Capacitor/LocalNotification",
+-                "Exact alarms not allowed in user settings.  Notification scheduled with non-exact alarm."
++                String.format("Exact alarms not allowed in user settings. Notification ID: %d scheduled with non-exact alarm. " +
++                    "User should grant SCHEDULE_EXACT_ALARM permission in Settings.", notificationId)
+             );
+             if (schedule.allowWhileIdle()) {
+                 alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pendingIntent);
++                Logger.debug(TAG, String.format("DEBUG: ✅ Non-exact alarm scheduled (allowWhileIdle) - ID: %d", notificationId));
+             } else {
+                 alarmManager.set(AlarmManager.RTC, trigger, pendingIntent);
++                Logger.debug(TAG, String.format("DEBUG: ✅ Non-exact alarm scheduled - ID: %d", notificationId));
+             }
+         } else {
+             if (schedule.allowWhileIdle()) {
++                // 🔴 FIX: Use setExactAndAllowWhileIdle for reliable scheduling
+                 alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pendingIntent);
++                Logger.debug(TAG, String.format("DEBUG: ✅ Exact alarm scheduled (allowWhileIdle) - ID: %d, Trigger: %d", 
++                    notificationId, trigger));
+             } else {
+                 alarmManager.setExact(AlarmManager.RTC, trigger, pendingIntent);
++                Logger.debug(TAG, String.format("DEBUG: ✅ Exact alarm scheduled - ID: %d, Trigger: %d", 
++                    notificationId, trigger));
+             }
+         }
+     }
+ 
++    /**
++     * Required by Capacitor - cancel notifications
++     */
+     public void cancel(PluginCall call) {
+         List<Integer> notificationsToCancel = LocalNotification.getLocalNotificationPendingList(call);
+         if (notificationsToCancel != null) {
+@@ -408,6 +579,9 @@ public class LocalNotificationManager {
+         call.resolve();
+     }
+ 
++    /**
++     * Cancel AlarmManager timer for a notification
++     */
+     private void cancelTimerForNotification(Integer notificationId) {
+         Intent intent = new Intent(context, TimedNotificationPublisher.class);
+         int flags = 0;
+@@ -418,19 +592,29 @@ public class LocalNotificationManager {
+         if (pi != null) {
+             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+             alarmManager.cancel(pi);
++            Logger.debug(TAG, String.format("DEBUG: Cancelled alarm for notification ID: %d", notificationId));
+         }
+     }
+ 
++    /**
++     * Dismiss visible notification
++     */
+     private void dismissVisibleNotification(int notificationId) {
+         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this.context);
+         notificationManager.cancel(notificationId);
+     }
+ 
++    /**
++     * Required by Capacitor - check if notifications are enabled
++     */
+     public boolean areNotificationsEnabled() {
+         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+         return notificationManager.areNotificationsEnabled();
+     }
+ 
++    /**
++     * Get default sound URL
++     */
+     public Uri getDefaultSoundUrl(Context context) {
+         int soundId = this.getDefaultSound(context);
+         if (soundId != AssetUtil.RESOURCE_ID_ZERO_VALUE) {
+@@ -454,6 +638,9 @@ public class LocalNotificationManager {
+         return resId;
+     }
+ 
++    /**
++     * 🔥 FIX: Get default small icon - ensures valid icon (never 0)
++     */
+     private int getDefaultSmallIcon(Context context) {
+         if (defaultSmallIconID != AssetUtil.RESOURCE_ID_ZERO_VALUE) return defaultSmallIconID;
+ 
+@@ -465,8 +652,10 @@ public class LocalNotificationManager {
+             resId = AssetUtil.getResourceID(context, smallIconConfigResourceName, "drawable");
+         }
+ 
+-        if (resId == AssetUtil.RESOURCE_ID_ZERO_VALUE) {
++        // 🔴 FIX: Fallback to system icon if config icon not found
++        if (resId == AssetUtil.RESOURCE_ID_ZERO_VALUE || resId == 0) {
+             resId = android.R.drawable.ic_dialog_info;
++            Logger.debug(TAG, "DEBUG: Using fallback system icon (ic_dialog_info)");
+         }
+ 
+         defaultSmallIconID = resId;
+diff --git a/node_modules/@capacitor/local-notifications/android/src/main/java/com/capacitorjs/plugins/localnotifications/LocalNotificationRestoreReceiver.java b/node_modules/@capacitor/local-notifications/android/src/main/java/com/capacitorjs/plugins/localnotifications/LocalNotificationRestoreReceiver.java
+index 134fd06..8d6d19d 100644
+--- a/node_modules/@capacitor/local-notifications/android/src/main/java/com/capacitorjs/plugins/localnotifications/LocalNotificationRestoreReceiver.java
++++ b/node_modules/@capacitor/local-notifications/android/src/main/java/com/capacitorjs/plugins/localnotifications/LocalNotificationRestoreReceiver.java
+@@ -24,8 +24,15 @@ public class LocalNotificationRestoreReceiver extends BroadcastReceiver {
+         NotificationStorage storage = new NotificationStorage(context);
+         List<String> ids = storage.getSavedNotificationIds();
+ 
+-        ArrayList<LocalNotification> notifications = new ArrayList<>(ids.size());
++        // 🔥 FIX: Only re-schedule notifications whose schedule is still in the future
++        // Do NOT re-post notifications that have already been shown unless they are repeating
++        ArrayList<LocalNotification> notificationsToReschedule = new ArrayList<>();
+         ArrayList<LocalNotification> updatedNotifications = new ArrayList<>();
++        Date now = new Date();
++        
++        com.getcapacitor.Logger.debug("LocalNotificationRestore", 
++            String.format("DEBUG: Restore receiver - processing %d saved notification IDs", ids.size()));
++
+         for (String id : ids) {
+             LocalNotification notification = storage.getSavedNotification(id);
+             if (notification == null) {
+@@ -35,25 +42,90 @@ public class LocalNotificationRestoreReceiver extends BroadcastReceiver {
+             LocalNotificationSchedule schedule = notification.getSchedule();
+             if (schedule != null) {
+                 Date at = schedule.getAt();
+-                if (at != null && at.before(new Date())) {
+-                    // modify the scheduled date in order to show notifications that would have been delivered while device was off.
+-                    long newDateTime = new Date().getTime() + 15 * 1000;
+-                    schedule.setAt(new Date(newDateTime));
+-                    notification.setSchedule(schedule);
+-                    updatedNotifications.add(notification);
++                if (at != null) {
++                    // 🔥 FIX: Only reschedule if:
++                    // 1. The scheduled time is in the future, OR
++                    // 2. It's a repeating notification (check for repeats or every or on)
++                    boolean isRepeating = Boolean.TRUE.equals(schedule.getRepeats()) || 
++                                         schedule.getEvery() != null || 
++                                         schedule.getOn() != null;
++                    
++                    if (at.before(now)) {
++                        if (isRepeating) {
++                            // For repeating notifications that passed, calculate next occurrence
++                            if (schedule.getEvery() != null && schedule.getEveryInterval() != null) {
++                                // Calculate next interval
++                                long interval = schedule.getEveryInterval();
++                                long nextTime = now.getTime() + interval;
++                                schedule.setAt(new Date(nextTime));
++                                notification.setSchedule(schedule);
++                                updatedNotifications.add(notification);
++                                notificationsToReschedule.add(notification);
++                                com.getcapacitor.Logger.debug("LocalNotificationRestore",
++                                    String.format("DEBUG: Rescheduling repeating notification ID: %s (next: %s)", 
++                                        id, new Date(nextTime).toString()));
++                            } else if (schedule.getOn() != null) {
++                                // Cron-like - calculate next trigger
++                                com.capacitorjs.plugins.localnotifications.DateMatch on = schedule.getOn();
++                                long nextTrigger = on.nextTrigger(now);
++                                schedule.setAt(new Date(nextTrigger));
++                                notification.setSchedule(schedule);
++                                updatedNotifications.add(notification);
++                                notificationsToReschedule.add(notification);
++                                com.getcapacitor.Logger.debug("LocalNotificationRestore",
++                                    String.format("DEBUG: Rescheduling cron notification ID: %s (next: %s)", 
++                                        id, new Date(nextTrigger).toString()));
++                            } else {
++                                // Past non-repeating notification - delete it
++                                storage.deleteNotification(id);
++                                com.getcapacitor.Logger.debug("LocalNotificationRestore",
++                                    String.format("DEBUG: Deleting past non-repeating notification ID: %s", id));
++                                continue;
++                            }
++                        } else {
++                            // Past non-repeating notification - delete it, don't reschedule
++                            storage.deleteNotification(id);
++                            com.getcapacitor.Logger.debug("LocalNotificationRestore",
++                                String.format("DEBUG: Deleting past non-repeating notification ID: %s (scheduled: %s, now: %s)", 
++                                    id, at.toString(), now.toString()));
++                            continue;
++                        }
++                    } else {
++                        // Scheduled time is in the future - reschedule it
++                        notificationsToReschedule.add(notification);
++                        com.getcapacitor.Logger.debug("LocalNotificationRestore",
++                            String.format("DEBUG: Rescheduling future notification ID: %s (scheduled: %s)", 
++                                id, at.toString()));
++                    }
++                } else {
++                    // No scheduled time - skip it
++                    com.getcapacitor.Logger.debug("LocalNotificationRestore",
++                        String.format("DEBUG: Skipping notification ID: %s (no schedule)", id));
+                 }
++            } else {
++                // No schedule - this shouldn't happen for scheduled notifications, but skip it
++                com.getcapacitor.Logger.debug("LocalNotificationRestore",
++                    String.format("DEBUG: Skipping notification ID: %s (no schedule object)", id));
+             }
+-
+-            notifications.add(notification);
+         }
+ 
+         if (updatedNotifications.size() > 0) {
+             storage.appendNotifications(updatedNotifications);
+         }
+ 
+-        CapConfig config = CapConfig.loadDefault(context);
+-        LocalNotificationManager localNotificationManager = new LocalNotificationManager(storage, null, context, config);
++        // Only reschedule notifications that are still valid
++        if (notificationsToReschedule.size() > 0) {
++            com.getcapacitor.Logger.debug("LocalNotificationRestore",
++                String.format("DEBUG: Rescheduling %d valid notifications", notificationsToReschedule.size()));
+             
+-        localNotificationManager.schedule(null, notifications);
++            CapConfig config = CapConfig.loadDefault(context);
++            LocalNotificationManager localNotificationManager = new LocalNotificationManager(storage, null, context, config);
++            // Ensure channel is created before rescheduling
++            localNotificationManager.createNotificationChannel();
++            localNotificationManager.schedule(null, notificationsToReschedule);
++        } else {
++            com.getcapacitor.Logger.debug("LocalNotificationRestore",
++                "DEBUG: No valid notifications to reschedule");
++        }
+     }
+ }

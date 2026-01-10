@@ -36,6 +36,14 @@
     </application>
 
     <!-- Permissions -->
-
     <uses-permission android:name="android.permission.INTERNET" />
+    
+    <!-- POST_NOTIFICATIONS permission for Android 13+ (SDK >= 33) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    
+    <!-- VIBRATE permission for notification vibration -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+    
+    <!-- WAKE_LOCK permission for scheduled notifications -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 </manifest>

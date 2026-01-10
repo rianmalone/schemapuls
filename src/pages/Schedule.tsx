@@ -878,12 +878,12 @@ const Schedule = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="color">Färg</Label>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex gap-1.5">
                   {["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8", "#F7DC6F", "#BB8FCE"].map((color) => (
                     <button
                       key={color}
                       onClick={() => setNewClass({ ...newClass, color })}
-                      className={`w-9 h-9 rounded-full transition-all active:scale-90 flex-shrink-0 ${
+                      className={`w-8 h-8 rounded-lg transition-all active:scale-90 flex-shrink-0 ${
                         newClass.color === color ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""
                       }`}
                       style={{ backgroundColor: color }}

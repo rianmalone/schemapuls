@@ -806,11 +806,11 @@ const Schedule = () => {
               <Plus className="h-5 w-5" />
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-md max-w-[calc(100vw-2rem)] rounded-2xl">
+          <DialogContent className="sm:max-w-md max-w-[calc(100vw-2rem)] w-full rounded-2xl overflow-hidden">
             <DialogHeader>
               <DialogTitle>Lägg till lektion</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4 py-4">
+            <div className="space-y-4 py-4 overflow-x-hidden">
               <div className="space-y-2">
                 <Label htmlFor="name">Lektionsnamn</Label>
                 <Input
@@ -829,7 +829,7 @@ const Schedule = () => {
                   placeholder="t.ex. BRR2"
                 />
               </div>
-              <div className="flex items-start gap-[85px]">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="start" className="text-sm">Starttid</Label>
                   <Input
@@ -837,7 +837,7 @@ const Schedule = () => {
                     type="time"
                     value={newClass.start}
                     onChange={(e) => setNewClass({ ...newClass, start: e.target.value })}
-                    className="text-sm w-[100px]"
+                    className="text-sm w-full"
                   />
                 </div>
                 <div className="space-y-2">
@@ -847,7 +847,7 @@ const Schedule = () => {
                     type="time"
                     value={newClass.end}
                     onChange={(e) => setNewClass({ ...newClass, end: e.target.value })}
-                    className="text-sm w-[100px]"
+                    className="text-sm w-full"
                   />
                 </div>
               </div>
@@ -878,13 +878,13 @@ const Schedule = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="color">Färg</Label>
-                <div className="flex gap-2 justify-between">
+                <div className="flex flex-wrap gap-2">
                   {["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8", "#F7DC6F", "#BB8FCE"].map((color) => (
                     <button
                       key={color}
                       onClick={() => setNewClass({ ...newClass, color })}
-                      className={`w-10 h-10 rounded-lg transition-all active:scale-90 flex-shrink-0 ${
-                        newClass.color === color ? "ring-2 ring-primary ring-offset-2" : ""
+                      className={`w-9 h-9 rounded-full transition-all active:scale-90 flex-shrink-0 ${
+                        newClass.color === color ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""
                       }`}
                       style={{ backgroundColor: color }}
                     />

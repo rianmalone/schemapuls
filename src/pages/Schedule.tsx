@@ -529,7 +529,7 @@ const Schedule = () => {
             className="rounded-xl text-[clamp(0.7rem,3vw,0.875rem)] px-2 shrink-0"
           >
             <Upload className="w-4 h-4 mr-1 shrink-0" />
-            <span className="hidden xs:inline">Uppdatera</span>
+            Uppdatera
           </Button>
         </div>
 

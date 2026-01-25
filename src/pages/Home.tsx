@@ -210,11 +210,6 @@ const Home = () => {
       notificationMinutes,
       "weekly"
     );
-
-    toast({
-      title: "Schema aktiverat",
-      description: `Påminnelser aktiverade för ${selectedSchedule.name}`,
-    });
     
     console.log('[Home] ✅ Schedule activated:', selectedSchedule.name);
   };

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Upload as UploadIcon, ArrowLeft, Camera } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { notificationService } from "@/services/notificationService";
 import exampleSchedule from "@/assets/example-schedule.png";
@@ -14,6 +14,16 @@ const Upload = () => {
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
+  const [dotCount, setDotCount] = useState(1);
+
+  // Animate the loading dots
+  useEffect(() => {
+    if (!uploading) return;
+    const interval = setInterval(() => {
+      setDotCount((prev) => (prev % 3) + 1);
+    }, 400);
+    return () => clearInterval(interval);
+  }, [uploading]);
 
   const resizeImage = (file: File | string): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -467,7 +477,7 @@ const Upload = () => {
             className="w-full py-6 text-lg rounded-xl"
             size="lg"
           >
-            {uploading ? "Analyserar..." : "Skapa schema"}
+            {uploading ? `Analyserar${".".repeat(dotCount)}` : "Skapa schema"}
           </Button>
         </div>
       </div>

@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { App as CapacitorApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 import { autoRescheduleService } from "./services/autoRescheduleService";
@@ -13,10 +13,19 @@ import Upload from "./pages/Upload";
 import Schedule from "./pages/Schedule";
 import EditClass from "./pages/EditClass";
 import NotFound from "./pages/NotFound";
+import CodeEntry from "./pages/CodeEntry";
 
 const queryClient = new QueryClient();
 
 const App = () => {
+  const [hasAccess, setHasAccess] = useState<boolean | null>(null);
+
+  // Check access on mount
+  useEffect(() => {
+    const access = localStorage.getItem("schemapuls_access");
+    setHasAccess(access === "granted");
+  }, []);
+
   useEffect(() => {
     // Reschedule notifications every time the app opens or comes to foreground
     if (Capacitor.isNativePlatform()) {
@@ -52,6 +61,20 @@ const App = () => {
       };
     }
   }, []);
+
+  // Show nothing while checking access
+  if (hasAccess === null) {
+    return null;
+  }
+
+  // Show code entry if no access
+  if (!hasAccess) {
+    return (
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <CodeEntry onSuccess={() => setHasAccess(true)} />
+      </ThemeProvider>
+    );
+  }
 
   return (
     <QueryClientProvider client={queryClient}>

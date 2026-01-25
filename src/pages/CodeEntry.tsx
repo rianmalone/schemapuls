@@ -1,13 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { KeyRound, AlertCircle } from "lucide-react";
+import { KeyRound, AlertCircle, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
-const VALID_CODES = ["Tychobrahe", "Admin123"];
+// Generate or retrieve a unique device ID
+const getDeviceId = (): string => {
+  const stored = localStorage.getItem("schemapuls_device_id");
+  if (stored) return stored;
+  
+  const newId = crypto.randomUUID();
+  localStorage.setItem("schemapuls_device_id", newId);
+  return newId;
+};
 
 interface CodeEntryProps {
   onSuccess: () => void;
+  onAccessRevoked?: () => void;
 }
 
 const CodeEntry = ({ onSuccess }: CodeEntryProps) => {
@@ -15,25 +25,37 @@ const CodeEntry = ({ onSuccess }: CodeEntryProps) => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
 
-    // Small delay for UX
-    setTimeout(() => {
+    try {
+      const deviceId = getDeviceId();
       const trimmedCode = code.trim();
-      
-      if (VALID_CODES.includes(trimmedCode)) {
-        // Store access permanently
-        localStorage.setItem("schemapuls_access", "granted");
-        localStorage.setItem("schemapuls_code_used", trimmedCode);
+
+      const { data, error: fnError } = await supabase.functions.invoke("validate-code", {
+        body: { action: "redeem", code: trimmedCode, device_id: deviceId }
+      });
+
+      if (fnError) {
+        console.error("Function error:", fnError);
+        setError("Ett fel uppstod. Försök igen.");
+        setIsLoading(false);
+        return;
+      }
+
+      if (data.success) {
         onSuccess();
       } else {
-        setError("Ogiltig kod. Försök igen.");
+        setError(data.error || "Ogiltig kod. Försök igen.");
       }
-      setIsLoading(false);
-    }, 500);
+    } catch (err) {
+      console.error("Error redeeming code:", err);
+      setError("Ett fel uppstod. Försök igen.");
+    }
+
+    setIsLoading(false);
   };
 
   return (
@@ -74,13 +96,42 @@ const CodeEntry = ({ onSuccess }: CodeEntryProps) => {
               className="w-full" 
               disabled={!code.trim() || isLoading}
             >
-              {isLoading ? "Kontrollerar..." : "Fortsätt"}
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Kontrollerar...
+                </>
+              ) : (
+                "Fortsätt"
+              )}
             </Button>
           </form>
         </CardContent>
       </Card>
     </div>
   );
+};
+
+// Export utility for checking access
+export const checkServerAccess = async (): Promise<boolean> => {
+  const deviceId = localStorage.getItem("schemapuls_device_id");
+  if (!deviceId) return false;
+
+  try {
+    const { data, error } = await supabase.functions.invoke("validate-code", {
+      body: { action: "check", device_id: deviceId }
+    });
+
+    if (error) {
+      console.error("Error checking access:", error);
+      return false;
+    }
+
+    return data?.hasAccess === true;
+  } catch (err) {
+    console.error("Error checking server access:", err);
+    return false;
+  }
 };
 
 export default CodeEntry;

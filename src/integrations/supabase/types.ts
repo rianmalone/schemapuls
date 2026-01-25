@@ -14,7 +14,65 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      access_codes: {
+        Row: {
+          code: string
+          created_at: string
+          current_uses: number
+          description: string | null
+          id: string
+          is_active: boolean
+          max_uses: number | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          current_uses?: number
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          current_uses?: number
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+        }
+        Relationships: []
+      }
+      device_activations: {
+        Row: {
+          activated_at: string
+          code_id: string
+          device_id: string
+          id: string
+        }
+        Insert: {
+          activated_at?: string
+          code_id: string
+          device_id: string
+          id?: string
+        }
+        Update: {
+          activated_at?: string
+          code_id?: string
+          device_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "device_activations_code_id_fkey"
+            columns: ["code_id"]
+            isOneToOne: false
+            referencedRelation: "access_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

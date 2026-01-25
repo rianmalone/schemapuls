@@ -25,4 +25,4 @@ dist-ssr
 
 # Android (ignored on iOS branch)
 android/
-keystore/
+keystore

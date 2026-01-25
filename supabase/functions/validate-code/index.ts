@@ -109,8 +109,8 @@ Deno.serve(async (req) => {
       if (!accessCode) {
         console.log(`[validate-code] Invalid code attempted: ${code}`);
         return new Response(
-          JSON.stringify({ success: false, error: "Ogiltig kod" }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+          JSON.stringify({ success: false, error: "Tyvärr, fel kod" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 

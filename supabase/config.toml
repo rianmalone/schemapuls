@@ -2,3 +2,6 @@ project_id = "aakodzpubqoytkjqslvh"
 
 [functions.analyze-schedule]
 verify_jwt = false
+
+[functions.validate-code]
+verify_jwt = false

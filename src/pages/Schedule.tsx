@@ -801,7 +801,7 @@ const Schedule = () => {
           <DialogTrigger asChild>
             <Button
               size="sm"
-              className="fixed bottom-6 right-6 h-11 w-14 rounded-full shadow-md bg-primary transition-all"
+              className="fixed bottom-10 right-6 h-11 w-14 rounded-full shadow-md bg-primary transition-all"
             >
               <Plus className="h-5 w-5" />
             </Button>

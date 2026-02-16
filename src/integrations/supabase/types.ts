@@ -50,18 +50,21 @@ export type Database = {
           code_id: string
           device_id: string
           id: string
+          is_revoked: boolean
         }
         Insert: {
           activated_at?: string
           code_id: string
           device_id: string
           id?: string
+          is_revoked?: boolean
         }
         Update: {
           activated_at?: string
           code_id?: string
           device_id?: string
           id?: string
+          is_revoked?: boolean
         }
         Relationships: [
           {

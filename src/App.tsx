@@ -19,24 +19,12 @@ import { Loader2 } from "lucide-react";
 const queryClient = new QueryClient();
 
 const App = () => {
-  const [accessState, setAccessState] = useState<"loading" | "granted" | "denied" | "revoked">("loading");
+  const [accessState, setAccessState] = useState<"loading" | "granted" | "denied">("loading");
 
   // Check access on mount and when app comes to foreground
   const checkAccess = async () => {
     const hasAccess = await checkServerAccess();
-    
-    if (hasAccess) {
-      setAccessState("granted");
-    } else {
-      // Check if user previously had access (device ID exists)
-      const deviceId = localStorage.getItem("schemapuls_device_id");
-      if (deviceId) {
-        // They had access before but it was revoked
-        setAccessState("revoked");
-      } else {
-        setAccessState("denied");
-      }
-    }
+    setAccessState(hasAccess ? "granted" : "denied");
   };
 
   useEffect(() => {
@@ -88,22 +76,6 @@ const App = () => {
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <div className="min-h-screen bg-background flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        </div>
-      </ThemeProvider>
-    );
-  }
-
-  // Show revoked message if access was removed
-  if (accessState === "revoked") {
-    return (
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <div className="min-h-screen bg-background flex items-center justify-center p-4">
-          <div className="text-center space-y-4 max-w-md">
-            <h1 className="text-2xl font-bold text-foreground">Åtkomst avslutad</h1>
-            <p className="text-muted-foreground">
-              Din åtkomstkod har inaktiverats. Kontakta din skola om du har frågor.
-            </p>
-          </div>
         </div>
       </ThemeProvider>
     );

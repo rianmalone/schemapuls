@@ -29,30 +29,25 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Check if device has an activation
-      const { data: activation, error } = await supabase
+      // Check if device has a non-revoked activation with an active code
+      const { data: activations, error } = await supabase
         .from("device_activations")
-        .select("id, code_id")
+        .select("id, code_id, is_revoked")
         .eq("device_id", device_id)
-        .maybeSingle();
+        .eq("is_revoked", false);
 
       if (error) {
         console.error("[validate-code] Check error:", error);
         throw error;
       }
 
-      if (activation) {
-        // Check if the code is still active
-        const { data: codeData, error: codeError } = await supabase
+      // Check if any non-revoked activation has an active code
+      for (const activation of (activations || [])) {
+        const { data: codeData } = await supabase
           .from("access_codes")
           .select("is_active")
           .eq("id", activation.code_id)
           .single();
-
-        if (codeError) {
-          console.error("[validate-code] Code check error:", codeError);
-          throw codeError;
-        }
 
         if (codeData?.is_active) {
           console.log(`[validate-code] Device ${device_id.substring(0, 8)} has active access`);
@@ -79,21 +74,7 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Check if device is already activated
-      const { data: existingActivation } = await supabase
-        .from("device_activations")
-        .select("id")
-        .eq("device_id", device_id)
-        .maybeSingle();
-
-      if (existingActivation) {
-        return new Response(
-          JSON.stringify({ success: false, error: "Denna enhet är redan aktiverad" }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
-        );
-      }
-
-      // Find the code
+      // Find the code first
       const { data: accessCode, error: codeError } = await supabase
         .from("access_codes")
         .select("*")
@@ -110,6 +91,40 @@ Deno.serve(async (req) => {
         console.log(`[validate-code] Invalid code attempted: ${code}`);
         return new Response(
           JSON.stringify({ success: false, error: "Tyvärr, fel kod" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Check if this device was revoked from THIS specific code
+      const { data: revokedActivation } = await supabase
+        .from("device_activations")
+        .select("id")
+        .eq("device_id", device_id)
+        .eq("code_id", accessCode.id)
+        .eq("is_revoked", true)
+        .maybeSingle();
+
+      if (revokedActivation) {
+        console.log(`[validate-code] Device ${device_id.substring(0, 8)} is blocked from code ${code}`);
+        return new Response(
+          JSON.stringify({ success: false, error: "Tyvärr, fel kod" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Check if device already has a non-revoked activation for this code
+      const { data: existingActivation } = await supabase
+        .from("device_activations")
+        .select("id")
+        .eq("device_id", device_id)
+        .eq("code_id", accessCode.id)
+        .eq("is_revoked", false)
+        .maybeSingle();
+
+      if (existingActivation) {
+        // Already activated with this code, just grant access
+        return new Response(
+          JSON.stringify({ success: true }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
@@ -144,7 +159,6 @@ Deno.serve(async (req) => {
 
       if (updateError) {
         console.error("[validate-code] Usage update error:", updateError);
-        // Don't throw - activation succeeded, this is just tracking
       }
 
       console.log(`[validate-code] Device ${device_id.substring(0, 8)} activated with code ${code}`);

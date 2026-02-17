@@ -1,0 +1,1 @@
+ALTER TABLE public.access_codes ADD COLUMN is_open boolean NOT NULL DEFAULT true;

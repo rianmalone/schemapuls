@@ -19,16 +19,37 @@ import { Loader2 } from "lucide-react";
 const queryClient = new QueryClient();
 
 const App = () => {
-  const [accessState, setAccessState] = useState<"loading" | "granted" | "denied">("loading");
+  // Check local flag first for instant access — no network wait
+  const localAccess = localStorage.getItem("schemapuls_access") === "granted";
+  const [accessState, setAccessState] = useState<"loading" | "granted" | "denied">(
+    localAccess ? "granted" : "loading"
+  );
 
-  // Check access on mount and when app comes to foreground
-  const checkAccess = async () => {
+  // Background server check — only used to REVOKE access, never to block launch
+  const checkAccessInBackground = async () => {
     const hasAccess = await checkServerAccess();
-    setAccessState(hasAccess ? "granted" : "denied");
+    if (!hasAccess && localStorage.getItem("schemapuls_access") === "granted") {
+      // Server says revoked — clear local flag and show code entry
+      localStorage.removeItem("schemapuls_access");
+      setAccessState("denied");
+    }
   };
 
   useEffect(() => {
-    checkAccess();
+    if (localAccess) {
+      // Already granted locally — just verify in background
+      checkAccessInBackground();
+    } else {
+      // No local flag — need to check server (first launch or cleared data)
+      const check = async () => {
+        const hasAccess = await checkServerAccess();
+        setAccessState(hasAccess ? "granted" : "denied");
+        if (hasAccess) {
+          localStorage.setItem("schemapuls_access", "granted");
+        }
+      };
+      check();
+    }
   }, []);
 
   useEffect(() => {
@@ -50,7 +71,7 @@ const App = () => {
           });
           
           // Also re-check access when app comes to foreground
-          checkAccess();
+          checkAccessInBackground();
         }
       });
 
@@ -85,7 +106,10 @@ const App = () => {
   if (accessState === "denied") {
     return (
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <CodeEntry onSuccess={() => setAccessState("granted")} />
+        <CodeEntry onSuccess={() => {
+          localStorage.setItem("schemapuls_access", "granted");
+          setAccessState("granted");
+        }} />
       </ThemeProvider>
     );
   }

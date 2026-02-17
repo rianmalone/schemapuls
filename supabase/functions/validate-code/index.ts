@@ -41,21 +41,14 @@ Deno.serve(async (req) => {
         throw error;
       }
 
-      // Check if any non-revoked activation has an active code
-      for (const activation of (activations || [])) {
-        const { data: codeData } = await supabase
-          .from("access_codes")
-          .select("is_active")
-          .eq("id", activation.code_id)
-          .single();
-
-        if (codeData?.is_active) {
-          console.log(`[validate-code] Device ${device_id.substring(0, 8)} has active access`);
-          return new Response(
-            JSON.stringify({ hasAccess: true }),
-            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
-        }
+      // Any non-revoked activation means the device keeps access
+      // (is_active on the code only gates NEW redemptions, not existing users)
+      if (activations && activations.length > 0) {
+        console.log(`[validate-code] Device ${device_id.substring(0, 8)} has active access`);
+        return new Response(
+          JSON.stringify({ hasAccess: true }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
       }
 
       console.log(`[validate-code] Device ${device_id.substring(0, 8)} has no active access`);

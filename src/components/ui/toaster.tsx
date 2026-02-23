@@ -1,11 +1,11 @@
 import { useToast } from "@/hooks/use-toast";
-import { Toast, ToastClose, ToastDescription, ToastProvider, ToastTitle, ToastViewport } from "@/components/ui/toast";
+import { Toast, ToastDescription, ToastProvider, ToastTitle, ToastViewport } from "@/components/ui/toast";
 
 export function Toaster() {
   const { toasts } = useToast();
 
   return (
-    <ToastProvider duration={4000} swipeDirection="up">
+    <ToastProvider duration={3000} swipeDirection="up">
       {toasts.map(function ({ id, title, description, action, ...props }) {
         return (
           <Toast key={id} {...props}>
@@ -14,8 +14,7 @@ export function Toaster() {
               {description && <ToastDescription>{description}</ToastDescription>}
             </div>
             {action}
-            <ToastClose />
-            <ToastProgressBar duration={4000} />
+            <ToastProgressBar duration={3000} />
           </Toast>
         );
       })}

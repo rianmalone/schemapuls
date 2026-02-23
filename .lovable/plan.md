@@ -1,28 +1,48 @@
 
 
-## Problem
+## Root Cause
 
-The toast appears too low on iPhone because the `slide-in-from-top-full` animation starts from `translateY(-100%)` — which is relative to the **viewport top**, not the toast viewport's position. So the toast first slides to where -100% puts it (near the notch), then snaps down to its actual position at `top: safe-area + 24px + p-4`. This creates a "double swipe" effect: one animation to enter, then visually it jumps.
+There are **two separate problems** causing the toast to be too low and have a double-animation:
 
-The `slide-out-to-top-full` exit has the same mismatch — it slides to viewport top first, creating two visual movements.
+### 1. Double safe-area offset
+The `body` already has `padding-top: env(safe-area-inset-top)` (line 116 of `index.css`). The toast viewport then adds `top: calc(var(--safe-area-top) + 24px)` which includes the safe-area **again**. Since the toast is `position: fixed`, the body padding doesn't affect it — but the CSS variable `--safe-area-top` is still `env(safe-area-inset-top)`. So the toast is offset by safe-area + 24px from the true viewport top, which is correct for fixed positioning. The issue is actually that 24px is too much gap. Reduce to something smaller like 8px.
+
+### 2. Two competing animations on close
+`tailwindcss-animate` implements `animate-in`/`animate-out` by combining multiple CSS animation keyframes. When the toast closes, both `fade-out-80` and `slide-out-to-top-5` run as separate animations. They have slightly different timings, causing the visible "fade slightly, pause, then slide away" effect. The fix is to **remove the separate slide animations entirely** and only use the fade, OR combine them into a single custom keyframe animation that does both fade + translate in one smooth motion.
 
 ## Fix
 
 **File: `src/components/ui/toast.tsx`**
 
-1. **Remove the `p-4` padding from the viewport** — this adds 16px of extra offset on top of the already-accounted `safe-area + 24px`. Change to `p-4 pt-0` (keep side/bottom padding, remove top padding that pushes toasts down).
+1. **Reduce top offset** from `24px` to `8px` so the toast sits closer to the notch: `top-[calc(var(--safe-area-top)+8px)]`
 
-2. **Replace `slide-in-from-top-full` / `slide-out-to-top-full`** with smaller translate animations that don't overshoot. Use `slide-in-from-top-5` and `slide-out-to-top-5` (or a custom small translateY like `-20px`) so the toast slides in a short distance from above its resting position, rather than flying from the very top of the screen.
+2. **Remove the conflicting dual animations** — strip out all `slide-in-from-*` and `slide-out-to-*` classes and `animate-in`/`animate-out`. Replace with a single custom CSS animation class that handles both fade and translate together.
 
-Specifically in the `toastVariants` cva string (line 26), change:
-- `data-[state=closed]:slide-out-to-top-full` → `data-[state=closed]:slide-out-to-top-5`
-- `data-[state=open]:slide-in-from-top-full` → `data-[state=open]:slide-in-from-top-5`
+**File: `src/index.css`**
 
-And change the viewport className (line 17) top padding from `p-4` to `px-4 pb-4` so there's no extra top spacing pushing the toast lower than intended.
+3. **Add two custom keyframes** that combine fade + translateY into one smooth animation:
+
+```css
+@keyframes toast-slide-in {
+  from { opacity: 0; transform: translateY(-100%); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes toast-slide-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-100%); }
+}
+```
+
+Then in `toast.tsx`, replace the `animate-in`/`animate-out`/`fade-out-80`/`slide-*` classes with:
+- `data-[state=open]:animate-[toast-slide-in_0.3s_ease-out]`
+- `data-[state=closed]:animate-[toast-slide-out_0.2s_ease-in_forwards]`
+
+This gives **one single animation** for enter and one for exit — no more competing keyframes.
 
 ## Summary
 
 | File | Change |
 |------|--------|
-| `src/components/ui/toast.tsx` | Remove top padding from viewport; use short slide animations instead of full-screen ones |
+| `src/components/ui/toast.tsx` | Reduce top offset to 8px; replace dual animate-in/out + slide + fade with single custom animations |
+| `src/index.css` | Add `toast-slide-in` and `toast-slide-out` keyframes combining opacity + translateY |
 

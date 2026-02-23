@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Upload, Bell, BellOff, Plus } from "lucide-react";
+import { ArrowLeft, Upload, Bell, BellOff, Plus, Clock, Trash2 } from "lucide-react";
 import { Fragment, useEffect, useState, useMemo } from "react";
 import { Slider } from "@/components/ui/slider";
 import { notificationService } from "@/services/notificationService";
@@ -57,6 +57,9 @@ const Schedule = () => {
   const [currentScheduleId, setCurrentScheduleId] = useState<string | null>(null);
   const [scheduleName, setScheduleName] = useState<string>("Mitt Schema");
   const [isAddClassOpen, setIsAddClassOpen] = useState(false);
+  const [isEditClassOpen, setIsEditClassOpen] = useState(false);
+  const [editClass, setEditClass] = useState<Class | null>(null);
+  const [editClassDay, setEditClassDay] = useState<string>("");
   const [newClass, setNewClass] = useState({
     name: "",
     room: "",
@@ -445,6 +448,74 @@ const Schedule = () => {
     return getClassCountForDay(dayKey) >= 20;
   };
 
+  const openEditDialog = (classItem: Class, dayKey: string) => {
+    setEditClass({ ...classItem });
+    setEditClassDay(dayKey);
+    setIsEditClassOpen(true);
+  };
+
+  const handleEditSave = () => {
+    if (!editClass || !schedule) return;
+
+    if (!editClass.start || !editClass.end) {
+      toast({
+        title: "Saknade tider",
+        description: "Du måste ange både start- och sluttid",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const [startHour, startMin] = editClass.start.split(':').map(Number);
+    const [endHour, endMin] = editClass.end.split(':').map(Number);
+    if (startHour * 60 + startMin >= endHour * 60 + endMin) {
+      toast({
+        title: "Ogiltig tid",
+        description: "Starttiden måste vara före sluttiden",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const updatedSchedule = { ...schedule };
+    for (const dayKey of Object.keys(updatedSchedule)) {
+      const dayClasses = updatedSchedule[dayKey as keyof WeekSchedule];
+      const index = dayClasses.findIndex((c) => c.id === editClass.id);
+      if (index !== -1) {
+        (updatedSchedule[dayKey as keyof WeekSchedule] as Class[])[index] = editClass;
+        break;
+      }
+    }
+
+    const viewingId = localStorage.getItem("currentlyViewingScheduleId");
+    if (viewingId) {
+      localStorage.setItem(`schedule_${viewingId}`, JSON.stringify(updatedSchedule));
+    }
+
+    setSchedule(sortSchedule(updatedSchedule));
+    setIsEditClassOpen(false);
+    toast({ title: "Sparat!", description: "Dina ändringar har sparats" });
+  };
+
+  const handleEditDelete = () => {
+    if (!editClass || !schedule) return;
+
+    const updatedSchedule = { ...schedule };
+    for (const dayKey of Object.keys(updatedSchedule)) {
+      (updatedSchedule[dayKey as keyof WeekSchedule] as Class[]) = 
+        updatedSchedule[dayKey as keyof WeekSchedule].filter((c) => c.id !== editClass.id);
+    }
+
+    const viewingId = localStorage.getItem("currentlyViewingScheduleId");
+    if (viewingId) {
+      localStorage.setItem(`schedule_${viewingId}`, JSON.stringify(updatedSchedule));
+    }
+
+    setSchedule(sortSchedule(updatedSchedule));
+    setIsEditClassOpen(false);
+    toast({ title: "Raderad", description: "Lektionen har raderats" });
+  };
+
   const getColorClass = (className: string) => {
     const nameLower = className.toLowerCase();
     
@@ -675,7 +746,7 @@ const Schedule = () => {
                     {dayClasses.map((classItem, index) => (
                       <Fragment key={classItem.id}>
                         <button
-                          onClick={() => navigate(`/edit-class/${classItem.id}`)}
+                          onClick={() => openEditDialog(classItem, day.key)}
                           className={`w-full p-2 rounded-lg ${getClassColorClassName(classItem)} text-white text-left transition-all duration-300 active:scale-95 ${
                             !enabledClasses[classItem.id] ? 'opacity-50' : 'opacity-100'
                           } ${
@@ -739,7 +810,7 @@ const Schedule = () => {
               currentDayClasses.map((classItem, index) => (
                 <Fragment key={classItem.id}>
                   <button
-                    onClick={() => navigate(`/edit-class/${classItem.id}`)}
+                    onClick={() => openEditDialog(classItem, selectedDay)}
                     className={`w-full p-3 rounded-xl ${getClassColorClassName(classItem)} text-white shadow-sm transition-all duration-300 active:scale-95 text-left border-l-4 border-white/30 ${
                       !enabledClasses[classItem.id] ? 'opacity-50' : 'opacity-100'
                     } ${
@@ -801,7 +872,7 @@ const Schedule = () => {
           <DialogTrigger asChild>
             <Button
               size="sm"
-              className="fixed bottom-6 right-6 h-11 w-14 rounded-full shadow-md bg-primary transition-all"
+              className="fixed bottom-6 right-6 h-11 w-14 rounded-full shadow-md bg-primary/80 transition-all"
             >
               <Plus className="h-5 w-5" />
             </Button>
@@ -829,26 +900,32 @@ const Schedule = () => {
                   placeholder="t.ex. BRR2"
                 />
               </div>
-              <div className="flex items-start gap-[85px]">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="start" className="text-sm">Starttid</Label>
-                  <Input
-                    id="start"
-                    type="time"
-                    value={newClass.start}
-                    onChange={(e) => setNewClass({ ...newClass, start: e.target.value })}
-                    className="text-sm w-[100px]"
-                  />
+                  <div className="relative">
+                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                    <Input
+                      id="start"
+                      type="time"
+                      value={newClass.start}
+                      onChange={(e) => setNewClass({ ...newClass, start: e.target.value })}
+                      className="text-sm pl-10"
+                    />
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="end" className="text-sm">Sluttid</Label>
-                  <Input
-                    id="end"
-                    type="time"
-                    value={newClass.end}
-                    onChange={(e) => setNewClass({ ...newClass, end: e.target.value })}
-                    className="text-sm w-[100px]"
-                  />
+                  <div className="relative">
+                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                    <Input
+                      id="end"
+                      type="time"
+                      value={newClass.end}
+                      onChange={(e) => setNewClass({ ...newClass, end: e.target.value })}
+                      className="text-sm pl-10"
+                    />
+                  </div>
                 </div>
               </div>
               <div className="space-y-2">
@@ -899,6 +976,73 @@ const Schedule = () => {
                 Lägg till
               </Button>
             </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Lesson Dialog */}
+        <Dialog open={isEditClassOpen} onOpenChange={setIsEditClassOpen}>
+          <DialogContent className="sm:max-w-md max-w-[calc(100vw-2rem)] rounded-2xl">
+            <DialogHeader>
+              <DialogTitle>Redigera lektion</DialogTitle>
+            </DialogHeader>
+            {editClass && (
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-name">Lektionsnamn</Label>
+                  <Input
+                    id="edit-name"
+                    value={editClass.name}
+                    onChange={(e) => setEditClass({ ...editClass, name: e.target.value })}
+                    maxLength={25}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-room">Sal (valfritt)</Label>
+                  <Input
+                    id="edit-room"
+                    value={editClass.room || ""}
+                    onChange={(e) => setEditClass({ ...editClass, room: e.target.value })}
+                    placeholder="t.ex. 206"
+                    maxLength={25}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-start" className="text-sm">Starttid</Label>
+                    <div className="relative">
+                      <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                      <Input
+                        id="edit-start"
+                        type="time"
+                        value={editClass.start}
+                        onChange={(e) => setEditClass({ ...editClass, start: e.target.value })}
+                        className="text-sm pl-10"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-end" className="text-sm">Sluttid</Label>
+                    <div className="relative">
+                      <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                      <Input
+                        id="edit-end"
+                        type="time"
+                        value={editClass.end}
+                        onChange={(e) => setEditClass({ ...editClass, end: e.target.value })}
+                        className="text-sm pl-10"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <Button onClick={handleEditSave} className="w-full">
+                  Spara ändringar
+                </Button>
+                <Button onClick={handleEditDelete} variant="destructive" className="w-full">
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Radera lektion
+                </Button>
+              </div>
+            )}
           </DialogContent>
         </Dialog>
 

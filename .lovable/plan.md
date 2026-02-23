@@ -1,45 +1,28 @@
 
 
-## Plan: UI Refinements (No Progress Bar)
+## Problem
 
-### 1. Toast Notifications — Positioning, Swipe Up, Close Button
+The toast appears too low on iPhone because the `slide-in-from-top-full` animation starts from `translateY(-100%)` — which is relative to the **viewport top**, not the toast viewport's position. So the toast first slides to where -100% puts it (near the notch), then snaps down to its actual position at `top: safe-area + 24px + p-4`. This creates a "double swipe" effect: one animation to enter, then visually it jumps.
 
-**Files:** `src/components/ui/toast.tsx`, `src/components/ui/toaster.tsx`
+The `slide-out-to-top-full` exit has the same mismatch — it slides to viewport top first, creating two visual movements.
 
-- **Swipe direction:** Change `ToastProvider` to use `swipeDirection="up"`. Update swipe animation classes on the toast variant to use vertical (`slide-out-to-top-full` instead of `slide-out-to-right-full` for swipe end).
-- **Close button:** Make the `X` always visible (remove `opacity-0 group-hover:opacity-100`). Make it bigger (`h-5 w-5`), add a red circular background (`bg-destructive rounded-full p-0.5 text-white`). Remove hover opacity transition.
-- **Padding:** Reduce toast padding from `p-6 pr-8` to `p-4 pr-8`, and `pb-7` to `pb-5` for a more compact height.
+## Fix
 
-### 2. Edit Lesson — Dialog Instead of Full Page
+**File: `src/components/ui/toast.tsx`**
 
-**File:** `src/pages/Schedule.tsx`
+1. **Remove the `p-4` padding from the viewport** — this adds 16px of extra offset on top of the already-accounted `safe-area + 24px`. Change to `p-4 pt-0` (keep side/bottom padding, remove top padding that pushes toasts down).
 
-- Add an edit dialog (similar to the add dialog) with state: `isEditClassOpen`, `editClass` (holds the class data being edited), and `editClassDay` (which day it's on).
-- When clicking a lesson card (both week and day view), instead of `navigate(/edit-class/${id})`, open the edit dialog with that class's data pre-filled.
-- The edit dialog contains: name, room, start time, end time (same layout as add), plus "Spara ändringar" and "Radera lektion" buttons. Reuse the save/delete logic from `EditClass.tsx`.
-- `EditClass.tsx` remains untouched.
+2. **Replace `slide-in-from-top-full` / `slide-out-to-top-full`** with smaller translate animations that don't overshoot. Use `slide-in-from-top-5` and `slide-out-to-top-5` (or a custom small translateY like `-20px`) so the toast slides in a short distance from above its resting position, rather than flying from the very top of the screen.
 
-### 3. Add Lesson Button — 80% Opacity on Background Only
+Specifically in the `toastVariants` cva string (line 26), change:
+- `data-[state=closed]:slide-out-to-top-full` → `data-[state=closed]:slide-out-to-top-5`
+- `data-[state=open]:slide-in-from-top-full` → `data-[state=open]:slide-in-from-top-5`
 
-**File:** `src/pages/Schedule.tsx` (line ~802-807)
+And change the viewport className (line 17) top padding from `p-4` to `px-4 pb-4` so there's no extra top spacing pushing the toast lower than intended.
 
-Change the floating button so the blue background is 80% opacity but the plus icon stays fully opaque:
-- Replace `bg-primary` with `bg-primary/80` on the button.
-- The `Plus` icon inherits full opacity naturally since it's a child element and `bg-primary/80` only affects the background color's alpha.
+## Summary
 
-### 4. Time Inputs — Equal Split Grid Layout
-
-**Files:** `src/pages/Schedule.tsx` (add dialog, lines 832-852), and the new edit dialog
-
-Replace the current `flex items-start gap-[85px]` / `gap-[70px]` with `w-[100px]` inputs → use `grid grid-cols-2 gap-4` where each input is full-width within its column. Remove the fixed `w-[100px]` from the inputs. This makes start and end time fields equal width, matching the other full-width inputs, while being nicely split side by side.
-
-### 5. Summary of Files Changed
-
-| File | Changes |
-|------|---------|
-| `src/components/ui/toast.tsx` | Swipe animations, close button styling, padding |
-| `src/components/ui/toaster.tsx` | `swipeDirection="up"` on ToastProvider |
-| `src/pages/Schedule.tsx` | Edit dialog, add button opacity, time input grid layout |
-
-No changes to: `EditClass.tsx`, `Upload.tsx`, `tailwind.config.ts`, or any other files.
+| File | Change |
+|------|--------|
+| `src/components/ui/toast.tsx` | Remove top padding from viewport; use short slide animations instead of full-screen ones |
 

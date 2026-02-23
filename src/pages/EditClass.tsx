@@ -194,7 +194,7 @@ const EditClass = () => {
               />
             </div>
 
-            <div className="flex items-start gap-[70px]">
+            <div className="flex items-start gap-[70px] max-w-[70%]">
               <div className="space-y-2">
                 <Label htmlFor="start">Starttid</Label>
                 <div className="relative">

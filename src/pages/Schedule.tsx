@@ -900,7 +900,7 @@ const Schedule = () => {
                   placeholder="t.ex. BRR2"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4 max-w-[70%]">
                 <div className="space-y-2">
                   <Label htmlFor="start" className="text-sm">Starttid</Label>
                   <div className="relative">
@@ -1006,7 +1006,7 @@ const Schedule = () => {
                     maxLength={25}
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4 max-w-[70%]">
                   <div className="space-y-2">
                     <Label htmlFor="edit-start" className="text-sm">Starttid</Label>
                     <div className="relative">

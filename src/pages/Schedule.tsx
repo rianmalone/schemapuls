@@ -900,7 +900,7 @@ const Schedule = () => {
                   placeholder="t.ex. BRR2"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4 max-w-[70%]">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="start" className="text-sm">Starttid</Label>
                   <div className="relative">
@@ -910,7 +910,7 @@ const Schedule = () => {
                       type="time"
                       value={newClass.start}
                       onChange={(e) => setNewClass({ ...newClass, start: e.target.value })}
-                      className="text-sm pl-10 h-8"
+                      className="text-sm pl-10 h-8 w-[110px]"
                     />
                   </div>
                 </div>
@@ -923,7 +923,7 @@ const Schedule = () => {
                       type="time"
                       value={newClass.end}
                       onChange={(e) => setNewClass({ ...newClass, end: e.target.value })}
-                      className="text-sm pl-10 h-8"
+                      className="text-sm pl-10 h-8 w-[110px]"
                     />
                   </div>
                 </div>
@@ -1006,7 +1006,7 @@ const Schedule = () => {
                     maxLength={25}
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4 max-w-[70%]">
+                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="edit-start" className="text-sm">Starttid</Label>
                     <div className="relative">
@@ -1016,7 +1016,7 @@ const Schedule = () => {
                         type="time"
                         value={editClass.start}
                         onChange={(e) => setEditClass({ ...editClass, start: e.target.value })}
-                        className="text-sm pl-10 h-8"
+                        className="text-sm pl-10 h-8 w-[110px]"
                       />
                     </div>
                   </div>
@@ -1029,7 +1029,7 @@ const Schedule = () => {
                         type="time"
                         value={editClass.end}
                         onChange={(e) => setEditClass({ ...editClass, end: e.target.value })}
-                        className="text-sm pl-10 h-8"
+                        className="text-sm pl-10 h-8 w-[110px]"
                       />
                     </div>
                   </div>

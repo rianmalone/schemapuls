@@ -910,7 +910,7 @@ const Schedule = () => {
                       type="time"
                       value={newClass.start}
                       onChange={(e) => setNewClass({ ...newClass, start: e.target.value })}
-                      className="text-sm pl-10 h-10 w-[160px]"
+                      className="text-sm pl-10 h-10 w-[158px]"
                     />
                   </div>
                 </div>
@@ -923,7 +923,7 @@ const Schedule = () => {
                       type="time"
                       value={newClass.end}
                       onChange={(e) => setNewClass({ ...newClass, end: e.target.value })}
-                      className="text-sm pl-10 h-10 w-[160px]"
+                      className="text-sm pl-10 h-10 w-[158px]"
                     />
                   </div>
                 </div>
@@ -1016,7 +1016,7 @@ const Schedule = () => {
                         type="time"
                         value={editClass.start}
                         onChange={(e) => setEditClass({ ...editClass, start: e.target.value })}
-                        className="text-sm pl-10 h-10 w-[160px]"
+                        className="text-sm pl-10 h-10 w-[158px]"
                       />
                     </div>
                   </div>
@@ -1029,7 +1029,7 @@ const Schedule = () => {
                         type="time"
                         value={editClass.end}
                         onChange={(e) => setEditClass({ ...editClass, end: e.target.value })}
-                        className="text-sm pl-10 h-10 w-[160px]"
+                        className="text-sm pl-10 h-10 w-[158px]"
                       />
                     </div>
                   </div>

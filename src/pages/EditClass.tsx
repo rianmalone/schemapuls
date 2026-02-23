@@ -204,7 +204,7 @@ const EditClass = () => {
                     type="time"
                     value={classData.start}
                     onChange={(e) => setClassData({ ...classData, start: e.target.value })}
-                    className="rounded-xl pl-10 w-[160px] h-10 text-sm"
+                    className="rounded-xl pl-10 w-[158px] h-10 text-sm"
                   />
                 </div>
               </div>
@@ -218,7 +218,7 @@ const EditClass = () => {
                     type="time"
                     value={classData.end}
                     onChange={(e) => setClassData({ ...classData, end: e.target.value })}
-                    className="rounded-xl pl-10 w-[160px] h-10 text-sm"
+                    className="rounded-xl pl-10 w-[158px] h-10 text-sm"
                   />
                 </div>
               </div>

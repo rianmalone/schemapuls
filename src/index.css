@@ -128,6 +128,19 @@ All colors MUST be HSL.
     display: none;
   }
 
+  /* Force iOS to respect time input sizing */
+  input[type="time"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    min-height: 0;
+    height: 2.5rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+
   /* Hide native time input picker icons */
   input[type="time"]::-webkit-calendar-picker-indicator {
     display: none;

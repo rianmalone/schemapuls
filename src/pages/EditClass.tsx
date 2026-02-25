@@ -194,7 +194,7 @@ const EditClass = () => {
               />
             </div>
 
-            <div className="flex items-start gap-[70px]">
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="start">Starttid</Label>
                 <div className="relative">
@@ -204,7 +204,7 @@ const EditClass = () => {
                     type="time"
                     value={classData.start}
                     onChange={(e) => setClassData({ ...classData, start: e.target.value })}
-                    className="rounded-xl pl-10 w-[157px] h-10 text-sm"
+                    className="rounded-xl pl-10 w-full h-10 text-sm"
                   />
                 </div>
               </div>
@@ -218,7 +218,7 @@ const EditClass = () => {
                     type="time"
                     value={classData.end}
                     onChange={(e) => setClassData({ ...classData, end: e.target.value })}
-                    className="rounded-xl pl-10 w-[157px] h-10 text-sm"
+                    className="rounded-xl pl-10 w-full h-10 text-sm"
                   />
                 </div>
               </div>

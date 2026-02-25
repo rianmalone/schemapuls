@@ -910,7 +910,7 @@ const Schedule = () => {
                       type="time"
                       value={newClass.start}
                       onChange={(e) => setNewClass({ ...newClass, start: e.target.value })}
-                      className="text-sm pl-10 h-10 w-[157px]"
+                      className="text-sm pl-10 h-10 w-full"
                     />
                   </div>
                 </div>
@@ -923,7 +923,7 @@ const Schedule = () => {
                       type="time"
                       value={newClass.end}
                       onChange={(e) => setNewClass({ ...newClass, end: e.target.value })}
-                      className="text-sm pl-10 h-10 w-[157px]"
+                      className="text-sm pl-10 h-10 w-full"
                     />
                   </div>
                 </div>

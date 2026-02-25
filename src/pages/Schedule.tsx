@@ -1016,7 +1016,7 @@ const Schedule = () => {
                         type="time"
                         value={editClass.start}
                         onChange={(e) => setEditClass({ ...editClass, start: e.target.value })}
-                        className="text-sm pl-10 h-10 w-[157px]"
+                        className="text-sm pl-10 h-10 w-full"
                       />
                     </div>
                   </div>
@@ -1029,7 +1029,7 @@ const Schedule = () => {
                         type="time"
                         value={editClass.end}
                         onChange={(e) => setEditClass({ ...editClass, end: e.target.value })}
-                        className="text-sm pl-10 h-10 w-[157px]"
+                        className="text-sm pl-10 h-10 w-full"
                       />
                     </div>
                   </div>

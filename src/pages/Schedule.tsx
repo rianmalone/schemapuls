@@ -877,11 +877,11 @@ const Schedule = () => {
               <Plus className="h-5 w-5" />
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-md max-w-[calc(100vw-2rem)] rounded-2xl px-6">
-            <DialogHeader>
+          <DialogContent className="sm:max-w-md max-w-[calc(100vw-2rem)] rounded-2xl p-6">
+            <DialogHeader className="pr-6">
               <DialogTitle>Lägg till lektion</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4 py-4">
+            <div className="space-y-4 py-4 w-full">
               <div className="space-y-2">
                 <Label htmlFor="name">Lektionsnamn</Label>
                 <Input
@@ -955,12 +955,12 @@ const Schedule = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="color">Färg</Label>
-                <div className="flex gap-2 justify-between">
+                <div className="flex gap-2 justify-between overflow-hidden">
                   {["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8", "#F7DC6F", "#BB8FCE"].map((color) => (
                     <button
                       key={color}
                       onClick={() => setNewClass({ ...newClass, color })}
-                      className={`w-10 h-10 rounded-lg transition-all active:scale-90 flex-shrink-0 ${
+                      className={`aspect-square flex-1 min-w-0 max-w-10 rounded-lg transition-all active:scale-90 ${
                         newClass.color === color ? "ring-2 ring-primary ring-offset-2" : ""
                       }`}
                       style={{ backgroundColor: color }}

@@ -9,6 +9,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { Capacitor } from "@capacitor/core";
 import { Camera as CameraPlugin, CameraResultType, CameraSource } from "@capacitor/camera";
 
+const AnimatedAnalyserar = () => {
+  const [dots, setDots] = useState(1);
+  
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setDots((prev) => (prev % 3) + 1);
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
+  
+  return <span>Analyserar{".".repeat(dots)}</span>;
+};
+
 const Upload = () => {
   const navigate = useNavigate();
   const { toast } = useToast();

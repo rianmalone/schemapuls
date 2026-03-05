@@ -801,7 +801,7 @@ const Schedule = () => {
           <DialogTrigger asChild>
             <Button
               size="sm"
-              className="fixed bottom-14 right-6 h-11 w-14 rounded-full shadow-md bg-primary transition-all"
+              className="fixed bottom-14 right-6 h-11 w-14 rounded-full shadow-md bg-primary/80 transition-all"
             >
               <Plus className="h-5 w-5" />
             </Button>
@@ -810,7 +810,7 @@ const Schedule = () => {
             <DialogHeader>
               <DialogTitle>Lägg till lektion</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4 py-4 overflow-x-hidden">
+            <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Lektionsnamn</Label>
                 <Input

@@ -417,8 +417,12 @@ const Home = () => {
           size="lg"
           disabled={schedules.length >= 5}
         >
-          <Plus className="w-5 h-5 mr-2" />
-          {schedules.length >= 5 ? "Max 5 scheman" : "Skapa nytt schema"}
+          {schedules.length >= 5 ? "Max 5 scheman" : (
+            <>
+              <Plus className="w-5 h-5 mr-2" />
+              Skapa nytt schema
+            </>
+          )}
         </Button>
 
         {schedules.length >= 5 && (

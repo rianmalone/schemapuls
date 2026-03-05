@@ -810,7 +810,7 @@ const Schedule = () => {
             <DialogHeader>
               <DialogTitle>Lägg till lektion</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4 py-4 overflow-x-hidden">
+            <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Lektionsnamn</Label>
                 <Input

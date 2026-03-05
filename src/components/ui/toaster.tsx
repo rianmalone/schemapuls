@@ -25,7 +25,10 @@ export function Toaster() {
 
 function ToastProgressBar({ duration }: { duration: number }) {
   return (
-    <div className="absolute inset-x-0 bottom-0 z-10 h-1 pointer-events-none">
+    <div 
+      className="absolute left-0 right-0 bottom-0 z-10 h-1 pointer-events-none"
+      style={{ margin: '-1px' }}
+    >
       <div 
         className="h-full w-full bg-primary origin-left"
         style={{ 

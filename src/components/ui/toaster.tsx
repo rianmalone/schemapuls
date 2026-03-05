@@ -27,7 +27,7 @@ function ToastProgressBar({ duration }: { duration: number }) {
   return (
     <div className="absolute left-0 right-0 bottom-0 z-10 h-1 bg-transparent overflow-hidden rounded-b-md pointer-events-none">
       <div 
-        className="h-full w-full bg-primary origin-right"
+        className="h-full w-full bg-primary origin-left"
         style={{ 
           animation: `shrink-width ${duration}ms linear forwards`,
         }}

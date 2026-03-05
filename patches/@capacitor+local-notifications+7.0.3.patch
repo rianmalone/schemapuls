@@ -1054,6 +1054,47 @@ index 134fd06..daec4f1 100644
 +        }
      }
  }
+diff --git a/node_modules/@capacitor/local-notifications/android/src/main/java/com/capacitorjs/plugins/localnotifications/LocalNotificationsPlugin.java b/node_modules/@capacitor/local-notifications/android/src/main/java/com/capacitorjs/plugins/localnotifications/LocalNotificationsPlugin.java
+index c9f09e5..cbe3413 100644
+--- a/node_modules/@capacitor/local-notifications/android/src/main/java/com/capacitorjs/plugins/localnotifications/LocalNotificationsPlugin.java
++++ b/node_modules/@capacitor/local-notifications/android/src/main/java/com/capacitorjs/plugins/localnotifications/LocalNotificationsPlugin.java
+@@ -10,6 +10,8 @@ import android.content.Context;
+ import android.content.Intent;
+ import android.net.Uri;
+ import android.os.Build;
++import android.os.PowerManager;
++import android.provider.Settings;
+ import android.service.notification.StatusBarNotification;
+ import androidx.activity.result.ActivityResult;
+ import com.getcapacitor.Bridge;
+@@ -259,6 +261,27 @@ public class LocalNotificationsPlugin extends Plugin {
+         checkExactNotificationSetting(call);
+     }
+ 
++    @PluginMethod
++    public void checkBatteryOptimization(PluginCall call) {
++        JSObject result = new JSObject();
++        PowerManager pm = (PowerManager) getContext().getSystemService(Context.POWER_SERVICE);
++        boolean isIgnoring = pm != null && pm.isIgnoringBatteryOptimizations(getContext().getPackageName());
++        result.put("isIgnoring", isIgnoring);
++        call.resolve(result);
++    }
++
++    @PluginMethod
++    public void requestIgnoreBatteryOptimization(PluginCall call) {
++        try {
++            Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
++            intent.setData(Uri.parse("package:" + getContext().getPackageName()));
++            getActivity().startActivity(intent);
++            call.resolve();
++        } catch (Exception e) {
++            call.reject("Failed to open battery optimization settings", e);
++        }
++    }
++
+     private String getNotificationPermissionText() {
+         if (manager.areNotificationsEnabled()) {
+             return "granted";
 diff --git a/node_modules/@capacitor/local-notifications/android/src/main/java/com/capacitorjs/plugins/localnotifications/TimedNotificationPublisher.java b/node_modules/@capacitor/local-notifications/android/src/main/java/com/capacitorjs/plugins/localnotifications/TimedNotificationPublisher.java
 index 0a5c0ad..33b408b 100644
 --- a/node_modules/@capacitor/local-notifications/android/src/main/java/com/capacitorjs/plugins/localnotifications/TimedNotificationPublisher.java

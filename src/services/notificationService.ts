@@ -37,7 +37,7 @@ export class NotificationService {
   private readonly IMMEDIATE_NOTIF_COOLDOWN_MINUTES = 30; // Don't send duplicate immediate notifs within 30 minutes
 
 
-  private constructor() {}
+  private constructor() { }
 
   static getInstance(): NotificationService {
     if (!NotificationService.instance) {
@@ -124,6 +124,41 @@ export class NotificationService {
     return this.checkExactAlarmPermission();
   }
 
+  /**
+   * Check if the app is exempt from battery optimization (Android only).
+   * Returns true on non-Android platforms.
+   */
+  async checkBatteryOptimization(): Promise<boolean> {
+    if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== 'android') {
+      return true;
+    }
+
+    try {
+      const result = await (LocalNotifications as any).checkBatteryOptimization();
+      const isIgnoring = result.isIgnoring === true;
+      console.log('[Notifications] Battery optimization ignored:', isIgnoring);
+      return isIgnoring;
+    } catch (error) {
+      console.error('[Notifications] Error checking battery optimization:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Open system dialog to request battery optimization exemption (Android only).
+   */
+  async requestIgnoreBatteryOptimization(): Promise<void> {
+    if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== 'android') {
+      return;
+    }
+
+    try {
+      await (LocalNotifications as any).requestIgnoreBatteryOptimization();
+    } catch (error) {
+      console.error('[Notifications] Error requesting battery optimization exemption:', error);
+    }
+  }
+
   async scheduleNotifications(
     schedule: WeekSchedule,
     enabledClasses: Record<string, boolean>,
@@ -177,10 +212,10 @@ export class NotificationService {
         const targetDate = new Date(now);
         targetDate.setDate(targetDate.getDate() + dayOffset);
         targetDate.setHours(0, 0, 0, 0);
-        
+
         const targetDayOfWeek = targetDate.getDay() || 7; // Sunday = 7, Monday = 1
         const targetDateIso = targetDate.toISOString().slice(0, 10); // YYYY-MM-DD
-        
+
         // Find the day key for this date
         let dayKey: string | null = null;
         for (const [key, dayNum] of Object.entries(dayMap)) {
@@ -189,7 +224,7 @@ export class NotificationService {
             break;
           }
         }
-        
+
         if (!dayKey || !enabledDays[dayKey]) {
           continue; // Skip disabled days
         }
@@ -201,11 +236,11 @@ export class NotificationService {
           if (!enabledClasses[classItem.id]) return;
 
           const [hours, minutes] = classItem.start.split(':').map(Number);
-          
+
           // Calculate the actual lesson start time for this specific date
           const lessonStartTime = new Date(targetDate);
           lessonStartTime.setHours(hours, minutes, 0, 0);
-          
+
           // Skip if lesson already started
           if (lessonStartTime <= now) {
             return;
@@ -219,7 +254,7 @@ export class NotificationService {
           // Determine notification schedule time
           let notificationTime: Date;
           let notificationTitle: string;
-          
+
           if (reminderTime > now) {
             // Case 1: Reminder time is in the future - schedule normally
             notificationTime = reminderTime;
@@ -234,11 +269,11 @@ export class NotificationService {
               console.log(`[Notifications] Skipping immediate notification for ${classItem.name} on ${targetDateIso} - already sent recently`);
               return; // Skip scheduling duplicate immediate notification
             }
-            
+
             notificationTime = new Date(now.getTime() + 3000); // 3 seconds from now
             const minutesUntilStart = Math.ceil((lessonStartTime.getTime() - now.getTime()) / 60000);
             notificationTitle = `${classItem.name} börjar om ${minutesUntilStart} ${minutesUntilStart === 1 ? 'minut' : 'minuter'}`;
-            
+
             // Mark that we're sending an immediate notification
             this.markImmediateNotificationSent(classItem.id, targetDateIso);
           } else {
@@ -249,7 +284,7 @@ export class NotificationService {
           // Generate stable notification ID using hash of classId, date, and start time
           const notificationId = generateNotificationId(classItem.id, targetDateIso, classItem.start);
           toScheduleIds.add(notificationId);
-          
+
           notifications.push({
             id: notificationId,
             title: notificationTitle,
@@ -271,12 +306,12 @@ export class NotificationService {
 
       // Smart cancellation: Cancel outdated notifications (pending but NOT in new schedule)
       const idsToCancel = Array.from(pendingMap).filter(id => !toScheduleIds.has(id));
-      
+
       console.log('[Notifications] Analysis:');
       console.log('[Notifications]   • Pending notifications:', pendingMap.size);
       console.log('[Notifications]   • New notifications to schedule:', notifications.length);
       console.log('[Notifications]   • Outdated to cancel:', idsToCancel.length);
-      
+
       if (idsToCancel.length > 0) {
         await LocalNotifications.cancel({
           notifications: idsToCancel.map(id => ({ id }))
@@ -288,17 +323,17 @@ export class NotificationService {
         // iOS has a strict limit of 64 pending notifications.
         const maxNotifications = Capacitor.getPlatform() === 'ios' ? 64 : notifications.length;
         const notificationsToSchedule = notifications.slice(0, maxNotifications);
-        
+
         if (Capacitor.getPlatform() === 'ios' && notifications.length > 64) {
           console.warn('[Notifications] ⚠️ iOS 64-notification limit reached! Truncating from', notifications.length, 'to 64');
         }
-        
+
         // Enhanced logging: show each notification being scheduled
         console.log('[Notifications] Scheduling', notificationsToSchedule.length, 'notifications:');
         notificationsToSchedule.forEach((n, idx) => {
           console.log(`[Notifications]   ${idx + 1}. ID:${n.id} | ${n.schedule.at.toISOString()} | ${n.title}`);
         });
-        
+
         await LocalNotifications.schedule({ notifications: notificationsToSchedule });
         console.log('[Notifications] ✅ Successfully scheduled', notificationsToSchedule.length, 'notifications');
         console.log('[Notifications] ===== SCHEDULING COMPLETE =====');
@@ -360,7 +395,7 @@ export class NotificationService {
   private hasRecentImmediateNotification(classId: string, targetDateIso: string): boolean {
     const key = `${this.IMMEDIATE_NOTIF_PREFIX}${classId}_${targetDateIso}`;
     const sentTimestampStr = localStorage.getItem(key);
-    
+
     if (!sentTimestampStr) {
       return false;
     }
@@ -369,7 +404,7 @@ export class NotificationService {
       const sentTimestamp = parseInt(sentTimestampStr, 10);
       const now = Date.now();
       const minutesSinceSent = (now - sentTimestamp) / (1000 * 60);
-      
+
       return minutesSinceSent < this.IMMEDIATE_NOTIF_COOLDOWN_MINUTES;
     } catch (error) {
       console.error('[Notifications] Error checking recent immediate notification:', error);

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
 import { notificationService } from "@/services/notificationService";
 import { useToast } from "@/hooks/use-toast";
+import { Capacitor } from "@capacitor/core";
 
 interface SavedSchedule {
   id: string;
@@ -38,23 +39,23 @@ const Home = () => {
     const startOfYear = new Date(now.getFullYear(), 0, 1);
     const pastDaysOfYear = (now.getTime() - startOfYear.getTime()) / 86400000;
     const weekNumber = Math.ceil((pastDaysOfYear + startOfYear.getDay() + 1) / 7);
-    
+
     const days = ["Söndag", "Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Lördag"];
     const dayName = days[now.getDay()];
     const date = now.toLocaleDateString("sv-SE", { day: "numeric", month: "short" });
-    
+
     return { weekNumber, dayName, date };
   };
 
   const loadSchedules = () => {
     const saved = localStorage.getItem("savedSchedules");
     console.log('Loading schedules from localStorage');
-    
+
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
         console.log('Found saved schedules:', parsed.length);
-        
+
         // Filter out schedules that have no data
         const validSchedules = parsed.filter((schedule: SavedSchedule) => {
           const hasData = !!localStorage.getItem(`schedule_${schedule.id}`);
@@ -63,13 +64,13 @@ const Home = () => {
           }
           return hasData;
         });
-        
+
         // If we filtered out broken schedules, update localStorage
         if (validSchedules.length !== parsed.length) {
           console.log(`Cleaned up ${parsed.length - validSchedules.length} broken schedules`);
           localStorage.setItem("savedSchedules", JSON.stringify(validSchedules));
         }
-        
+
         console.log('Valid schedules:', validSchedules.length);
         setSchedules(validSchedules);
       } catch (error) {
@@ -88,13 +89,13 @@ const Home = () => {
 
   useEffect(() => {
     loadSchedules();
-    
+
     // Reload schedules when window regains focus (e.g., switching tabs)
     const handleFocus = () => {
       console.log('Window focused, reloading schedules');
       loadSchedules();
     };
-    
+
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
   }, []);
@@ -106,13 +107,13 @@ const Home = () => {
       console.log('Schedule not found in list');
       return;
     }
-    
+
     console.log('Selected schedule:', selectedSchedule);
 
     const schedule = localStorage.getItem(`schedule_${id}`);
-    
+
     console.log('Loading weekly schedule, exists:', !!schedule);
-    
+
     if (schedule) {
       localStorage.setItem("scheduleType", "weekly");
       localStorage.setItem("currentlyViewingScheduleId", id);
@@ -126,7 +127,7 @@ const Home = () => {
   const handleSetActive = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     console.log('[Home] 🔄 ACTIVATING SCHEDULE:', id);
-    
+
     const selectedSchedule = schedules.find(s => s.id === id);
     if (!selectedSchedule) {
       console.log('[Home] ❌ Schedule not found');
@@ -192,8 +193,8 @@ const Home = () => {
 
     // Load enabled days from per-schedule key only (NO global fallback)
     const enabledDaysStr = localStorage.getItem(`enabledDays_${id}`);
-    const enabledDays = enabledDaysStr 
-      ? JSON.parse(enabledDaysStr) 
+    const enabledDays = enabledDaysStr
+      ? JSON.parse(enabledDaysStr)
       : { monday: true, tuesday: true, wednesday: true, thursday: true, friday: true };
 
     // Get notification minutes
@@ -215,13 +216,28 @@ const Home = () => {
       title: "Schema aktiverat",
       description: `Påminnelser aktiverade för ${selectedSchedule.name}`,
     });
-    
+
     console.log('[Home] ✅ Schedule activated:', selectedSchedule.name);
+
+    // Android: prompt for battery optimization exemption (once)
+    if (Capacitor.getPlatform() === 'android' && !localStorage.getItem('batteryOptPromptShown')) {
+      const isIgnoring = await notificationService.checkBatteryOptimization();
+      if (!isIgnoring) {
+        localStorage.setItem('batteryOptPromptShown', '1');
+        toast({
+          title: "Förbättra påminnelser",
+          description: "Tillåt SchemaPuls att köra utan batteribegränsningar så att dina påminnelser kommer i rätt tid.",
+        });
+        // Small delay so the user sees the toast before the system dialog appears
+        await new Promise(r => setTimeout(r, 1500));
+        await notificationService.requestIgnoreBatteryOptimization();
+      }
+    }
   };
 
   const handleDeleteSchedule = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     // If not confirming this one, start confirmation
     if (confirmingDeleteId !== id) {
       // Clear any existing timeout
@@ -235,20 +251,20 @@ const Home = () => {
       }, 3000);
       return;
     }
-    
+
     // Confirmed - delete the schedule
     if (deleteTimeoutRef.current) {
       clearTimeout(deleteTimeoutRef.current);
     }
     setConfirmingDeleteId(null);
-    
+
     const updated = schedules.filter(s => s.id !== id);
     setSchedules(updated);
     localStorage.setItem("savedSchedules", JSON.stringify(updated));
-    
+
     // Also remove the schedule data
     localStorage.removeItem(`schedule_${id}`);
-    
+
     if (activeScheduleId === id) {
       setActiveScheduleId(null);
       localStorage.removeItem("activeScheduleId");
@@ -267,7 +283,7 @@ const Home = () => {
       setEditingId(null);
       return;
     }
-    const updated = schedules.map(s => 
+    const updated = schedules.map(s =>
       s.id === id ? { ...s, name: trimmedName } : s
     );
     setSchedules(updated);
@@ -307,85 +323,84 @@ const Home = () => {
           {schedules.length > 0 ? (
             <>
               {schedules.map((schedule) => (
-              <div
-                key={schedule.id}
-                className="w-full p-4 rounded-2xl bg-card border border-border transition-all duration-300"
-              >
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => editingId !== schedule.id && handleSelectSchedule(schedule.id)}
-                    className="flex-1 min-w-0 text-left"
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      {editingId === schedule.id ? (
-                        <Input
-                          value={editingName}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            if (value.length <= 13) {
-                              setEditingName(value);
-                            }
-                          }}
-                          onBlur={() => handleSaveEdit(schedule.id)}
-                          onKeyDown={(e) => e.key === "Enter" && handleSaveEdit(schedule.id)}
-                          className="font-semibold text-lg"
-                          autoFocus
-                          onClick={(e) => e.stopPropagation()}
-                          maxLength={13}
-                        />
-                      ) : (
-                        <>
-                          <h3 className="font-semibold text-lg">{schedule.name}</h3>
-                          {activeScheduleId === schedule.id && (
-                            <span className="px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full">
-                              Aktiv
-                            </span>
-                          )}
-                        </>
-                      )}
+                <div
+                  key={schedule.id}
+                  className="w-full p-4 rounded-2xl bg-card border border-border transition-all duration-300"
+                >
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => editingId !== schedule.id && handleSelectSchedule(schedule.id)}
+                      className="flex-1 min-w-0 text-left"
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        {editingId === schedule.id ? (
+                          <Input
+                            value={editingName}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              if (value.length <= 13) {
+                                setEditingName(value);
+                              }
+                            }}
+                            onBlur={() => handleSaveEdit(schedule.id)}
+                            onKeyDown={(e) => e.key === "Enter" && handleSaveEdit(schedule.id)}
+                            className="font-semibold text-lg"
+                            autoFocus
+                            onClick={(e) => e.stopPropagation()}
+                            maxLength={13}
+                          />
+                        ) : (
+                          <>
+                            <h3 className="font-semibold text-lg">{schedule.name}</h3>
+                            {activeScheduleId === schedule.id && (
+                              <span className="px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full">
+                                Aktiv
+                              </span>
+                            )}
+                          </>
+                        )}
+                      </div>
+                      <div className="space-y-0.5 overflow-hidden transition-all duration-300">
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(schedule.createdAt).toLocaleDateString("sv-SE")}
+                        </p>
+                      </div>
+                    </button>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={(e) => handleStartEdit(schedule.id, schedule.name, e)}
+                        className="p-2 rounded-lg transition-colors active:bg-muted"
+                      >
+                        <Edit2 className="w-4 h-4 text-muted-foreground" />
+                      </button>
+
+                      <button
+                        onClick={(e) => handleSetActive(schedule.id, e)}
+                        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${activeScheduleId === schedule.id
+                            ? "border-primary bg-primary"
+                            : "border-muted-foreground"
+                          }`}
+                      >
+                        {activeScheduleId === schedule.id && (
+                          <Check className="w-4 h-4 text-white" />
+                        )}
+                      </button>
+
+                      <button
+                        onClick={(e) => handleDeleteSchedule(schedule.id, e)}
+                        className="p-2 rounded-lg transition-colors active:bg-destructive/10"
+                      >
+                        {confirmingDeleteId === schedule.id ? (
+                          <Check className="w-4 h-4 text-destructive" />
+                        ) : (
+                          <Trash2 className="w-4 h-4 text-destructive" />
+                        )}
+                      </button>
                     </div>
-                    <div className="space-y-0.5 overflow-hidden transition-all duration-300">
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(schedule.createdAt).toLocaleDateString("sv-SE")}
-                      </p>
-                    </div>
-                  </button>
-                  
-                  <div className="flex items-center gap-2 shrink-0">
-                    <button
-                      onClick={(e) => handleStartEdit(schedule.id, schedule.name, e)}
-                      className="p-2 rounded-lg transition-colors active:bg-muted"
-                    >
-                      <Edit2 className="w-4 h-4 text-muted-foreground" />
-                    </button>
-                    
-                    <button
-                      onClick={(e) => handleSetActive(schedule.id, e)}
-                      className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-                        activeScheduleId === schedule.id
-                          ? "border-primary bg-primary"
-                          : "border-muted-foreground"
-                      }`}
-                    >
-                      {activeScheduleId === schedule.id && (
-                        <Check className="w-4 h-4 text-white" />
-                      )}
-                    </button>
-                    
-                    <button
-                      onClick={(e) => handleDeleteSchedule(schedule.id, e)}
-                      className="p-2 rounded-lg transition-colors active:bg-destructive/10"
-                    >
-                      {confirmingDeleteId === schedule.id ? (
-                        <Check className="w-4 h-4 text-destructive" />
-                      ) : (
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      )}
-                    </button>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
             </>
           ) : (
             <div className="text-center py-8 px-6 rounded-2xl bg-card border border-border mb-6">
@@ -395,8 +410,8 @@ const Home = () => {
             </div>
           )}
         </div>
-        
-        <Button 
+
+        <Button
           onClick={handleCreateNew}
           className="w-full h-14 text-lg rounded-2xl shadow-lg transition-all mt-4"
           size="lg"
@@ -405,18 +420,18 @@ const Home = () => {
           <Plus className="w-5 h-5 mr-2" />
           {schedules.length >= 5 ? "Max 5 scheman" : "Skapa nytt schema"}
         </Button>
-        
+
         {schedules.length >= 5 && (
           <p className="text-sm text-muted-foreground text-center mt-2">
             Ta bort ett schema först för att skapa ett nytt
           </p>
         )}
-        
+
         {/* Privacy Policy Link */}
         <div className="mt-6 text-center">
-          <a 
-            href="https://schemapuls.se/sekretesspolicy" 
-            target="_blank" 
+          <a
+            href="https://schemapuls.se/sekretesspolicy"
+            target="_blank"
             rel="noopener noreferrer"
             className="text-xs text-blue-500 hover:text-blue-600 active:text-blue-700 transition-colors underline"
           >

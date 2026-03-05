@@ -806,7 +806,7 @@ const Schedule = () => {
               <Plus className="h-5 w-5" />
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-md max-w-[calc(100vw-2rem)] w-full rounded-2xl overflow-hidden">
+          <DialogContent className="sm:max-w-md max-w-[calc(100vw-2rem)] w-full rounded-2xl overflow-visible">
             <DialogHeader>
               <DialogTitle>Lägg till lektion</DialogTitle>
             </DialogHeader>

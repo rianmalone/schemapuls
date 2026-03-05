@@ -10,11 +10,11 @@ import { Capacitor } from "@capacitor/core";
 import { Camera as CameraPlugin, CameraResultType, CameraSource } from "@capacitor/camera";
 
 const AnimatedAnalyserar = () => {
-  const [dots, setDots] = useState(1);
+  const [dots, setDots] = useState(0);
   
   useEffect(() => {
     const interval = setInterval(() => {
-      setDots((prev) => (prev % 3) + 1);
+      setDots((prev) => (prev + 1) % 4);
     }, 500);
     return () => clearInterval(interval);
   }, []);

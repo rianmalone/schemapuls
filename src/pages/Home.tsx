@@ -197,7 +197,7 @@ const Home = () => {
       : { monday: true, tuesday: true, wednesday: true, thursday: true, friday: true };
 
     // Get notification minutes
-    const notificationMinutes = parseInt(localStorage.getItem("notificationMinutes") || "5", 10);
+    const notificationMinutes = parseInt(localStorage.getItem("globalNotificationMinutes") || "5", 10);
 
     console.log('[Home] Scheduling notifications - minutes:', notificationMinutes);
     console.log('[Home] Enabled classes:', Object.keys(enabledClasses).length);

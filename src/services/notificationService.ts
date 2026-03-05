@@ -36,6 +36,7 @@ export class NotificationService {
   private readonly IMMEDIATE_NOTIF_PREFIX = 'immediateNotif_';
   private readonly IMMEDIATE_NOTIF_COOLDOWN_MINUTES = 30; // Don't send duplicate immediate notifs within 30 minutes
 
+
   private constructor() {}
 
   static getInstance(): NotificationService {
@@ -57,7 +58,13 @@ export class NotificationService {
 
     try {
       const result = await LocalNotifications.requestPermissions();
-      return result.display === 'granted';
+      const granted = result.display === 'granted';
+
+      if (granted) {
+        await this.ensureExactAlarmPermission(true);
+      }
+
+      return granted;
     } catch (error) {
       console.error('Error requesting notification permissions:', error);
       return false;
@@ -81,6 +88,42 @@ export class NotificationService {
     }
   }
 
+  async checkExactAlarmPermission(): Promise<boolean> {
+    if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== 'android') {
+      return true;
+    }
+
+    try {
+      const result = await LocalNotifications.checkExactNotificationSetting();
+      const granted = result.exact_alarm === 'granted';
+      console.log('[Notifications] Exact alarm permission:', granted ? 'granted' : 'denied');
+      return granted;
+    } catch (error) {
+      console.error('[Notifications] Error checking exact alarm permission:', error);
+      return false;
+    }
+  }
+
+  async ensureExactAlarmPermission(promptIfDenied: boolean): Promise<boolean> {
+    if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== 'android') {
+      return true;
+    }
+
+    const hasExact = await this.checkExactAlarmPermission();
+    if (hasExact || !promptIfDenied) {
+      return hasExact;
+    }
+
+    try {
+      await LocalNotifications.changeExactNotificationSetting();
+    } catch (error) {
+      console.error('[Notifications] Error opening exact alarm settings:', error);
+      return false;
+    }
+
+    return this.checkExactAlarmPermission();
+  }
+
   async scheduleNotifications(
     schedule: WeekSchedule,
     enabledClasses: Record<string, boolean>,
@@ -98,6 +141,13 @@ export class NotificationService {
       if (!hasPermission) {
         console.log('[Notifications] No notification permission');
         return;
+      }
+
+      if (Capacitor.getPlatform() === 'android') {
+        const hasExactAlarm = await this.checkExactAlarmPermission();
+        if (!hasExactAlarm) {
+          console.warn('[Notifications] Exact alarms are disabled; notifications may be delayed by Android battery policies.');
+        }
       }
 
       // Get currently pending notifications
@@ -173,6 +223,9 @@ export class NotificationService {
           if (reminderTime > now) {
             // Case 1: Reminder time is in the future - schedule normally
             notificationTime = reminderTime;
+
+
+
             notificationTitle = `${classItem.name} om ${notificationMinutes} minuter`;
           } else if (lessonStartTime > now) {
             // Case 2: Reminder time passed but lesson hasn't started - immediate notification
@@ -203,6 +256,8 @@ export class NotificationService {
             body: `${classItem.room ? `Sal: ${classItem.room} • ` : ''}Börjar ${classItem.start}`,
             schedule: {
               at: notificationTime,
+              // Android: allow notifications to fire during Doze/App Standby.
+              allowWhileIdle: Capacitor.getPlatform() === 'android',
             },
             sound: 'default',
             actionTypeId: '',
@@ -230,10 +285,11 @@ export class NotificationService {
       }
 
       if (notifications.length > 0) {
-        // iOS has a limit of 64 notifications, so we take the first 64
-        const notificationsToSchedule = notifications.slice(0, 64);
+        // iOS has a strict limit of 64 pending notifications.
+        const maxNotifications = Capacitor.getPlatform() === 'ios' ? 64 : notifications.length;
+        const notificationsToSchedule = notifications.slice(0, maxNotifications);
         
-        if (notifications.length > 64) {
+        if (Capacitor.getPlatform() === 'ios' && notifications.length > 64) {
           console.warn('[Notifications] ⚠️ iOS 64-notification limit reached! Truncating from', notifications.length, 'to 64');
         }
         

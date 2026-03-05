@@ -7,8 +7,7 @@ index 0000000..0d259dd
 +o/classes
 diff --git a/node_modules/@capacitor/local-notifications/android/build/.transforms/c6c07887b55b85045ecfbb039bb9556e/transformed/classes/classes_dex/classes.dex b/node_modules/@capacitor/local-notifications/android/build/.transforms/c6c07887b55b85045ecfbb039bb9556e/transformed/classes/classes_dex/classes.dex
 new file mode 100644
-index 0000000..8b5263f
-Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/.transforms/c6c07887b55b85045ecfbb039bb9556e/transformed/classes/classes_dex/classes.dex differ
+index 0000000..e69de29
 diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml b/node_modules/@capacitor/local-notifications/android/build/intermediates/aapt_friendly_merged_manifests/debug/processDebugManifest/aapt/AndroidManifest.xml
 new file mode 100644
 index 0000000..5823a44
@@ -69,8 +68,7 @@ index 0000000..c91f6ae
 \ No newline at end of file
 diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/aar_main_jar/debug/syncDebugLibJars/classes.jar b/node_modules/@capacitor/local-notifications/android/build/intermediates/aar_main_jar/debug/syncDebugLibJars/classes.jar
 new file mode 100644
-index 0000000..b5da001
-Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/aar_main_jar/debug/syncDebugLibJars/classes.jar differ
+index 0000000..e69de29
 diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties b/node_modules/@capacitor/local-notifications/android/build/intermediates/aar_metadata/debug/writeDebugAarMetadata/aar-metadata.properties
 new file mode 100644
 index 0000000..1211b1e
@@ -96,12 +94,10 @@ new file mode 100644
 index 0000000..e69de29
 diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar b/node_modules/@capacitor/local-notifications/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar
 new file mode 100644
-index 0000000..7cad93f
-Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/compile_library_classes_jar/debug/bundleLibCompileToJarDebug/classes.jar differ
+index 0000000..e69de29
 diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar b/node_modules/@capacitor/local-notifications/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar
 new file mode 100644
-index 0000000..784adee
-Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/compile_r_class_jar/debug/generateDebugRFile/R.jar differ
+index 0000000..e69de29
 diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt b/node_modules/@capacitor/local-notifications/android/build/intermediates/compile_symbol_list/debug/generateDebugRFile/R.txt
 new file mode 100644
 index 0000000..5c576c8
@@ -111,12 +107,10 @@ index 0000000..5c576c8
 +int drawable ic_transparent 0x0
 diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_transparent.xml.flat b/node_modules/@capacitor/local-notifications/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_transparent.xml.flat
 new file mode 100644
-index 0000000..56d7519
-Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/compiled_local_resources/debug/compileDebugLibraryResources/out/drawable_ic_transparent.xml.flat differ
+index 0000000..e69de29
 diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/incremental/debug-mergeJavaRes/merge-state b/node_modules/@capacitor/local-notifications/android/build/intermediates/incremental/debug-mergeJavaRes/merge-state
 new file mode 100644
-index 0000000..1c983fc
-Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/incremental/debug-mergeJavaRes/merge-state differ
+index 0000000..e69de29
 diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties b/node_modules/@capacitor/local-notifications/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
 new file mode 100644
 index 0000000..51f63a5
@@ -163,52 +157,40 @@ index 0000000..6fba691
 \ No newline at end of file
 diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/DateMatch.class b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/DateMatch.class
 new file mode 100644
-index 0000000..83bb460
-Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/DateMatch.class differ
+index 0000000..e69de29
 diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotification.class b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotification.class
 new file mode 100644
-index 0000000..cbf6053
-Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotification.class differ
+index 0000000..e69de29
 diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationAttachment.class b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationAttachment.class
 new file mode 100644
-index 0000000..142c67b
-Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationAttachment.class differ
+index 0000000..e69de29
 diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationManager.class b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationManager.class
 new file mode 100644
-index 0000000..c52ba39
-Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationManager.class differ
+index 0000000..e69de29
 diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationRestoreReceiver.class b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationRestoreReceiver.class
 new file mode 100644
-index 0000000..862b3f7
-Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationRestoreReceiver.class differ
+index 0000000..e69de29
 diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationSchedule.class b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationSchedule.class
 new file mode 100644
-index 0000000..5b33dfa
-Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationSchedule.class differ
+index 0000000..e69de29
 diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationsPlugin.class b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationsPlugin.class
 new file mode 100644
-index 0000000..fecf926
-Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/LocalNotificationsPlugin.class differ
+index 0000000..e69de29
 diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/NotificationAction.class b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/NotificationAction.class
 new file mode 100644
-index 0000000..ab8578a
-Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/NotificationAction.class differ
+index 0000000..e69de29
 diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/NotificationChannelManager.class b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/NotificationChannelManager.class
 new file mode 100644
-index 0000000..c18d160
-Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/NotificationChannelManager.class differ
+index 0000000..e69de29
 diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/NotificationDismissReceiver.class b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/NotificationDismissReceiver.class
 new file mode 100644
-index 0000000..b24be0e
-Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/NotificationDismissReceiver.class differ
+index 0000000..e69de29
 diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/NotificationStorage.class b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/NotificationStorage.class
 new file mode 100644
-index 0000000..1729405
-Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/NotificationStorage.class differ
+index 0000000..e69de29
 diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/TimedNotificationPublisher.class b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/TimedNotificationPublisher.class
 new file mode 100644
-index 0000000..8858076
-Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/com/capacitorjs/plugins/localnotifications/TimedNotificationPublisher.class differ
+index 0000000..e69de29
 diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt b/node_modules/@capacitor/local-notifications/android/build/intermediates/local_only_symbol_list/debug/parseDebugLocalResources/R-def.txt
 new file mode 100644
 index 0000000..622ff40
@@ -274,8 +256,7 @@ index 0000000..830439c
 +26</manifest>
 diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/merged_java_res/debug/mergeDebugJavaResource/feature-capacitor-local-notifications.jar b/node_modules/@capacitor/local-notifications/android/build/intermediates/merged_java_res/debug/mergeDebugJavaResource/feature-capacitor-local-notifications.jar
 new file mode 100644
-index 0000000..15cb0ec
-Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/merged_java_res/debug/mergeDebugJavaResource/feature-capacitor-local-notifications.jar differ
+index 0000000..e69de29
 diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml b/node_modules/@capacitor/local-notifications/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml
 new file mode 100644
 index 0000000..5823a44
@@ -345,8 +326,7 @@ index 0000000..fc1779e
 +</vector>
 diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar b/node_modules/@capacitor/local-notifications/android/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar
 new file mode 100644
-index 0000000..5191d84
-Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/intermediates/runtime_library_classes_jar/debug/bundleLibRuntimeToJarDebug/classes.jar differ
+index 0000000..e69de29
 diff --git a/node_modules/@capacitor/local-notifications/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt b/node_modules/@capacitor/local-notifications/android/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt
 new file mode 100644
 index 0000000..ffc89fa
@@ -357,8 +337,7 @@ index 0000000..ffc89fa
 +drawable ic_transparent
 diff --git a/node_modules/@capacitor/local-notifications/android/build/outputs/aar/capacitor-local-notifications-debug.aar b/node_modules/@capacitor/local-notifications/android/build/outputs/aar/capacitor-local-notifications-debug.aar
 new file mode 100644
-index 0000000..c5e6d2e
-Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/outputs/aar/capacitor-local-notifications-debug.aar differ
+index 0000000..e69de29
 diff --git a/node_modules/@capacitor/local-notifications/android/build/outputs/logs/manifest-merger-debug-report.txt b/node_modules/@capacitor/local-notifications/android/build/outputs/logs/manifest-merger-debug-report.txt
 new file mode 100644
 index 0000000..e51be8a
@@ -427,8 +406,7 @@ index 0000000..e51be8a
 +		INJECTED from C:\Users\ryanj\Documents\schemapuls\node_modules\@capacitor\local-notifications\android\src\main\AndroidManifest.xml
 diff --git a/node_modules/@capacitor/local-notifications/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin b/node_modules/@capacitor/local-notifications/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin
 new file mode 100644
-index 0000000..5934d02
-Binary files /dev/null and b/node_modules/@capacitor/local-notifications/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin differ
+index 0000000..e69de29
 diff --git a/node_modules/@capacitor/local-notifications/android/src/main/java/com/capacitorjs/plugins/localnotifications/LocalNotificationManager.java b/node_modules/@capacitor/local-notifications/android/src/main/java/com/capacitorjs/plugins/localnotifications/LocalNotificationManager.java
 index 0b826a5..f110ac0 100644
 --- a/node_modules/@capacitor/local-notifications/android/src/main/java/com/capacitorjs/plugins/localnotifications/LocalNotificationManager.java
@@ -954,7 +932,7 @@ index 0b826a5..f110ac0 100644
  
          defaultSmallIconID = resId;
 diff --git a/node_modules/@capacitor/local-notifications/android/src/main/java/com/capacitorjs/plugins/localnotifications/LocalNotificationRestoreReceiver.java b/node_modules/@capacitor/local-notifications/android/src/main/java/com/capacitorjs/plugins/localnotifications/LocalNotificationRestoreReceiver.java
-index 134fd06..8d6d19d 100644
+index 134fd06..daec4f1 100644
 --- a/node_modules/@capacitor/local-notifications/android/src/main/java/com/capacitorjs/plugins/localnotifications/LocalNotificationRestoreReceiver.java
 +++ b/node_modules/@capacitor/local-notifications/android/src/main/java/com/capacitorjs/plugins/localnotifications/LocalNotificationRestoreReceiver.java
 @@ -24,8 +24,15 @@ public class LocalNotificationRestoreReceiver extends BroadcastReceiver {
@@ -1063,7 +1041,7 @@ index 134fd06..8d6d19d 100644
 +        if (notificationsToReschedule.size() > 0) {
 +            com.getcapacitor.Logger.debug("LocalNotificationRestore",
 +                String.format("DEBUG: Rescheduling %d valid notifications", notificationsToReschedule.size()));
-             
+ 
 -        localNotificationManager.schedule(null, notifications);
 +            CapConfig config = CapConfig.loadDefault(context);
 +            LocalNotificationManager localNotificationManager = new LocalNotificationManager(storage, null, context, config);
@@ -1076,3 +1054,22 @@ index 134fd06..8d6d19d 100644
 +        }
      }
  }
+diff --git a/node_modules/@capacitor/local-notifications/android/src/main/java/com/capacitorjs/plugins/localnotifications/TimedNotificationPublisher.java b/node_modules/@capacitor/local-notifications/android/src/main/java/com/capacitorjs/plugins/localnotifications/TimedNotificationPublisher.java
+index 0a5c0ad..33b408b 100644
+--- a/node_modules/@capacitor/local-notifications/android/src/main/java/com/capacitorjs/plugins/localnotifications/TimedNotificationPublisher.java
++++ b/node_modules/@capacitor/local-notifications/android/src/main/java/com/capacitorjs/plugins/localnotifications/TimedNotificationPublisher.java
+@@ -74,11 +74,11 @@ public class TimedNotificationPublisher extends BroadcastReceiver {
+             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
+                 Logger.warn(
+                     "Capacitor/LocalNotification",
+-                    "Exact alarms not allowed in user settings.  Notification scheduled with non-exact alarm."
++                    "Exact alarms not allowed in user settings.  Notification rescheduled with non-exact alarm."
+                 );
+-                alarmManager.set(AlarmManager.RTC, trigger, pendingIntent);
++                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pendingIntent);
+             } else {
+-                alarmManager.setExact(AlarmManager.RTC, trigger, pendingIntent);
++                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pendingIntent);
+             }
+             SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+             Logger.debug(Logger.tags("LN"), "notification " + id + " will next fire at " + sdf.format(new Date(trigger)));

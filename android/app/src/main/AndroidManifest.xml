@@ -46,4 +46,9 @@
     
     <!-- WAKE_LOCK permission for scheduled notifications -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- Exact alarms improve reliability on Android 12+ -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <!-- Auto-granted on Android 13+ for alarm/reminder apps; avoids user needing to visit settings -->
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
 </manifest>

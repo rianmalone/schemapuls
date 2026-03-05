@@ -22,6 +22,7 @@ export type Database = {
           description: string | null
           id: string
           is_active: boolean
+          is_open: boolean
           max_uses: number | null
         }
         Insert: {
@@ -31,6 +32,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_active?: boolean
+          is_open?: boolean
           max_uses?: number | null
         }
         Update: {
@@ -40,6 +42,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_active?: boolean
+          is_open?: boolean
           max_uses?: number | null
         }
         Relationships: []

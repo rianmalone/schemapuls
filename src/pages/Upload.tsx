@@ -467,7 +467,7 @@ const Upload = () => {
             className="w-full py-6 text-lg rounded-xl"
             size="lg"
           >
-            {uploading ? "Analyserar..." : "Skapa schema"}
+            {uploading ? <AnimatedAnalyserar /> : "Skapa schema"}
           </Button>
         </div>
       </div>

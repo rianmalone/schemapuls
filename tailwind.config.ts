@@ -80,10 +80,10 @@ export default {
         },
         "shrink-width": {
           from: {
-            width: "100%",
+            transform: "scaleX(1)",
           },
           to: {
-            width: "0%",
+            transform: "scaleX(0)",
           },
         },
       },

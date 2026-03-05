@@ -12,7 +12,7 @@ import { Camera as CameraPlugin, CameraResultType, CameraSource } from "@capacit
 const AnimatedAnalyserar = () => {
   const [dots, setDots] = useState(1);
   
-  React.useEffect(() => {
+  useEffect(() => {
     const interval = setInterval(() => {
       setDots((prev) => (prev % 3) + 1);
     }, 500);

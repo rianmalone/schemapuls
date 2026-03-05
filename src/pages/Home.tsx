@@ -212,10 +212,7 @@ const Home = () => {
       "weekly"
     );
 
-    toast({
-      title: "Schema aktiverat",
-      description: `Påminnelser aktiverade för ${selectedSchedule.name}`,
-    });
+    // No toast for activation - visual feedback from the active indicator is enough
 
     console.log('[Home] ✅ Schedule activated:', selectedSchedule.name);
 

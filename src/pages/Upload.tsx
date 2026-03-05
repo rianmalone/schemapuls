@@ -1,13 +1,26 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Upload as UploadIcon, ArrowLeft, Camera } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { notificationService } from "@/services/notificationService";
 import exampleSchedule from "@/assets/example-schedule.png";
 import { supabase } from "@/integrations/supabase/client";
 import { Capacitor } from "@capacitor/core";
 import { Camera as CameraPlugin, CameraResultType, CameraSource } from "@capacitor/camera";
+
+const AnimatedAnalyserar = () => {
+  const [dots, setDots] = useState(1);
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDots((prev) => (prev % 3) + 1);
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
+  
+  return <span>Analyserar{".".repeat(dots)}</span>;
+};
 
 const Upload = () => {
   const navigate = useNavigate();
@@ -467,7 +480,7 @@ const Upload = () => {
             className="w-full py-6 text-lg rounded-xl"
             size="lg"
           >
-            {uploading ? "Analyserar..." : "Skapa schema"}
+            {uploading ? <AnimatedAnalyserar /> : "Skapa schema"}
           </Button>
         </div>
       </div>

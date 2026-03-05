@@ -1,11 +1,11 @@
 import { useToast } from "@/hooks/use-toast";
-import { Toast, ToastClose, ToastDescription, ToastProvider, ToastTitle, ToastViewport } from "@/components/ui/toast";
+import { Toast, ToastDescription, ToastProvider, ToastTitle, ToastViewport } from "@/components/ui/toast";
 
 export function Toaster() {
   const { toasts } = useToast();
 
   return (
-    <ToastProvider duration={4000}>
+    <ToastProvider swipeDirection="up" duration={3000}>
       {toasts.map(function ({ id, title, description, action, ...props }) {
         return (
           <Toast key={id} {...props}>
@@ -14,8 +14,7 @@ export function Toaster() {
               {description && <ToastDescription>{description}</ToastDescription>}
             </div>
             {action}
-            <ToastClose />
-            <ToastProgressBar duration={4000} />
+            <ToastProgressBar duration={3000} />
           </Toast>
         );
       })}
@@ -26,13 +25,11 @@ export function Toaster() {
 
 function ToastProgressBar({ duration }: { duration: number }) {
   return (
-    <div className="absolute -left-6 -right-8 bottom-0 z-10 h-1 bg-transparent overflow-hidden rounded-b-md pointer-events-none">
+    <div className="absolute left-0 right-0 bottom-0 z-10 h-1 bg-transparent overflow-hidden rounded-b-md pointer-events-none">
       <div 
-        className="h-full w-full bg-primary origin-right animate-shrink-width"
+        className="h-full w-full bg-primary origin-right"
         style={{ 
-          animationDuration: `${duration}ms`,
-          animationTimingFunction: 'linear',
-          animationFillMode: 'forwards'
+          animation: `shrink-width ${duration}ms linear forwards`,
         }}
       />
     </div>

@@ -28,8 +28,8 @@ const App = () => {
   // Background server check — only used to REVOKE access, never to block launch
   const checkAccessInBackground = async () => {
     const hasAccess = await checkServerAccess();
-    if (!hasAccess && localStorage.getItem("schemapuls_access") === "granted") {
-      // Server says revoked — clear local flag and show code entry
+    // Only revoke if server definitively says no access (not on network errors)
+    if (hasAccess === false && localStorage.getItem("schemapuls_access") === "granted") {
       localStorage.removeItem("schemapuls_access");
       setAccessState("denied");
     }

@@ -113,7 +113,8 @@ const CodeEntry = ({ onSuccess }: CodeEntryProps) => {
 };
 
 // Export utility for checking access
-export const checkServerAccess = async (): Promise<boolean> => {
+// Returns: true = confirmed access, false = confirmed no access, null = network error (unknown)
+export const checkServerAccess = async (): Promise<boolean | null> => {
   const deviceId = localStorage.getItem("schemapuls_device_id");
   if (!deviceId) return false;
 
@@ -124,13 +125,13 @@ export const checkServerAccess = async (): Promise<boolean> => {
 
     if (error) {
       console.error("Error checking access:", error);
-      return false;
+      return null; // Network/server error — don't revoke
     }
 
     return data?.hasAccess === true;
   } catch (err) {
     console.error("Error checking server access:", err);
-    return false;
+    return null; // Network error — don't revoke
   }
 };
 

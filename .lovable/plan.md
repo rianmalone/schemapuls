@@ -1,22 +1,20 @@
 
 
-Here's a ready-to-use prompt you can paste into your Android branch to apply all the recent changes (excluding the iOS time input CSS fix):
+## Problem
 
----
+1. **The deployed `validate-code` edge function is outdated.** The network response returns `{"success":false}` for the "check" action, but the current code in your repo returns `{"hasAccess": true/false}`. The deployed version is a stale copy. This causes `checkServerAccess` to treat every response as "no access" (since `data?.hasAccess` is `undefined`).
 
-**Prompt:**
+2. **No console logs from the edge function appear**, confirming the deployed code doesn't match the repo.
 
-Make the following changes across the project:
+## Fix
 
-**1. Toast notification system overhaul:**
-- In `src/components/ui/toast.tsx`: Move the toast viewport to top-center, positioned 8px below the safe area (`top-[calc(var(--safe-area-top)+8px)]`). Change swipe direction to up. Replace default Radix animations with custom `animate-[toast-slide-in_0.3s_ease-out]` for open and `animate-[toast-slide-out_0.2s_ease-in_forwards]` for closed. Remove the close (X) button from toasts entirely. Add `relative pb-5` to the Toast root for progress bar space.
-- In `src/components/ui/toaster.tsx`: Set `swipeDirection="up"` and `duration={3000}` on ToastProvider. Add a `ToastProgressBar` component that renders an absolutely positioned bar at the bottom of each toast — it's a 4px tall primary-colored bar that shrinks from full width to zero over 3000ms using a `animate-shrink-width` animation with `transform-origin: right`.
-- In `src/index.css`: Add two keyframes — `toast-slide-in` (from opacity 0 + translateY(-100%) to opacity 1 + translateY(0)) and `toast-slide-out` (reverse of slide-in).
-- In `src/hooks/use-toast.ts`: Set `TOAST_REMOVE_DELAY` to 3000ms.
+1. **Redeploy the `validate-code` edge function** — this will sync the deployed version with the current code that correctly returns `{"hasAccess": true/false}` for the "check" action.
 
-**2. Color selection ring clipping fix:**
-- In the Schedule page where the color selection buttons are rendered (both Add and Edit lesson dialogs), remove `overflow-hidden` from the color button container div and add `py-1` padding instead. This prevents the focus/selection ring (`ring-2 ring-offset-2`) on the selected color button from being clipped.
+2. That's it. The client-side code (`App.tsx` and `CodeEntry.tsx`) is already correct with the local-first approach. Once the edge function is redeployed, the "check" action will return the proper `hasAccess` field, and the flow will work:
+   - First launch: enter code → stored in localStorage → access granted
+   - Subsequent launches: localStorage flag found → instant access, background server check confirms
+   - Only revoked if server explicitly says `hasAccess: false`
 
-**3. Responsive time inputs in Edit Lesson dialog:**
-- In the Edit Lesson dialog on the Schedule page, change the time input widths from hardcoded `w-[157px]` to `w-full` so they scale proportionally with the dialog width, matching the Add Lesson dialog behavior.
+## Note about the preview
+The Lovable preview may clear localStorage between sessions, so you might still see the code prompt here. On the actual native iOS app, localStorage persists and this won't be an issue.
 

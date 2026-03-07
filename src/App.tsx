@@ -43,9 +43,14 @@ const App = () => {
       // No local flag — need to check server (first launch or cleared data)
       const check = async () => {
         const hasAccess = await checkServerAccess();
-        setAccessState(hasAccess ? "granted" : "denied");
-        if (hasAccess) {
+        if (hasAccess === true) {
           localStorage.setItem("schemapuls_access", "granted");
+          setAccessState("granted");
+        } else if (hasAccess === false) {
+          setAccessState("denied");
+        } else {
+          // Network error on first launch — show code entry (no cached state)
+          setAccessState("denied");
         }
       };
       check();

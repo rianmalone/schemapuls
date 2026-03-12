@@ -59,11 +59,6 @@ export class NotificationService {
     try {
       const result = await LocalNotifications.requestPermissions();
       const granted = result.display === 'granted';
-
-      if (granted) {
-        await this.ensureExactAlarmPermission(true);
-      }
-
       return granted;
     } catch (error) {
       console.error('Error requesting notification permissions:', error);
@@ -88,40 +83,18 @@ export class NotificationService {
     }
   }
 
+  /**
+   * @deprecated Exact alarms are no longer used. Always returns true.
+   */
   async checkExactAlarmPermission(): Promise<boolean> {
-    if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== 'android') {
-      return true;
-    }
-
-    try {
-      const result = await LocalNotifications.checkExactNotificationSetting();
-      const granted = result.exact_alarm === 'granted';
-      console.log('[Notifications] Exact alarm permission:', granted ? 'granted' : 'denied');
-      return granted;
-    } catch (error) {
-      console.error('[Notifications] Error checking exact alarm permission:', error);
-      return false;
-    }
+    return true;
   }
 
-  async ensureExactAlarmPermission(promptIfDenied: boolean): Promise<boolean> {
-    if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== 'android') {
-      return true;
-    }
-
-    const hasExact = await this.checkExactAlarmPermission();
-    if (hasExact || !promptIfDenied) {
-      return hasExact;
-    }
-
-    try {
-      await LocalNotifications.changeExactNotificationSetting();
-    } catch (error) {
-      console.error('[Notifications] Error opening exact alarm settings:', error);
-      return false;
-    }
-
-    return this.checkExactAlarmPermission();
+  /**
+   * @deprecated Exact alarms are no longer used. Always returns true.
+   */
+  async ensureExactAlarmPermission(_promptIfDenied: boolean): Promise<boolean> {
+    return true;
   }
 
   /**
@@ -178,12 +151,7 @@ export class NotificationService {
         return;
       }
 
-      if (Capacitor.getPlatform() === 'android') {
-        const hasExactAlarm = await this.checkExactAlarmPermission();
-        if (!hasExactAlarm) {
-          console.warn('[Notifications] Exact alarms are disabled; notifications may be delayed by Android battery policies.');
-        }
-      }
+
 
       // Get currently pending notifications
       const pending = await LocalNotifications.getPending();

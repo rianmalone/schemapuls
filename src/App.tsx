@@ -27,7 +27,7 @@ const checkServerAccess = async (): Promise<boolean> => {
       body: { action: "check", deviceId },
     });
     if (error) return false;
-    return data?.success === true;
+    return data?.hasAccess === true;
   } catch {
     // If offline, trust local storage
     return localStorage.getItem("schemapuls_access") === "granted";

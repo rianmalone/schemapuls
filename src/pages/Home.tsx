@@ -24,7 +24,7 @@ const Home = () => {
   const [editingName, setEditingName] = useState("");
   const [currentTime, setCurrentTime] = useState(new Date());
   const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
-  const deleteTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const deleteTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Update time every second
   useEffect(() => {

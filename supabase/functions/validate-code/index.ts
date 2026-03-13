@@ -2,24 +2,35 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { action, code, deviceId } = await req.json();
+    const body = await req.json();
+    const action = body.action;
+    const code = body.code;
+    // Accept both camelCase and snake_case for device ID
+    const deviceId = body.deviceId || body.device_id;
+
+    console.log(`[validate-code] Action: ${action}, Device: ${deviceId?.substring(0, 8)}...`);
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     if (action === "check") {
-      // Check if device has any non-revoked activation
+      if (!deviceId) {
+        return new Response(JSON.stringify({ hasAccess: false }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
       const { data: activations } = await supabase
         .from("device_activations")
         .select("id")
@@ -28,12 +39,20 @@ Deno.serve(async (req) => {
         .limit(1);
 
       const hasAccess = activations && activations.length > 0;
-      return new Response(JSON.stringify({ success: hasAccess }), {
+      console.log(`[validate-code] Device ${deviceId.substring(0, 8)} hasAccess: ${hasAccess}`);
+      return new Response(JSON.stringify({ hasAccess }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     if (action === "redeem") {
+      if (!code || !deviceId) {
+        return new Response(
+          JSON.stringify({ success: false, message: "Kod och enhets-ID krävs" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
       // Find the code
       const { data: codeRecord } = await supabase
         .from("access_codes")
@@ -101,6 +120,7 @@ Deno.serve(async (req) => {
         .update({ current_uses: codeRecord.current_uses + 1 })
         .eq("id", codeRecord.id);
 
+      console.log(`[validate-code] Device ${deviceId.substring(0, 8)} redeemed code successfully`);
       return new Response(
         JSON.stringify({ success: true }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
